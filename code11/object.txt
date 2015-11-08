@@ -1,0 +1,103 @@
+#include <stdio.h>
+#include "object.h"
+
+typedef struct object {
+   bool         (*condition)(void);
+   const char    *description;
+   const char   **tags;
+   struct object *location;
+   struct object *destination;
+   struct object *prospect;
+   const char    *details;
+   const char    *contents;
+   const char    *textGo;
+   int            weight;
+   int            capacity;
+   int            health;
+} OBJECT;
+
+extern OBJECT objs[];
+
+- field
+     description "an open field"
+     tags        "field"
+     details     "The field is a nice and quiet place under a clear blue sky.\n"
+     capacity    9999
+
+- cave
+     description "a little cave"
+     tags        "cave"
+     details     "The cave is just a cold, damp, rocky chamber.\n"
+     capacity    9999
+
+- silver
+     description "a silver coin"
+     tags        "silver", "coin", "silver coin"
+     location    field
+     details     "The coin has an eagle on the obverse.\n"
+     weight      1
+
+- gold
+     description "a gold coin"
+     tags        "gold", "coin", "gold coin"
+     location    cave
+     details     "The shiny coin seems to be a rare and priceless artefact.\n"
+     weight      1
+
+- guard
+     description "a burly guard"
+     tags        "guard", "burly guard"
+     location    field
+     details     "The guard is a really big fellow.\n"
+     contents    "He has"
+     health      100
+     capacity    20
+
+- player
+     description "yourself"
+     tags        "yourself"
+     location    field
+     details     "You would need a mirror to look at yourself.\n"
+     contents    "You have"
+     health      100
+     capacity    20
+
+- intoCave
+     condition   { return guard->health == 0 || silver->location == guard; }
+     description "a cave entrance to the east"
+     tags        "east", "entrance"
+     location    field
+     destination cave
+     details     "The entrance is just a narrow opening in a small outcrop.\n"
+     textGo      "You walk into the cave.\n"
+
+- intoCaveBlocked
+     condition   { return guard->health > 0 && silver->location != guard; }
+     description "a cave entrance to the east"
+     tags        "east", "entrance"
+     location    field
+     prospect    cave
+     details     "The entrance is just a narrow opening in a small outcrop.\n"
+     textGo      "The guard stops you from walking into the cave.\n"
+
+- exitCave
+     description "a way out to the west"
+     tags        "west", "out"
+     location    cave
+     destination field
+     details     "Sunlight pours in through an opening in the cave's wall.\n"
+     textGo      "You walk out of the cave.\n"
+
+- wallField
+     description "dense forest all around"
+     tags        "west", "north", "south", "forest"
+     location    field
+     details     "The field is surrounded by trees and undergrowth.\n"
+     textGo      "Dense forest is blocking the way.\n"
+
+- wallCave
+     description "solid rock all around"
+     tags        "east", "north", "south", "rock"
+     location    cave
+     details     "Carved in stone is a secret password 'abccb'.\n"
+     textGo      "Solid rock is blocking the way.\n"

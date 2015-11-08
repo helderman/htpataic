@@ -1,0 +1,96 @@
+th {
+	vertical-align: bottom;
+}
+
+img.mockmap {
+	border: thin solid grey;
+	float: right;
+	margin: 0 0 8px 8px;
+	width: 384px;
+}
+
+img.genmap {
+	float: right;
+	margin: 0 0 8px 8px;
+}
+
+.intro {
+	font-style: italic;
+}
+
+.contents {
+	border: thin solid grey;
+	float: right;
+	padding: 8px;
+	margin: 0 0 8px 8px;
+}
+
+.contents h4 {
+	margin: 0;
+	text-transform: uppercase;
+}
+
+.explanation {
+	background-color: #dfc;
+}
+
+.demo {
+	float: right;
+	margin: 0 0 8px 8px;
+}
+
+.demo th {
+	background-color: aqua;
+}
+
+.demo td {
+	border: thin solid grey;
+	font-family: monospace;
+	padding: 8px;
+}
+
+.snippet {
+	border: thin solid grey;
+	font-family: monospace;
+	padding: 8px;
+	white-space: pre;
+}
+
+.code th {
+	background-color: blue;
+	color: white;
+	font-weight: bold;
+	text-align: left;
+}
+
+.code td {
+	border: thin solid grey;
+}
+
+.code td ol {
+	list-style-type: decimal;
+	margin-top: 8px;
+	margin-bottom: 8px;
+}
+
+.code td ol li {
+	font-family: monospace;
+	text-indent: 1em;
+	white-space: pre;
+}
+
+.comment {
+	background-color: #DDD;
+}
+
+.old {
+	color: grey;
+}
+
+.new {
+	color: black;
+}
+
+.red {
+	color: red;
+}

@@ -1,0 +1,593 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+<title>7. Distance</title>
+<link rel="stylesheet" href="htpataic.css" type="text/css" />
+</head>
+<body>
+<table class="contents"><tr><td>
+<h4>Contents</h4>
+<div><a href="htpataic01.html">1. Introduction</a></div>
+<div><a href="htpataic02.html">2. The main loop</a></div>
+<div><a href="htpataic03.html">3. Locations</a></div>
+<div><a href="htpataic04.html">4. Objects</a></div>
+<div><a href="htpataic05.html">5. Inventory</a></div>
+<div><a href="htpataic06.html">6. Passages</a></div>
+<div><b>7. Distance</b></div>
+<div><a href="htpataic08.html">8. North, east, south, west</a></div>
+<div><a href="htpataic09.html">9. Code generation</a></div>
+<div><a href="htpataic10.html">10. More attributes</a></div>
+<div><a href="htpataic11.html">11. Conditions</a></div>
+<div><a href="htpataic12.html">12. Open and close</a></div>
+<div><a href="htpataic13.html">13. The parser</a></div>
+<div><a href="htpataic14.html">14. Multiple arguments</a></div>
+<div><a href="htpataic15.html">15. Light and dark</a></div>
+<div><a href="htpataic16.html">16. Savegame</a></div>
+<div><a href="htpataic17.html">17. Test automation</a></div>
+<div><a href="htpataic18.html">18. Abbreviations</a></div>
+<div><a href="htpataic19.html">19. Conversations</a></div>
+<div><a href="htpataic20.html">20. Combat</a></div>
+<div><a href="htpataic21.html">21. Database</a></div>
+<div><a href="htpataic22.html">22. Speech</a></div>
+<div><a href="htpataic23.html">23. JavaScript</a></div>
+</td></tr></table>
+
+<h1>How to program a text adventure in C</h1>
+<h2>7. Distance</h2>
+<p class="intro">
+A typical adventure contains many puzzles.
+<a href="http://en.wikipedia.org/wiki/Infocom">Infocom</a>
+adventures were notoriously difficult to complete; solving every puzzle
+might require weeks, even months of trial and error.
+Don&rsquo;t be surprised if the majority of replies from the game
+are &lsquo;errors&rsquo;:
+you can&rsquo;t do this; you can&rsquo;t go there; you died.
+</p>
+<p>
+So far, our <b>error handling</b> has been very basic.
+For example, command <i>get</i> just returns &ldquo;You can&rsquo;t&rdquo;
+in all possible situations that prevent the player from picking up something.
+Such a reply is dull and not very helpful.
+It neglects an important aspect of any computer game;
+in fact, an essential part of life itself:
+the player has to learn from his mistakes.
+It is OK for an adventure to be difficult, even frustratingly difficult.
+But when the player has the feeling he is not making any progress at all,
+or when the only way to make progress is a
+<a href="http://en.wikipedia.org/wiki/Brute-force">brute-force</a>
+attack on all verb-noun combinations,
+then even the most hardened player will lose interest and eventually give up.
+The least an adventure game should do,
+is explain <i>why</i> the player&rsquo;s command cannot be completed:
+&ldquo;You can&rsquo;t do that, because...&rdquo;
+This helps to make the virtual world more convincing,
+the story more credible, and the game more enjoyable.
+</p>
+<p>
+Most commands operate on one or more <b>objects</b>, for example:
+</p>
+<ul>
+<li>The player picks up an <b>item</b>, then gives it to another <b>actor</b>.
+</li>
+<li>The player follows a <b>passage</b> to another <b>location</b>.
+</li>
+</ul>
+<p>
+The first thing to check (after the obvious
+<a href="http://en.wikipedia.org/wiki/Typographical_error">typos</a>
+caught by the
+<a href="http://en.wikipedia.org/wiki/Parsing">parser</a>)
+is for the <b>presence</b> of these objects;
+failure should result in something like
+&ldquo;There is no ... here&rdquo; or
+&ldquo;You don&rsquo;t see any ...&rdquo;
+In this chapter, we will build a generic function that can be used
+by every command to find out if an object is within reach of the player.
+</p>
+<p>
+You may think we only need to distinguish two cases:
+either the object is here, or it is not.
+But many commands require more gradients than just
+&lsquo;here&rsquo; and &lsquo;not here&rsquo;.
+Examples:
+<ul>
+<li>To <b>use</b> a weapon or a tool, the player must be holding it;
+its mere presence at the scene is not enough.
+</li>
+<li>To <b>drop</b> an item, you must be holding it;
+to <b>pick up</b> an item, you must <i>not</i> be holding it.
+</li>
+<li>Another actor holding an item, may keep the player from getting that item;
+<b>get item</b> is typically easier when the item is just lying here.
+</li>
+</ul>
+</p>
+<p>
+It all boils down to the fact that
+there are different notions of &lsquo;here&rsquo;:
+</p>
+<table cellpadding="8"><tr>
+<td class="snippet">distPlayer</td>
+<td class="comment">The object is the player</td>
+<td class="snippet"><span class="red">object</span> == <span class="red">player</span></td>
+</tr><tr>
+<td class="snippet">distHeld</td>
+<td class="comment">The player is holding the object</td>
+<td class="snippet"><span class="red">object</span>-&gt;location == <span class="red">player</span></td>
+</tr><tr>
+<td class="snippet">distHeldContained</td>
+<td class="comment">The player is holding another object (for example a bag)
+containing the object</td>
+<td class="snippet"><span class="red">object</span>-&gt;location != NULL &amp;&amp;
+<span class="red">object</span>-&gt;location-&gt;location == <span class="red">player</span></td>
+</tr><tr>
+<td class="snippet">distLocation</td>
+<td class="comment">The object is the player&rsquo;s location</td>
+<td class="snippet"><span class="red">object</span> == <span class="red">player</span>-&gt;location</td>
+</tr><tr>
+<td class="snippet">distHere</td>
+<td class="comment">The object is present at the player&rsquo;s location</td>
+<td class="snippet"><span class="red">object</span>-&gt;location == <span class="red">player</span>-&gt;location</td>
+</tr><tr>
+<td class="snippet">distHereContained</td>
+<td class="comment">Another object
+(either an actor or a &lsquo;container&rsquo;),
+present at the player&rsquo;s location,
+is holding (but <i>not</i> hiding) the object</td>
+<td class="snippet"><span class="red">object</span>-&gt;location != NULL &amp;&amp;
+<span class="red">object</span>-&gt;location-&gt;location == <span class="red">player</span>-&gt;location</td>
+</tr><tr>
+<td class="snippet">distOverthere</td>
+<td class="comment">The object is a nearby location</td>
+<td class="snippet">getPassageTo(<span class="red">object</span>) != NULL</td>
+</tr></table>
+<p>
+The first case (object is player) may seem trivial,
+but it is important nonetheless.
+For example, the command "examine yourself" should <i>not</i> return
+"There is no yourself here."
+</p>
+<p>
+I tried to follow a logical order:
+nearby things are at the top, further down below they become more distant.
+We can continue the list, to cover objects that are even further away:
+</p>
+<table cellpadding="8"><tr>
+<td class="snippet">distNotHere</td>
+<td class="comment">The object is (or appears to be) not here</td>
+<td class="snippet">&nbsp;</td>
+</tr><tr>
+<td class="snippet">distUnknownObject</td>
+<td class="comment">The parser did not recognize the noun entered
+(we will use this in a later chapter)</td>
+<td class="snippet"><span class="red">object</span> == NULL</td>
+</tr><tr>
+<td class="snippet">distNoObjectSpecified</td>
+<td class="comment">The player entered a command with no noun</td>
+<td class="snippet"><span class="red">object</span> == NULL</td>
+</tr></table>
+<p>
+Notice we have seven different cases of &lsquo;here&rsquo;,
+but only one for &lsquo;not here&rsquo;.
+This is because typically, the game only needs to provide information
+about things that can be perceived by the player.
+If it&rsquo;s not here, then there&rsquo;s nothing more to say.
+</p>
+<p>
+In the leftmost column, I proposed a symbolic name for each case.
+We will gather these names in an
+<a href="http://en.wikipedia.org/wiki/Enumerated_type">enum</a>
+named <b>DISTANCE</b>.
+</p>
+<table><tr>
+<td class="snippet">typedef enum {
+   distPlayer,
+   distHeld,
+   distHeldContained,
+   distLocation,
+   distHere,
+   distHereContained,
+   distOverthere,
+   distNotHere,
+   distUnknownObject,
+   distNoObjectSpecified
+} DISTANCE;
+</td>
+</tr></table>
+<p>
+And in the rightmost column, I proposed a condition for each case to satisfy.
+With a little reshuffling, we can easily turn this into a function
+that calculates the &lsquo;distance&rsquo; of an object
+(as seen from the player&rsquo;s point of view):
+</p>
+<table><tr>
+<td class="snippet">DISTANCE distanceTo(OBJECT *obj)
+{
+   return obj == NULL                                 ? distUnknownObject :
+          obj == player                               ? distPlayer :
+          obj-&gt;location == player                     ? distHeld :
+          obj == player-&gt;location                     ? distLocation :
+          obj-&gt;location == player-&gt;location           ? distHere :
+          getPassageTo(obj) != NULL                   ? distOverthere :
+          obj-&gt;location == NULL                       ? distNotHere :
+          obj-&gt;location-&gt;location == player           ? distHeldContained :
+          obj-&gt;location-&gt;location == player-&gt;location ? distHereContained :
+                                                        distNotHere;
+}
+</td>
+</tr></table>
+<p>
+That&rsquo;s all!
+We can call this function and do a comparison on its return value, for example:
+</p>
+<table><tr>
+<td class="snippet">DISTANCE distance = distanceTo(<span class="red">gold</span>);
+if (distance &lt;= <span class="red">distHeldContained</span>)
+{
+   printf("It feels great to be in possession of gold.\n");
+}
+else if (distance &lt; <span class="red">distNotHere</span>)
+{
+   printf("The sight of gold makes you feel greedy.\n");
+}
+else
+{
+   printf("There is no gold here.\n");
+}
+</td>
+</tr></table>
+<p>
+Time to put things into place.
+The definitions of enum <i>DISTANCE</i> and function <i>distanceTo</i>
+are added to <i>misc.h</i> and <i>misc.c</i>,
+since we will be using them in more than one module.
+</p>
+<table class="code"><tr>
+<th>misc.h</th>
+</tr><tr>
+<td>
+<ol>
+<li class="new">typedef enum {</li>
+<li class="new">   distPlayer,</li>
+<li class="new">   distHeld,</li>
+<li class="new">   distHeldContained,</li>
+<li class="new">   distLocation,</li>
+<li class="new">   distHere,</li>
+<li class="new">   distHereContained,</li>
+<li class="new">   distOverthere,</li>
+<li class="new">   distNotHere,</li>
+<li class="new">   distUnknownObject,</li>
+<li class="new">   distNoObjectSpecified</li>
+<li class="new">} DISTANCE;</li>
+<li class="new"></li>
+<li class="old">extern OBJECT *getPassageTo(OBJECT *targetLocation);</li>
+<li class="new">extern DISTANCE distanceTo(OBJECT *obj);</li>
+<li class="old">extern OBJECT *actorHere(void);</li>
+<li class="old">extern int listObjectsAtLocation(OBJECT *location);</li>
+</ol>
+</td>
+</tr><tr>
+<th>misc.c</th>
+</tr><tr>
+<td>
+<ol>
+<li class="old">#include &lt;stdio.h&gt;</li>
+<li class="old">#include "object.h"</li>
+<li class="old">#include "misc.h"</li>
+<li class="old"></li>
+<li class="old">OBJECT *getPassageTo(OBJECT *targetLocation)</li>
+<li class="old">{</li>
+<li class="old">   OBJECT *obj;</li>
+<li class="old">   for (obj = objs; obj &lt; endOfObjs; obj++)</li>
+<li class="old">   {</li>
+<li class="old">      if (obj-&gt;location == player-&gt;location &amp;&amp;</li>
+<li class="old">          obj-&gt;destination == targetLocation)</li>
+<li class="old">      {</li>
+<li class="old">         return obj;</li>
+<li class="old">      }</li>
+<li class="old">   }</li>
+<li class="old">   return NULL;</li>
+<li class="old">}</li>
+<li class="old"></li>
+<li class="new">DISTANCE distanceTo(OBJECT *obj)</li>
+<li class="new">{</li>
+<li class="new">   return obj == NULL                                 ? distUnknownObject :</li>
+<li class="new">          obj == player                               ? distPlayer :</li>
+<li class="new">          obj-&gt;location == player                     ? distHeld :</li>
+<li class="new">          obj == player-&gt;location                     ? distLocation :</li>
+<li class="new">          obj-&gt;location == player-&gt;location           ? distHere :</li>
+<li class="new">          getPassageTo(obj) != NULL                   ? distOverthere :</li>
+<li class="new">          obj-&gt;location == NULL                       ? distNotHere :</li>
+<li class="new">          obj-&gt;location-&gt;location == player           ? distHeldContained :</li>
+<li class="new">          obj-&gt;location-&gt;location == player-&gt;location ? distHereContained :</li>
+<li class="new">                                                        distNotHere;</li>
+<li class="new">}</li>
+<li class="old"></li>
+<li class="old">OBJECT *actorHere(void)</li>
+<li class="old">{</li>
+<li class="old">   OBJECT *obj;</li>
+<li class="old">   for (obj = objs; obj &lt; endOfObjs; obj++)</li>
+<li class="old">   {</li>
+<li class="new"><span class="old">      if </span>(distanceTo(obj)<span class="old"> == </span>distHere<span class="old"> &amp;&amp; obj == guard)</span></li>
+<li class="old">      {</li>
+<li class="old">         return obj;</li>
+<li class="old">      }</li>
+<li class="old">   }</li>
+<li class="old">   return NULL;</li>
+<li class="old">}</li>
+<li class="old"></li>
+<li class="old">int listObjectsAtLocation(OBJECT *location)</li>
+<li class="old">{</li>
+<li class="old">   int count = 0;</li>
+<li class="old">   OBJECT *obj;</li>
+<li class="old">   for (obj = objs; obj &lt; endOfObjs; obj++)</li>
+<li class="old">   {</li>
+<li class="old">      if (obj != player &amp;&amp; obj-&gt;location == location)</li>
+<li class="old">      {</li>
+<li class="old">         if (count++ == 0)</li>
+<li class="old">         {</li>
+<li class="old">            printf("You see:\n");</li>
+<li class="old">         }</li>
+<li class="old">         printf("%s\n", obj-&gt;description);</li>
+<li class="old">      }</li>
+<li class="old">   }</li>
+<li class="old">   return count;</li>
+<li class="old">}</li>
+</ol>
+</td>
+</tr></table>
+<div class="explanation">
+<p>
+Explanation:
+</p>
+<ul>
+<li>Line 38:
+here is our first opportunity to simplify some code
+by using the new function <i>distanceTo</i>.
+More will follow below!
+</li>
+</ul>
+</div>
+<p>
+In function <i>executeGo</i>,
+we can replace all <i>if</i> conditions by checks on distance.
+This immediately helps us replace the meaningless
+&ldquo;You can&rsquo;t go there&rdquo; message by two new replies:
+<ul>
+<li>&ldquo;You don&rsquo;t see any...&rdquo;
+in case the object is not here.
+</li>
+<li>&ldquo;You can&rsquo;t get much closer than this&rdquo;
+in case the object <i>is</i> here, but command <i>go</i> is not applicable.
+</li>
+</ul>
+</p>
+<table class="demo">
+<tr><th>Sample output</th></tr>
+<tr><td>
+Welcome to Little Cave Adventure.<br />
+You are in an open field.<br />
+You see:<br />
+a silver coin<br />
+a burly guard<br />
+a cave entrance<br />
+<br />
+--&gt; go guard<br />
+You can't get much closer than this.<br />
+<br />
+--&gt; give silver<br />
+You have no silver.<br />
+<br />
+--&gt; ask silver<br />
+Sorry, a burly guard has no silver.<br />
+<br />
+--&gt; get silver<br />
+OK.<br />
+<br />
+--&gt; get gold<br />
+You don't see any gold here.<br />
+<br />
+--&gt; give silver<br />
+OK.<br />
+<br />
+--&gt; go cave<br />
+OK.<br />
+You are in a little cave.<br />
+You see:<br />
+a gold coin<br />
+a way out<br />
+<br />
+--&gt; get gold<br />
+OK.<br />
+<br />
+--&gt; give gold<br />
+There is nobody here to give that to.<br />
+<br />
+--&gt; quit<br />
+<br />
+Bye!<br />
+</td></tr>
+</table>
+<table class="code"><tr>
+<th>location.h</th>
+</tr><tr>
+<td>
+<ol>
+<li class="old">extern void executeLook(const char *noun);</li>
+<li class="old">extern void executeGo(const char *noun);</li>
+</ol>
+</td>
+</tr><tr>
+<th>location.c</th>
+</tr><tr>
+<td>
+<ol>
+<li class="old">#include &lt;stdio.h&gt;</li>
+<li class="old">#include &lt;string.h&gt;</li>
+<li class="old">#include "object.h"</li>
+<li class="old">#include "misc.h"</li>
+<li class="old">#include "match.h"</li>
+<li class="old"></li>
+<li class="old">void executeLook(const char *noun)</li>
+<li class="old">{</li>
+<li class="old">   if (noun != NULL &amp;&amp; strcmp(noun, "around") == 0)</li>
+<li class="old">   {</li>
+<li class="old">      printf("You are in %s.\n", player-&gt;location-&gt;description);</li>
+<li class="old">      listObjectsAtLocation(player-&gt;location);</li>
+<li class="old">   }</li>
+<li class="old">   else</li>
+<li class="old">   {</li>
+<li class="old">      printf("I don't understand what you want to see.\n");</li>
+<li class="old">   }</li>
+<li class="old">}</li>
+<li class="old"></li>
+<li class="old">void executeGo(const char *noun)</li>
+<li class="old">{</li>
+<li class="old">   OBJECT *obj = matchingObject(noun);</li>
+<li class="new"><span class="old">   </span>DISTANCE distance = distanceTo(obj);</li>
+<li class="new"><span class="old">   if </span>(distance &gt;= distUnknownObject)</li>
+<li class="old">   {</li>
+<li class="old">      printf("I don't understand where you want to go.\n");</li>
+<li class="old">   }</li>
+<li class="new"><span class="old">   else if </span>(distance<span class="old"> == </span>distOverthere)</li>
+<li class="old">   {</li>
+<li class="old">      printf("OK.\n");</li>
+<li class="old">      player-&gt;location = obj;</li>
+<li class="old">      executeLook("around");</li>
+<li class="old">   }</li>
+<li class="new"><span class="old">   else if </span>(distance<span class="old"> == </span>distHere<span class="old"> &amp;&amp; obj-&gt;destination != NULL)</span></li>
+<li class="old">   {</li>
+<li class="old">      printf("OK.\n");</li>
+<li class="old">      player-&gt;location = obj-&gt;destination;</li>
+<li class="old">      executeLook("around");</li>
+<li class="old">   }</li>
+<li class="new"><span class="old">   else </span>if (distance &lt; distNotHere)</li>
+<li class="old">   {</li>
+<li class="new"><span class="old">      printf("You can't </span>get much closer than this.\n");</li>
+<li class="new">   }</li>
+<li class="new">   else</li>
+<li class="new">   {</li>
+<li class="new">      printf("You don't see any %s here.\n", noun);</li>
+<li class="old">   }</li>
+<li class="old">}</li>
+</ol>
+</td>
+</tr></table>
+<p>
+Module <i>move.c</i> had an equally meaningless
+&ldquo;You can&rsquo;t&rdquo; reply;
+we will split it up into eight separate messages.
+That may sound like a lot;
+however, these messages cover four different commands
+(<i>get</i>, <i>drop</i>, <i>give</i>, <i>ask</i>).
+</p>
+<table class="code"><tr>
+<th>move.h</th>
+</tr><tr>
+<td>
+<ol>
+<li class="old">extern void moveObject(const char *noun, OBJECT *from, OBJECT *to);</li>
+</ol>
+</td>
+</tr><tr>
+<th>move.c</th>
+</tr><tr>
+<td>
+<ol>
+<li class="old">#include &lt;stdio.h&gt;</li>
+<li class="old">#include "object.h"</li>
+<li class="new"><span class="old">#include </span>"misc.h"</li>
+<li class="new">#include<span class="old"> "match.h"</span></li>
+<li class="old"></li>
+<li class="old">void moveObject(const char *noun, OBJECT *from, OBJECT *to)</li>
+<li class="old">{</li>
+<li class="old">   OBJECT *obj = matchingObject(noun);</li>
+<li class="old">   if (obj == NULL)</li>
+<li class="old">   {</li>
+<li class="old">      printf("I don't understand what item you mean.\n");</li>
+<li class="old">   }</li>
+<li class="new"><span class="old">   else if (from </span>== NULL)</li>
+<li class="new">   {</li>
+<li class="new">      printf("I don't understand who you want to ask.\n");</li>
+<li class="new">   }</li>
+<li class="new">   else if (from<span class="old"> != obj-&gt;location)</span></li>
+<li class="old">   {</li>
+<li class="new"><span class="old">      </span>switch (distanceTo(obj))</li>
+<li class="new">      {</li>
+<li class="new">      case distPlayer:</li>
+<li class="new">         printf("You should not be doing that to yourself.\n");</li>
+<li class="new">         break;</li>
+<li class="new">      case distHeld:</li>
+<li class="new"><span class="old">         printf("You </span>already have %s.\n", obj-&gt;description);</li>
+<li class="new">         break;</li>
+<li class="new">      case distLocation:</li>
+<li class="new">      case distOverthere:</li>
+<li class="new">         printf("That's not an item.\n");</li>
+<li class="new">         break;</li>
+<li class="new">      case distHere:</li>
+<li class="new">         if (from == player)</li>
+<li class="new">         {</li>
+<li class="new">            printf("You have no %s.\n", noun);</li>
+<li class="new">         }</li>
+<li class="new">         else</li>
+<li class="new">         {</li>
+<li class="new">            printf("Sorry, %s has no %s.\n", from-&gt;description, noun);</li>
+<li class="new">         }</li>
+<li class="new">         break;</li>
+<li class="new">      case distHereContained:</li>
+<li class="new">         printf("Sorry, %s is holding it.\n", obj-&gt;location-&gt;description);</li>
+<li class="new">         break;</li>
+<li class="new">      default:</li>
+<li class="new">         printf("You don't see any %s here.\n", noun);</li>
+<li class="new">      }</li>
+<li class="old">   }</li>
+<li class="old">   else if (to == NULL)</li>
+<li class="old">   {</li>
+<li class="old">      printf("There is nobody here to give that to.\n");</li>
+<li class="old">   }</li>
+<li class="old">   else</li>
+<li class="old">   {</li>
+<li class="old">      obj-&gt;location = to;</li>
+<li class="old">      printf("OK.\n");</li>
+<li class="old">   }</li>
+<li class="old">}</li>
+</ol>
+</td>
+</tr></table>
+<div class="explanation">
+<p>
+Explanation:
+</p>
+<ul>
+<li>Lines 34, 38, 45:
+I deliberately output <i>noun</i> here, not <i>obj-&gt;description</i>;
+the latter would give away too much of the game.
+For example,
+the player might make a lucky guess and type &ldquo;get gold&rdquo;
+without ever having visited the cave (where the gold coin is located).
+Replying with &ldquo;You don&rsquo;t see <b>a gold coin</b> here&rdquo;
+is like failing to hide the wires suspending the spaceships in a
+<a href="http://en.wikipedia.org/wiki/Science_fiction_film">sci-fi movie</a>.
+Instead, we just echo the noun entered by the player:
+&ldquo;You don&rsquo;t see any <b>gold</b> here.&rdquo;
+</li>
+</ul>
+</div>
+<p>
+The other modules
+(<i>parsexec.c</i>, <i>execute.c</i>, <i>match.c</i>, <i>object.c</i>)
+remain unchanged, you can see them in previous chapters.
+</p>
+<p>
+In this chapter, the concept of <i>distance</i> was used
+to improve the quality of replies returned by the game.
+But the benefits of distance are not reserved to the output side;
+it can be used equally well to make improvements on the input side.
+In the next chapter, we will use distance to improve the recognition of nouns.
+</p>
+<hr />
+<p>
+Next chapter: <a href="htpataic08.html">8. North, east, south, west</a>
+</p>
+</body>
+</html>

@@ -1,0 +1,31 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+<title>15. Light and dark</title>
+<link rel="stylesheet" href="htpataic.css" type="text/css" />
+</head>
+<body>
+<table class="contents"><tr><td>
+#contents
+</td></tr></table>
+
+<h1>How to program a text adventure in C</h1>
+<h2>15. Light and dark</h2>
+<p class="intro">
+In many adventures, a lamp is a vital object.
+Without it, you cannot make it through the dark caverns that lie ahead.
+</p>
+<p>
+The effect of being in the dark differs from game to game.
+Typically, it makes the command &lsquo;look&rsquo; ineffective.
+In some games, you can still make progress without a light source,
+provided you have drawn a detailed map of the dark area.
+In others (e.g. <a href="https://en.wikipedia.org/wiki/Zork">Zork</a>),
+darkness is deadly.
+</p>
+<hr />
+<p>
+Next chapter: <a href="htpataic16.html">16. Savegame</a>
+</p>
+</body>
+</html>

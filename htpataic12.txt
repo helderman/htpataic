@@ -1,0 +1,344 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+<title>12. Open and close</title>
+<link rel="stylesheet" href="htpataic.css" type="text/css" />
+</head>
+<body>
+<table class="contents"><tr><td>
+#contents
+</td></tr></table>
+
+<h1>How to program a text adventure in C</h1>
+<h2>12. Open and close</h2>
+<p class="intro">
+In the previous chapter,
+we used &lsquo;condition&rsquo; functions to make objects disappear.
+But of course, there is a much simpler way to achieve the same:
+just clear the object&rsquo;s <i>location</i> attribute!
+</p>
+<p>
+The cave entrance was a typical example
+where <b>condition functions</b> work particularly well.
+This is because the entrance is affected by attributes in <i>other</i> objects
+(the guard and the silver coin);
+the functions make it possible to keep all the logic together.
+</p>
+<p>
+Let&rsquo;s take a more straightforward example.
+Suppose the cave has a door leading to a backroom.
+Just a simple doorway, which the player can open and close.
+Just like in the previous chapter, we will use two objects for the passage;
+one to represent the open door, and another for when it is closed.
+</p>
+<table><tr>
+<td class="snippet">- backroom
+     description "a backroom"
+     tags        "backroom"
+     details     "The room is dusty and messy.\n"
+
+- openDoorToBackroom
+     description "an open door to the south"
+     tags        "south", "door", "doorway"<span class="red">
+     destination backroom</span>
+     details     "The door is open.\n"
+     textGo      "You walk through the door into the backroom.\n"
+
+- closedDoorToBackroom
+     description "a closed door to the south"
+     tags        "south", "door", "doorway"<span class="red">
+     location    cave
+     prospect    backroom</span>
+     details     "The door is closed.\n"
+     textGo      "The door is closed.\n"
+</td>
+</tr></table>
+<p>
+Naturally, the door should be accessible from the other side as well.
+</p>
+<table><tr>
+<td class="snippet">- openDoorToCave
+     description "an open door to the north"
+     tags        "north", "door", "doorway"<span class="red">
+     destination cave</span>
+     details     "The door is open.\n"
+     textGo      "You walk through the door into the cave.\n"
+
+- closedDoorToCave
+     description "a closed door to the north"
+     tags        "north", "door", "doorway"<span class="red">
+     location    backroom
+     prospect    cave</span>
+     details     "The door is closed.\n"
+     textGo      "The door is closed.\n"
+</td>
+</tr></table>
+<p>
+Notice I only gave the closed doorways a location; the open ones have none.
+So initially, the door is closed
+(hence the dashed arrows between cave and backroom
+in the generated map you see on the right).
+To open the door, all we have to do is swap the locations.
+</p>
+<img class="genmap" src="genmap12.png" />
+<table><tr>
+<td class="snippet">openDoorToBackroom-&gt;location = cave;
+closedDoorToBackroom-&gt;location = NULL;
+openDoorToCave-&gt;location = backroom;
+closedDoorToCave-&gt;location = NULL;
+</td>
+</tr></table>
+<p>
+Let&rsquo;s create a helper function to accommodate this.
+</p>
+<table><tr>
+<td class="snippet">void swapLocations(OBJECT *obj1, OBJECT *obj2)
+{
+   OBJECT *tmp = obj1-&gt;location;
+   obj1-&gt;location = obj2-&gt;location;
+   obj2-&gt;location = tmp;
+}
+</td>
+</tr></table>
+<p>
+Now the following statements can be used to open the door;
+and once it is open, the same statements will close it again.
+</p>
+<table><tr>
+<td class="snippet">swapLocations(openDoorToBackroom, closedDoorToBackroom);
+swapLocations(openDoorToCave, closedDoorToCave);
+</td>
+</tr></table>
+<p>
+The helper function is particularly convenient
+when the object in question is <i>movable</i>.
+For example, a <b>box</b> can be opened and closed,
+but it is also an item that can be picked up and moved elsewhere.
+In other words, its location is not fixed.
+Function <i>swapLocations</i> does not rely on a fixed location,
+since it passes the current location back and forth between two objects.
+</p>
+<p>
+Of course, a box is not a passage;
+the player is always on the outside, so a single pair of objects will suffice,
+and so will a single call to <i>swapLocations</i>.
+</p>
+<table><tr>
+<td class="snippet">swapLocations(openBox, closedBox);
+</td>
+</tr></table>
+<p>
+This is more or less all we need
+to implement some new commands <i>open</i> and <i>close</i>.
+Below is a simple implementation of <i>open</i>;
+the implementation of <i>close</i> is similar.
+</p>
+<table><tr>
+<td class="snippet">OBJECT *obj = parseObject(noun);
+if (obj == closedDoorToBackRoom || obj == closedDoorToCave)
+{<span class="red">
+   swapLocations(openDoorToBackroom, closedDoorToBackroom);
+   swapLocations(openDoorToCave, closedDoorToCave);</span>
+   printf("OK.\n");
+}
+else if (obj == closedBox)
+{<span class="red">
+   swapLocations(openBox, closedBox);</span>
+   printf("OK.\n");
+}
+else if (obj == openDoorToBackRoom || obj == openDoorToCave || obj == openBox)
+{
+   printf("That is already open.\n");
+}
+else
+{
+   printf("That cannot be opened.\n");
+}
+</td>
+</tr></table>
+<p>
+To make things slightly more complicated,
+we can put a <b>lock</b> on the door or on the box.
+This requires (at least) <i>three</i> mutually exclusive objects;
+one for each of the possible states:
+<i>open</i>, <i>closed</i> and <i>locked</i>.
+But we can still use the same function to swap locations of the objects.
+For example, here&rsquo;s how to unlock a locked box; and vice versa.
+</p>
+<table><tr>
+<td class="snippet">swapLocations(closedBox, lockedBox);
+</td>
+</tr></table>
+<p>
+There is some overhead involved in the other commands.
+Our implementation of command <i>open</i> must be expanded
+to handle the new object <i>lockedBox</i>:
+</p>
+<table><tr>
+<td class="snippet">...
+else if (obj == lockedBox)
+{
+   printf("You can't, it is locked.\n");
+}
+...
+</td>
+</tr></table>
+<p>
+It may be clear that the number of lines of code
+is proportional to the number of doors in the game
+(and boxes and other objects that can be opened).
+So if your game has more than just a handful of doors,
+then it is a good idea to go for a more generic solution.
+By the way, this is something that goes for every command:
+when it concerns a good many objects, try to write generic code;
+but when you are dealing with one or two special cases,
+just stick to straightforward, specialized code.
+</p>
+<p>
+Generic code typically comes with a data-driven approach.
+In other words,
+we need to add one or more attributes to our object structure.
+In this particular case, we will be adding a function pointer
+for each of the commands we wish to support:
+<i>open</i>, <i>close</i>, <i>lock</i> and <i>unlock</i>.
+</p>
+<table class="code"><tr>
+<th>object.txt</th>
+</tr><tr>
+<td>
+#diff 12 object.txt
+</td>
+</tr></table>
+<div class="explanation">
+<p>
+Explanation:
+</p>
+<ul>
+<li>Line 86:
+at first sight, <i>isAlreadyOpen</i> may seem inappropriate here;
+technically, <i>intoCaveBlocked</i> is a closed passage.
+But storywise, it is still an opening.
+</li>
+<li>Line 165, 176, 187:
+If you prefer a heavy treasure chest instead of a box,
+then all you have to do is increase the weight
+(and adjust the relevant text and tags accordingly).
+</li>
+</ul>
+</div>
+<p>
+To avoid
+<a href="http://en.wikipedia.org/wiki/Duplicate_code">duplicate code</a>,
+I deliberately did <i>not</i> use anonymous functions this time.
+Instead, we will implement the necessary logic in a separate module.
+</p>
+<table class="code"><tr>
+<th>toggle.h</th>
+</tr><tr>
+<td>
+#diff 12 toggle.h
+</td>
+</tr><tr>
+<th>toggle.c</th>
+</tr><tr>
+<td>
+#diff 12 toggle.c
+</td>
+</tr></table>
+<p>
+As announced earlier, the implementations of the four commands
+<i>open</i>, <i>close</i>, <i>lock</i> and <i>unlock</i>
+are totally generic.
+</p>
+<table class="code"><tr>
+<th>execute.h</th>
+</tr><tr>
+<td>
+#diff 12 execute.h
+</td>
+</tr><tr>
+<th>execute.c</th>
+</tr><tr>
+<td>
+#diff 12 execute.c
+</td>
+</tr></table>
+<p>
+Above, I used a generic function <i>objectWithinReach</i>
+to handle objects that are not here;
+see below for its implementation.
+This way, we don&rsquo;t have to write the same code four times
+(once for every <i>execute</i> function).
+More commands will be added in chapter 15;
+these will benefit from the same function.
+</p>
+<table class="code"><tr>
+<th>move.h</th>
+</tr><tr>
+<td>
+#diff 12 move.h
+</td>
+</tr><tr>
+<th>move.c</th>
+</tr><tr>
+<td>
+#diff 12 move.c
+</td>
+</tr></table>
+<p>
+The necessary modifications to <i>object.awk</i> are very straightforward:
+</p>
+<table class="code"><tr>
+<th>object.awk</th>
+</tr><tr>
+<td>
+#diff 12 object.awk
+</td>
+</tr></table>
+<table class="demo">
+<tr><th>Sample output</th></tr>
+<tr><td>
+#test 12
+</td></tr>
+</table>
+<p>
+The additions to <i>parsexec.c</i> are equally straightforward.
+</p>
+<table class="code"><tr>
+<th>parsexec.c</th>
+</tr><tr>
+<td>
+#diff 12 parsexec.c
+</td>
+</tr></table>
+<p>
+Notes:
+<ul>
+<li>You may have noticed that <i>object.awk</i> has almost doubled in size
+in this chapter.
+I can already promise you, this is only the beginning.
+<i>object.txt</i> is our main source of game data;
+once we seriously start adding locations, items and actors,
+the number of lines will quickly grow to many thousands.
+</li>
+<li>Function <i>swapLocation</i>
+can be used for many other things than doors and locks.
+In chapter 15, it will be used again, this time to turn the light on and off.
+</li>
+<li>As you can see in the sample output,
+the player is able to unlock and open the box.
+But he is still unable to get the gold coin from the box
+(or put it back in again),
+and our parser cannot handle &lsquo;complex&rsquo; commands like
+<i>get coin from box</i> or <i>put coin in box</i>.
+So in the next chapter, we will write a whole new parser;
+the current two-line implementation badly needs replacement!
+</li>
+</ul>
+</p>
+<hr />
+<p>
+Next chapter: <a href="htpataic13.html">13. The parser</a>
+</p>
+</body>
+</html>

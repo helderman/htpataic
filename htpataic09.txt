@@ -1,0 +1,290 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+<title>9. Code generation</title>
+<link rel="stylesheet" href="htpataic.css" type="text/css" />
+</head>
+<body>
+<table class="contents"><tr><td>
+#contents
+</td></tr></table>
+
+<h1>How to program a text adventure in C</h1>
+<h2>9. Code generation</h2>
+<p class="intro">
+So far, our adventure has 10 objects.
+Each object consists of 5 attributes
+(the fields in struct <i>OBJECT</i>).
+A real text adventure is likely to have hundreds, even thousands of objects,
+and the number of attributes per object is likely to grow as well
+(see the next chapter).
+In its current form,
+maintaining such a big list of objects and attributes would be hard.
+</p>
+<p>
+For example, when we added objects <i>wallField</i> and <i>wallCave</i>
+in the previous chapter, we had to do so in three different places:
+once in <i>object.h</i> (as a <i>#define</i>),
+and twice in <i>object.c</i>
+(an element in array <i>objs</i>, and a separate array for the tags).
+This is clumsy and error-prone.
+</p>
+<p>
+Instead of maintaining <i>object.h</i> and <i>object.c</i> by hand,
+we will start
+<a href="http://en.wikipedia.org/wiki/Source_code_generation#Source_code_generation">generating</a>
+the files from a single source that is more suited to our needs.
+This new source file could be in any language you like (typically some
+<a href="http://en.wikipedia.org/wiki/Domain-specific_language">domain-specific language</a>),
+as long as you have the tools to convert it back to C.
+Below is a simple example.
+Consider the following layout to organize our objects:
+</p>
+<table cellpadding="12" cellspacing="12" style="border: medium solid blue">
+<tr><td style="border: medium solid green">
+Raw C code (declarations)
+</td></tr>
+<tr><td style="border: medium solid red">
+<pre>
+- ObjectName
+      AttributeName AttributeValue
+      AttributeName AttributeValue
+      ...
+- ObjectName
+      AttributeName AttributeValue
+      AttributeName AttributeValue
+      ...
+- ...
+</pre>
+</td></tr>
+</table>
+<p>
+Based on the objects we have gathered so far,
+we could construct the following source file.
+The file name does not matter much;
+I simply named it <i>object.txt</i>,
+to make it clear it is related to <i>object.h</i> and <i>object.c</i>.
+</p>
+<table class="code"><tr>
+<th>object.txt</th>
+</tr><tr>
+<td>
+#diff 9 object.txt
+</td>
+</tr></table>
+<p>
+I made up the
+<a href="http://en.wikipedia.org/wiki/Syntax">syntax</a>
+myself,
+so it is safe to assume there are no standard tools to translate it to C.
+We will have to write our own code generator!
+Since this code generator will be a separate program,
+completely independent of our adventure program,
+we can write it in any language we like - not necessarily C.
+Here is one possible implementation, written in
+<a href="http://en.wikipedia.org/wiki/AWK">AWK</a>:
+</p>
+<table class="code"><tr>
+<th>object.awk</th>
+</tr><tr>
+<td>
+#diff 9 object.awk
+</td>
+</tr></table>
+<div class="explanation">
+<p>
+Explanation:
+</p>
+<ul>
+<li>Lines 9, 18, 29:
+AWK scans through the input file (<i>object.txt</i>) line by line;
+each line is tested against each of these &lsquo;patterns&rsquo;.
+Whenever a match is found, the code block that follows is executed.
+</li>
+<li>Lines 1, 33:
+two special patterns that match the top and bottom of the input file;
+hence their code blocks are executed first and last, respectively.
+</li>
+<li>Lines 9-16:
+matches any line that starts with a dash (the &lsquo;object lines&rsquo;).
+The code initializes all attributes with an appropriate default.
+</li>
+<li>Lines 18-27:
+following an object line, matches any line that starts with
+<a href="http://en.wikipedia.org/wiki/Whitespace_character">whitespace</a>
+(the &lsquo;attribute lines&rsquo;).
+The code sets an attribute value, after having validated the attribute name.
+</li>
+<li>Lines 29-31:
+matches all lines that precede the first object line;
+an additional filter condition disperses the lines to the correct output files
+(<i>#include</i> lines to <i>object.c</i>, all others to <i>object.h</i>).
+The code simply outputs each line unchanged.
+</li>
+<li>Lines 4, 24, 29, 35, 43, 46, 49:
+the variable <i>pass</i> is defined upon calling AWK; see below.
+</li>
+</ul>
+</div>
+<p>
+We actually need to call this AWK script three times to generate the C sources:
+</p>
+<table><tr>
+<td class="snippet">awk -v pass=h  -f object.awk object.txt &gt;  object.h
+awk -v pass=c1 -f object.awk object.txt &gt;  object.c
+awk -v pass=c2 -f object.awk object.txt &gt;&gt; object.c
+</td>
+</tr></table>
+<p>
+This will generate a new <i>object.h</i> and <i>object.c</i>,
+which should be identical (save for the layout)
+to the ones I wrote myself in the previous chapter.
+</p>
+<p>
+As you can see, <i>object.c</i> is generated in two passes;
+for <i>object.h</i>, a single pass is sufficient.
+I could have made three separate AWK scripts, one for each pass,
+but instead I made a single big script combining all three,
+which seemed like the right thing to do considering the many similarities.
+</p>
+<p>
+Our code generator script is very basic;
+it does no syntax checking on the attribute values.
+Most typos made in <i>object.txt</i>
+will pass through the generator without any errors.
+This is not a problem though:
+the syntax checks performed afterwards by the C compiler are sufficient.
+When compilation fails,
+the trick is to recognize your mistakes in the C code,
+then find and fix the original source in <i>object.txt</i>.
+To make this task just a little bit easier, the least we can do is
+let the code generator add some comments in the generated C code
+(see <i>object.awk</i> line 52).
+The AWK script may also pass errors over to the C compiler, by outputting
+a <i>#error</i> directive as part of the generated code (see line 25).
+</p>
+<p>
+Notes:
+<ul>
+<li><b>Important:</b>
+as of now, we will not be making any manual changes in
+<i>object.h</i> and <i>object.c</i>;
+these would only be discarded by our code generation process.
+</li>
+<li>This mixture of languages (C, AWK and a domain-specific language)
+may seem confusing at first.
+Then again, this is still relatively simple compared to
+the mixture of server-side and client-side techniques
+the average web developer finds himself confronted with.
+</li>
+<li>Because <i>object.txt</i>
+is converted to plain C code, compiled, and linked with the other modules,
+all of its data will be part of the final executable.
+Like any source file, <i>object.txt</i> does not have to be present
+when the executable is running (i.e. when somebody is playing the game).
+This, of course, is just a matter of choice.
+It is very well possible to keep the data apart from the executable,
+and have the executable import the data from <i>object.txt</i> at
+<a href="https://en.wikipedia.org/wiki/Run_time_(program_lifecycle_phase)">runtime</a>.
+This is particularly interesting when you are building your own
+<a href="http://en.wikipedia.org/wiki/Text_adventure#Development_systems">adventure development system</a>.
+Do keep in mind that it will make your code slightly more complicated;
+you will have to put more effort in
+<a href="http://en.wikipedia.org/wiki/Parsing">parsing</a>
+<i>object.txt</i>, since there will be no C compiler to back you up.
+All this is outside the scope of this tutorial;
+we will focus on using the benefits of the C compiler as much as possible.
+</li>
+</ul>
+</p>
+<h3>Visualization</h3>
+<p>
+When it comes to choosing a domain-specific language,
+keep in mind that code generation is not its only benefit.
+A simple AWK script, similar to the one above, can be used to
+<a href="http://en.wikipedia.org/wiki/Visualization_(computer_graphics)">visualize</a>
+a map of your virtual world by
+<a href="http://en.wikipedia.org/wiki/Graph_drawing">drawing a graph</a>.
+</p>
+<img class="genmap" src="code09/map.png" />
+<table class="code"><tr>
+<th>map.awk</th>
+</tr><tr>
+<td>
+#diff 9 map.awk
+</td>
+</tr></table>
+<p>
+Execute this script with the commands below,
+and <i>object.txt</i> will be converted into <i>map.png</i>;
+the picture you see on the right.
+Please note that this picture is not part of the game;
+it is not something the player will (should) ever see.
+It is merely a developer&rsquo;s tool,
+making it easier to spot mistakes in <i>object.txt</i>.
+</p>
+<table><tr>
+<td class="snippet">awk -f map.awk object.txt &gt; map.gv
+dot -Tpng -o map.png map.gv
+</td>
+</tr></table>
+<p>
+Notes:
+<ul>
+<li>For the command <i>dot</i> to work, you need to install
+<a href="http://en.wikipedia.org/wiki/Graphviz">Graphviz</a>
+first.
+</li>
+<li>Notice how this picture matches the map I drew by hand in chapter 6
+(except for the orientation).
+Our map is still very trivial,
+but as the number of locations grows, this soon becomes a useful tool
+to validate <i>object.txt</i> against your intended map.
+</li>
+<li>I have used
+<a href="http://en.wikipedia.org/wiki/Dot_language">DOT</a>
+as an intermediate language here (<i>map.gv</i>).
+If your adventure has a really complex map,
+you may even consider using a graph editor to design your map,
+then try to generate C code from the resulting DOT output
+(or whatever graph description language the editor is capable of).
+This is a great way to design your locations and passages,
+and it gives you far better control over the graphical presentation of the map.
+However,
+this approach may be less suitable to maintain the other objects and attributes.
+</li>
+</ul>
+</p>
+<h3>Makefile</h3>
+<p>
+Calling AWK manually each time <i>object.txt</i> has been modified,
+soon becomes tedious.
+It is best to make these calls part of your build process.
+For example, a simple
+<a href="http://en.wikipedia.org/wiki/Makefile">makefile</a>
+for our adventure might look like this:
+</p>
+<table class="code"><tr>
+<th>makefile</th>
+</tr><tr>
+<td>
+#diff 9 makefile
+</td>
+</tr></table>
+<p>
+Now a single command <i>make</i> will do everything that is necessary
+to construct a new executable (named <i>lilcave</i> here)
+and a new map image.
+Notice I put not only <i>object.txt</i>, but also <i>object.awk</i>
+in the dependency rules (lines 12 and 15).
+Although technically,
+<i>object.awk</i> is more of a development tool than it is a source file,
+it is still subject to change;
+already so in the next three chapters.
+</p>
+<hr />
+<p>
+Next chapter: <a href="htpataic10.html">10. More attributes</a>
+</p>
+</body>
+</html>

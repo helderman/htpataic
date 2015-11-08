@@ -1,0 +1,182 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+<title>8. North, east, south, west</title>
+<link rel="stylesheet" href="htpataic.css" type="text/css" />
+</head>
+<body>
+<table class="contents"><tr><td>
+#contents
+</td></tr></table>
+
+<h1>How to program a text adventure in C</h1>
+<h2>8. North, east, south, west</h2>
+<p class="intro">
+Traditional text adventures use
+<a href="http://en.wikipedia.org/wiki/Cardinal_direction">compass directions</a>
+to navigate.
+</p>
+<p>
+<a href="mockmap08.gif" title="Click to enlarge">
+<img class="mockmap" alt="Basic map with compass directions" src="mockmap08.gif" />
+</a>
+</p>
+<p>
+For example, on the map I drew in chapter 6,
+the player might want to enter <b>go east</b>
+to move from the field to the cave.
+We can implement this
+by giving passage <i>intoCave</i> the tag &ldquo;east&rdquo;.
+However, there are two problems that we need to solve first.
+</p>
+<ol>
+<li>We may still want to refer to the passage as &ldquo;entrance&rdquo;
+as well as &ldquo;east&rdquo;.
+But right now, an object can have one tag only.
+</li>
+<li>On a bigger map, with more locations and passages,
+the tag &ldquo;east&rdquo; will be defined many times.
+Currently, our parser cannot handle this:
+tags are assumed to be globally unique
+(see function <i>matchingObject</i> in module <i>match.c</i>).
+</li>
+</ol>
+<p>
+These problems apply to other objects as well, not just passages.
+In our adventure, we have a silver coin and a gold coin.
+On the one hand, it would be silly not to accept <i>get coin</i>
+in a location where only one of the coins is present.
+On the other hand, it should be possible to use <i>get silver coin</i> instead
+in case both coins are present at the same location.
+</p>
+<p>
+This immediately brings us to a third problem with our parser:
+<ol start="3">
+<li>A tag can only be a single word;
+&ldquo;silver coin&rdquo; would never be recognized.
+</li>
+</ol>
+</p>
+<p>
+All three problems will be solved in this chapter, starting with problem #1.
+It is resolved by giving each object a list of tags,
+instead of just a single tag.
+</p>
+<table class="demo">
+<tr><th>Sample output</th></tr>
+<tr><td>
+#test 8
+</td></tr>
+</table>
+<table class="code"><tr>
+<th>object.h</th>
+</tr><tr>
+<td>
+#diff 8 object.h
+</td>
+</tr></table>
+<table class="code"><tr>
+<th>object.c</th>
+</tr><tr>
+<td>
+#diff 8 object.c
+</td>
+</tr></table>
+<div class="explanation">
+<p>
+Explanation:
+</p>
+<ul>
+<li>Line 4-13:
+tag lists do not have a fixed length; we use
+<a href="http://en.wikipedia.org/wiki/Null_pointer#Null_pointer">NULL</a>
+to tell function <i>nounIsInTags</i> (defined below) where the list ends.
+</li>
+<li>Line 24-25:
+I added passages for any &lsquo;walls&rsquo; surrounding the locations;
+otherwise &ldquo;go west&rdquo; in the field
+would return &ldquo;You don&rsquo;t see any west here.&rdquo;
+One might represent a wall by a passage
+with a destination that equals the point of origin,
+but that results in a misleading response to &ldquo;go west&rdquo;
+(&ldquo;OK&rdquo; followed by a description of the current location).
+Instead I simply made the destination
+<a href="http://en.wikipedia.org/wiki/Null_pointer#Null_pointer">NULL</a>,
+effectively making the passage a dummy non-passage object.
+The game&rsquo;s reply will still be dodgy
+(&ldquo;you can&rsquo;t get much closer than this&rdquo;)
+but that will be fixed in chapter 10.
+</li>
+</ul>
+</div>
+<p>
+Of course, for this change to take effect,
+we also need to adjust function <i>matchingObject</i>.
+In the same function, we can also fix problem #2:
+by giving precedence to objects that are located near the player.
+The function <i>distanceTo</i>, introduced in the previous chapter,
+really pays off now!
+</p>
+<table class="code"><tr>
+<th>match.h</th>
+</tr><tr>
+<td>
+#diff 8 match.h
+</td>
+</tr><tr>
+<th>match.c</th>
+</tr><tr>
+<td>
+#diff 8 match.c
+</td>
+</tr></table>
+<div class="explanation">
+<p>
+Explanation:
+</p>
+<ul>
+<li>Line 20:
+with lists of tags, we need more than just a simple <i>strcmp</i>;
+so I made a separate function <i>nounIsInTags</i> (defined in lines 6-13).
+</li>
+<li>Line 21:
+because of the way enum <i>DISTANCE</i> is numbered
+(increasing values for increasing distance),
+the &lsquo;less than&rsquo; operator (<tt>&lt;</tt>)
+automatically means &lsquo;nearer than&rsquo;.
+</li>
+</ul>
+</div>
+<p>
+Problem #3 can be fixed by simply removing a single
+<a href="http://en.wikipedia.org/wiki/Space_(punctuation)">space</a>
+character from function <i>parseAndExecute</i> (line 10 below).
+This solution is far from perfect (a double space
+between &lsquo;silver&rsquo; and &lsquo;coin&rsquo; is not accepted),
+but it will do until we make ourselves a better parser in chapter 13.
+</p>
+<table class="code"><tr>
+<th>parsexec.c</th>
+</tr><tr>
+<td>
+#diff 8 parsexec.c
+</td>
+</tr></table>
+<p>
+Modules <i>execute.c</i>, <i>location.c</i>, <i>move.c</i>, <i>misc.c</i>
+remain unchanged,
+you can see them in the previous chapters.
+</p>
+<p>
+Now that the array of objects (<i>object.c</i>)
+starts to grow in multiple dimensions
+(in particular with the introduction of multiple tags),
+we need a way to make it more maintainable.
+We will do so in the next chapter.
+</p>
+<hr />
+<p>
+Next chapter: <a href="htpataic09.html">9. Code generation</a>
+</p>
+</body>
+</html>

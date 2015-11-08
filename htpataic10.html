@@ -1,0 +1,740 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+<title>10. More attributes</title>
+<link rel="stylesheet" href="htpataic.css" type="text/css" />
+</head>
+<body>
+<table class="contents"><tr><td>
+<h4>Contents</h4>
+<div><a href="htpataic01.html">1. Introduction</a></div>
+<div><a href="htpataic02.html">2. The main loop</a></div>
+<div><a href="htpataic03.html">3. Locations</a></div>
+<div><a href="htpataic04.html">4. Objects</a></div>
+<div><a href="htpataic05.html">5. Inventory</a></div>
+<div><a href="htpataic06.html">6. Passages</a></div>
+<div><a href="htpataic07.html">7. Distance</a></div>
+<div><a href="htpataic08.html">8. North, east, south, west</a></div>
+<div><a href="htpataic09.html">9. Code generation</a></div>
+<div><b>10. More attributes</b></div>
+<div><a href="htpataic11.html">11. Conditions</a></div>
+<div><a href="htpataic12.html">12. Open and close</a></div>
+<div><a href="htpataic13.html">13. The parser</a></div>
+<div><a href="htpataic14.html">14. Multiple arguments</a></div>
+<div><a href="htpataic15.html">15. Light and dark</a></div>
+<div><a href="htpataic16.html">16. Savegame</a></div>
+<div><a href="htpataic17.html">17. Test automation</a></div>
+<div><a href="htpataic18.html">18. Abbreviations</a></div>
+<div><a href="htpataic19.html">19. Conversations</a></div>
+<div><a href="htpataic20.html">20. Combat</a></div>
+<div><a href="htpataic21.html">21. Database</a></div>
+<div><a href="htpataic22.html">22. Speech</a></div>
+<div><a href="htpataic23.html">23. JavaScript</a></div>
+</td></tr></table>
+
+<h1>How to program a text adventure in C</h1>
+<h2>10. More attributes</h2>
+<p class="intro">
+There are many possible reasons
+for expanding the &lsquo;object&rsquo; structure.
+</p>
+<p>
+When we introduced objects in chapter 4, they had only three attributes.
+In chapter 6, we added a fourth.
+This is more or less the absolute minimum.
+To put more detail into our adventure, we need some more attributes.
+Here are a few examples.
+</p>
+<ol type="1">
+<li>The command <i>look around</i>
+gives a global description of the player&rsquo;s location,
+including a list of items, persons and other objects present there.
+Many adventures require the player to examine these objects,
+either to reveal certain clues that are needed to make progress in the game,
+or simply to enhance the game&rsquo;s atmosphere.
+We will add an attribute <b>details</b>
+that holds a detailed description of each object,
+plus an attribute <b>contents</b>
+that is used with objects that contain other objects.
+</li>
+<li>When the player follows a passage,
+the response is invariably &ldquo;OK&rdquo;
+followed by a description of the new location.
+This is a bit dull;
+it would be so much nicer to give each passage its own custom message.
+We will add an attribute <b>textGo</b> to hold this message.
+</li>
+<li>Some passages have a &lsquo;twist&rsquo;;
+they do not go where the player expects them to go.
+For example, a forest path may be hiding a pitfall.
+While the passage <i>appears</i> to be leading from location A to location B,
+in reality the end point is location C, i.e. the bottom of a pit.
+More common &lsquo;twists&rsquo; are passages that are &lsquo;blocked&rsquo;:
+a closed grating, a broken bridge, a narrow crack.
+Suppose our cave entrance is blocked by the guard.
+Any attempt to enter the cave will fail;
+instead the player will stay at his original location, i.e. the field.
+We could simply change the passage&rsquo;s <i>destination</i>
+to <i>field</i> (or <i>NULL</i>),
+but that would result in an undesirable response to commands like
+<i>go cave</i> and <i>look cave</i>:
+&ldquo;You don&rsquo;t see any cave here.&rdquo;
+We need separate attributes for
+the <i>actual</i> and the <i>apparent</i> end point of a passage.
+We will introduce an attribute <b>prospect</b> to represent the latter;
+the attribute <i>destination</i>, introduced in chapter 6,
+still holds the <i>actual</i> end point.
+In most cases, the two will be equal,
+so we will have <i>object.awk</i> generate an appropriate default;
+<i>prospect</i> only needs to be specified in <i>object.txt</i>
+when it differs from <i>destination</i>.
+</li>
+<li>In many adventures, the player, as well as other persons in the game,
+are limited in how much they can carry.
+Give each item a <b>weight</b>;
+the combined weight of all items in a person&rsquo;s inventory
+should not exceed that person&rsquo;s <b>capacity</b>.
+Give an object a very high weight to make it immovable
+(a tree, a house, a mountain).
+</li>
+<li><a href="http://en.wikipedia.org/wiki/Role-playing_video_game">RPG</a>-style
+adventure games will need a whole range of attributes for persons
+(both player and non-player), for example <b>health</b>.
+Objects with zero health are either dead, or they are not a person at all.
+</li>
+</ol>
+<p>
+We define seven new attributes in <i>object.txt</i>:
+</p>
+<table class="code"><tr>
+<th>object.txt</th>
+</tr><tr>
+<td>
+<ol>
+<li class="old">#include &lt;stdio.h&gt;</li>
+<li class="old">#include "object.h"</li>
+<li class="old"></li>
+<li class="old">typedef struct object {</li>
+<li class="old">   const char    *description;</li>
+<li class="old">   const char   **tags;</li>
+<li class="old">   struct object *location;</li>
+<li class="old">   struct object *destination;</li>
+<li class="new"><span class="old">   </span>struct object *prospect;</li>
+<li class="new">   const char    *details;</li>
+<li class="new">   const char    *contents;</li>
+<li class="new">   const char    *textGo;</li>
+<li class="new">   int            weight;</li>
+<li class="new">   int            capacity;</li>
+<li class="new">   int            health;</li>
+<li class="old">} OBJECT;</li>
+<li class="old"></li>
+<li class="old">extern OBJECT objs[];</li>
+<li class="old"></li>
+<li class="old">- field</li>
+<li class="old">     description "an open field"</li>
+<li class="old">     tags        "field"</li>
+<li class="new"><span class="old">     </span>details     "The field is a nice and quiet place under a clear blue sky.\n"</li>
+<li class="new">     capacity    9999</li>
+<li class="old"></li>
+<li class="old">- cave</li>
+<li class="old">     description "a little cave"</li>
+<li class="old">     tags        "cave"</li>
+<li class="new"><span class="old">     </span>details     "The cave is just a cold, damp, rocky chamber.\n"</li>
+<li class="new">     capacity    9999</li>
+<li class="old"></li>
+<li class="old">- silver</li>
+<li class="old">     description "a silver coin"</li>
+<li class="old">     tags        "silver", "coin", "silver coin"</li>
+<li class="old">     location    field</li>
+<li class="new"><span class="old">     </span>details     "The coin has an eagle on the obverse.\n"</li>
+<li class="new">     weight      1</li>
+<li class="old"></li>
+<li class="old">- gold</li>
+<li class="old">     description "a gold coin"</li>
+<li class="old">     tags        "gold", "coin", "gold coin"</li>
+<li class="old">     location    cave</li>
+<li class="new"><span class="old">     </span>details     "The shiny coin seems to be a rare and priceless artefact.\n"</li>
+<li class="new">     weight      1</li>
+<li class="old"></li>
+<li class="old">- guard</li>
+<li class="old">     description "a burly guard"</li>
+<li class="old">     tags        "guard", "burly guard"</li>
+<li class="old">     location    field</li>
+<li class="new"><span class="old">     </span>details     "The guard is a really big fellow.\n"</li>
+<li class="new">     contents    "He has"</li>
+<li class="new">     health      100</li>
+<li class="new">     capacity    20</li>
+<li class="old"></li>
+<li class="old">- player</li>
+<li class="old">     description "yourself"</li>
+<li class="old">     tags        "yourself"</li>
+<li class="old">     location    field</li>
+<li class="new"><span class="old">     </span>details     "You would need a mirror to look at yourself.\n"</li>
+<li class="new">     contents    "You have"</li>
+<li class="new">     health      100</li>
+<li class="new">     capacity    20</li>
+<li class="old"></li>
+<li class="old">- intoCave</li>
+<li class="old">     description "a cave entrance to the east"</li>
+<li class="old">     tags        "east", "entrance"</li>
+<li class="old">     location    field</li>
+<li class="new"><span class="old">     </span>prospect<span class="old">    cave</span></li>
+<li class="new"><span class="old">     </span>details     "The entrance is just a narrow opening in a small outcrop.\n"</li>
+<li class="new">     textGo      "The guard stops you from walking into the cave.\n"</li>
+<li class="old"></li>
+<li class="old">- exitCave</li>
+<li class="old">     description "a way out to the west"</li>
+<li class="old">     tags        "west", "out"</li>
+<li class="old">     location    cave</li>
+<li class="old">     destination field</li>
+<li class="new"><span class="old">     </span>details     "Sunlight pours in through an opening in the cave's wall.\n"</li>
+<li class="new">     textGo      "You walk out of the cave.\n"</li>
+<li class="old"></li>
+<li class="old">- wallField</li>
+<li class="old">     description "dense forest all around"</li>
+<li class="old">     tags        "west", "north", "south", "forest"</li>
+<li class="old">     location    field</li>
+<li class="new"><span class="old">     </span>details     "The field is surrounded by trees and undergrowth.\n"</li>
+<li class="new">     textGo      "Dense forest is blocking the way.\n"</li>
+<li class="old"></li>
+<li class="old">- wallCave</li>
+<li class="old">     description "solid rock all around"</li>
+<li class="old">     tags        "east", "north", "south", "rock"</li>
+<li class="old">     location    cave</li>
+<li class="new"><span class="old">     </span>details     "Carved in stone is a secret password 'abccb'.\n"</li>
+<li class="new">     textGo      "Solid rock is blocking the way.\n"</li>
+</ol>
+</td>
+</tr></table>
+<div class="explanation">
+<p>
+Explanation:
+</p>
+<ul>
+<li>Lines 9-15:
+the seven new attributes.
+</li>
+<li>Lines 35 and 42:
+the silver and gold coin have the same weight;
+in case you find this unrealistic,
+feel free to apply a more accurate unit of weight for your objects.
+</li>
+<li>Lines 50-51 and 59-60:
+both the player and the non-player characters
+are alive (they have <i>health</i>),
+and they have a limited ability to carry objects
+(here: the equivalent of 20 coins).
+</li>
+<li>Line 66:
+I am using the cave entrance
+to demonstrate the effect of attribute <i>prospect</i>.
+Normally, <i>prospect</i> takes on the value of <i>destination</i>
+(see <i>object.awk</i> below, specifically line 70).
+By specifying <i>prospect</i> instead of <i>destination</i>
+(consequently leaving the latter <i>NULL</i>),
+we effectively &lsquo;block&rsquo; the cave entrance
+without making it disappear.
+</li>
+<li>Lines 83 and 90:
+<i>textGo</i> is useful not only for passages,
+but for non-passage objects as well
+(in this case the two &lsquo;walls&rsquo; we introduced in chapter 8).
+</li>
+</ul>
+</div>
+<p>
+New attributes also require an adjustment in the code generator.
+</p>
+<table class="code"><tr>
+<th>object.awk</th>
+</tr><tr>
+<td>
+<ol>
+<li class="old">BEGIN {</li>
+<li class="old">   count = 0;</li>
+<li class="old">   obj = "";</li>
+<li class="old">   if (pass == "c2") {</li>
+<li class="old">      print "\nOBJECT objs[] = {";</li>
+<li class="old">   }</li>
+<li class="old">}</li>
+<li class="old"></li>
+<li class="old">/^- / {</li>
+<li class="old">   outputRecord(",");</li>
+<li class="old">   obj = $2;</li>
+<li class="old">   prop["description"] = "NULL";</li>
+<li class="old">   prop["tags"]        = "";</li>
+<li class="old">   prop["location"]    = "NULL";</li>
+<li class="old">   prop["destination"] = "NULL";</li>
+<li class="new"><span class="old">   </span>prop["prospect"]    = "";</li>
+<li class="new">   prop["details"]     = "\"You see nothing special.\\n\"";</li>
+<li class="new">   prop["contents"]    = "\"You see\"";</li>
+<li class="new">   prop["textGo"]      = "\"You can't get much closer than this.\\n\"";</li>
+<li class="new">   prop["weight"]      = "99";</li>
+<li class="new">   prop["capacity"]    = "0";</li>
+<li class="new">   prop["health"]      = "0";</li>
+<li class="old">}</li>
+<li class="old"></li>
+<li class="old">obj &amp;&amp; /^[ \t]+[a-z]/ {</li>
+<li class="old">   name = $1;</li>
+<li class="old">   $1 = "";</li>
+<li class="old">   if (name in prop) {</li>
+<li class="old">      prop[name] = $0;</li>
+<li class="old">   }</li>
+<li class="old">   else if (pass == "c2") {</li>
+<li class="old">      print "#error \"" FILENAME " line " NR ": unknown attribute '" name "'\"";</li>
+<li class="old">   }</li>
+<li class="old">}</li>
+<li class="old"></li>
+<li class="old">!obj &amp;&amp; pass == (/^#include/ ? "c1" : "h") {</li>
+<li class="old">   print;</li>
+<li class="old">}</li>
+<li class="old"></li>
+<li class="old">END {</li>
+<li class="old">   outputRecord("\n};");</li>
+<li class="old">   if (pass == "h") {</li>
+<li class="old">      print "\n#define endOfObjs\t(objs + " count ")";</li>
+<li class="old">   }</li>
+<li class="old">}</li>
+<li class="old"></li>
+<li class="old">function outputRecord(separator)</li>
+<li class="old">{</li>
+<li class="old">   if (obj) {</li>
+<li class="old">      if (pass == "h") {</li>
+<li class="old">         print "#define " obj "\t(objs + " count ")";</li>
+<li class="old">      }</li>
+<li class="old">      else if (pass == "c1") {</li>
+<li class="old">         print "static const char *tags" count "[] = {" prop["tags"] ", NULL};";</li>
+<li class="old">      }</li>
+<li class="old">      else if (pass == "c2") {</li>
+<li class="old">         print "\t{\t/* " count " = " obj " */";</li>
+<li class="old">         print "\t\t" prop["description"] ",";</li>
+<li class="old">         print "\t\ttags" count ",";</li>
+<li class="old">         print "\t\t" prop["location"] ",";</li>
+<li class="new"><span class="old">         print "\t\t" </span>prop["destination"] ",";</li>
+<li class="new">         print "\t\t" prop[prop["prospect"] ? "prospect" : "destination"] ",";</li>
+<li class="new">         print "\t\t" prop["details"] ",";</li>
+<li class="new">         print "\t\t" prop["contents"] ",";</li>
+<li class="new">         print "\t\t" prop["textGo"] ",";</li>
+<li class="new">         print "\t\t" prop["weight"] ",";</li>
+<li class="new">         print "\t\t" prop["capacity"] ",";</li>
+<li class="new">         print "\t\t" prop["health"];</li>
+<li class="old">         print "\t}" separator;</li>
+<li class="old">         delete prop;</li>
+<li class="old">      }</li>
+<li class="old">      count++;</li>
+<li class="old">   }</li>
+<li class="old">}</li>
+</ol>
+</td>
+</tr></table>
+<p>
+Now we&rsquo;re all set to start using the new attributes!
+<b>details</b> is used in a newly recognized command
+<i>look &lt;object&gt;</i>,
+and <b>textGo</b> replaces the fixed text <i>&ldquo;OK&rdquo;</i>
+in our implementation of command <i>go</i>.
+</p>
+<table class="demo">
+<tr><th>Sample output</th></tr>
+<tr><td>
+Welcome to Little Cave Adventure.<br />
+You are in an open field.<br />
+You see:<br />
+a silver coin<br />
+a burly guard<br />
+a cave entrance to the east<br />
+dense forest all around<br />
+<br />
+--&gt; look guard<br />
+The guard is a really big fellow.<br />
+<br />
+--&gt; get guard<br />
+That is way too heavy.<br />
+<br />
+--&gt; get coin<br />
+OK.<br />
+<br />
+--&gt; inventory<br />
+You have:<br />
+a silver coin<br />
+<br />
+--&gt; give coin<br />
+OK.<br />
+<br />
+--&gt; look guard<br />
+The guard is a really big fellow.<br />
+He has:<br />
+a silver coin<br />
+<br />
+--&gt; go cave<br />
+The guard stops you from walking into the cave.<br />
+<br />
+--&gt; go north<br />
+Dense forest is blocking the way.<br />
+<br />
+--&gt; quit<br />
+<br />
+Bye!<br />
+</td></tr>
+</table>
+<table class="code"><tr>
+<th>location.c</th>
+</tr><tr>
+<td>
+<ol>
+<li class="old">#include &lt;stdio.h&gt;</li>
+<li class="old">#include &lt;string.h&gt;</li>
+<li class="old">#include "object.h"</li>
+<li class="old">#include "misc.h"</li>
+<li class="old">#include "match.h"</li>
+<li class="old"></li>
+<li class="old">void executeLook(const char *noun)</li>
+<li class="old">{</li>
+<li class="old">   if (noun != NULL &amp;&amp; strcmp(noun, "around") == 0)</li>
+<li class="old">   {</li>
+<li class="old">      printf("You are in %s.\n", player-&gt;location-&gt;description);</li>
+<li class="old">      listObjectsAtLocation(player-&gt;location);</li>
+<li class="old">   }</li>
+<li class="old">   else</li>
+<li class="old">   {</li>
+<li class="new"><span class="old">      </span>OBJECT *obj = matchingObject(noun);</li>
+<li class="new">      DISTANCE distance = distanceTo(obj);</li>
+<li class="new">      if (distance &gt;= distUnknownObject)</li>
+<li class="new">      {</li>
+<li class="old">         printf("I don't understand what you want to see.\n");</li>
+<li class="old">      }</li>
+<li class="new"><span class="old">      </span>else if (distance == distNotHere)</li>
+<li class="new">      {</li>
+<li class="new">         printf("You don't see any %s here.\n", noun);</li>
+<li class="new">      }</li>
+<li class="new">      else if (distance == distOverthere)</li>
+<li class="new">      {</li>
+<li class="new">         printf("Too far away, move closer please.\n");</li>
+<li class="new">      }</li>
+<li class="new">      else if (distance == distHereContained)</li>
+<li class="new">      {</li>
+<li class="new">         printf("Hard to see, try to get it first.\n");</li>
+<li class="new">      }</li>
+<li class="new">      else</li>
+<li class="new">      {</li>
+<li class="new">         printf("%s", obj-&gt;details);</li>
+<li class="new">         listObjectsAtLocation(obj);</li>
+<li class="new">      }</li>
+<li class="new">   }</li>
+<li class="new">}</li>
+<li class="new"></li>
+<li class="new">static void movePlayer(OBJECT *passage)</li>
+<li class="new">{</li>
+<li class="new">   printf("%s", passage-&gt;textGo);</li>
+<li class="new">   if (passage-&gt;destination != NULL)</li>
+<li class="new">   {</li>
+<li class="new">      player-&gt;location = passage-&gt;destination;</li>
+<li class="new">      printf("\n");</li>
+<li class="new">      executeLook("around");</li>
+<li class="new">   }</li>
+<li class="old">}</li>
+<li class="old"></li>
+<li class="old">void executeGo(const char *noun)</li>
+<li class="old">{</li>
+<li class="old">   OBJECT *obj = matchingObject(noun);</li>
+<li class="old">   DISTANCE distance = distanceTo(obj);</li>
+<li class="old">   if (distance &gt;= distUnknownObject)</li>
+<li class="old">   {</li>
+<li class="old">      printf("I don't understand where you want to go.\n");</li>
+<li class="old">   }</li>
+<li class="old">   else if (distance == distOverthere)</li>
+<li class="old">   {</li>
+<li class="new"><span class="old">      </span>movePlayer(getPassageTo(obj));</li>
+<li class="old">   }</li>
+<li class="new"><span class="old">   else if (distance == </span>distHere)</li>
+<li class="old">   {</li>
+<li class="new"><span class="old">      </span>movePlayer(obj);</li>
+<li class="old">   }</li>
+<li class="old">   else if (distance &lt; distNotHere)</li>
+<li class="old">   {</li>
+<li class="old">      printf("You can't get much closer than this.\n");</li>
+<li class="old">   }</li>
+<li class="old">   else</li>
+<li class="old">   {</li>
+<li class="old">      printf("You don't see any %s here.\n", noun);</li>
+<li class="old">   }</li>
+<li class="old">}</li>
+</ol>
+</td>
+</tr></table>
+<p>
+Attributes <b>weight</b> and <b>capacity</b> together become
+a possible reason for not being able to move certain objects around.
+</p>
+<table class="code"><tr>
+<th>move.c</th>
+</tr><tr>
+<td>
+<ol>
+<li class="old">#include &lt;stdio.h&gt;</li>
+<li class="old">#include "object.h"</li>
+<li class="old">#include "misc.h"</li>
+<li class="old">#include "match.h"</li>
+<li class="old"></li>
+<li class="old">void moveObject(const char *noun, OBJECT *from, OBJECT *to)</li>
+<li class="old">{</li>
+<li class="old">   OBJECT *obj = matchingObject(noun);</li>
+<li class="old">   if (obj == NULL)</li>
+<li class="old">   {</li>
+<li class="old">      printf("I don't understand what item you mean.\n");</li>
+<li class="old">   }</li>
+<li class="old">   else if (from == NULL)</li>
+<li class="old">   {</li>
+<li class="old">      printf("I don't understand who you want to ask.\n");</li>
+<li class="old">   }</li>
+<li class="old">   else if (from != obj-&gt;location)</li>
+<li class="old">   {</li>
+<li class="old">      switch (distanceTo(obj))</li>
+<li class="old">      {</li>
+<li class="old">      case distPlayer:</li>
+<li class="old">         printf("You should not be doing that to yourself.\n");</li>
+<li class="old">         break;</li>
+<li class="old">      case distHeld:</li>
+<li class="old">         printf("You already have %s.\n", obj-&gt;description);</li>
+<li class="old">         break;</li>
+<li class="old">      case distLocation:</li>
+<li class="old">      case distOverthere:</li>
+<li class="old">         printf("That's not an item.\n");</li>
+<li class="old">         break;</li>
+<li class="old">      case distHere:</li>
+<li class="old">         if (from == player)</li>
+<li class="old">         {</li>
+<li class="old">            printf("You have no %s.\n", noun);</li>
+<li class="old">         }</li>
+<li class="old">         else</li>
+<li class="old">         {</li>
+<li class="old">            printf("Sorry, %s has no %s.\n", from-&gt;description, noun);</li>
+<li class="old">         }</li>
+<li class="old">         break;</li>
+<li class="old">      case distHereContained:</li>
+<li class="old">         printf("Sorry, %s is holding it.\n", obj-&gt;location-&gt;description);</li>
+<li class="old">         break;</li>
+<li class="old">      default:</li>
+<li class="old">         printf("You don't see any %s here.\n", noun);</li>
+<li class="old">      }</li>
+<li class="old">   }</li>
+<li class="old">   else if (to == NULL)</li>
+<li class="old">   {</li>
+<li class="old">      printf("There is nobody here to give that to.\n");</li>
+<li class="old">   }</li>
+<li class="new">   else if (obj-&gt;weight &gt; to-&gt;capacity)</li>
+<li class="new">   {</li>
+<li class="new">      printf("That is way too heavy.\n");</li>
+<li class="new">   }</li>
+<li class="new">   else if (obj-&gt;weight + weightOfContents(to) &gt; to-&gt;capacity)</li>
+<li class="new">   {</li>
+<li class="new">      printf("That would become too heavy.\n");</li>
+<li class="new">   }</li>
+<li class="old">   else</li>
+<li class="old">   {</li>
+<li class="old">      obj-&gt;location = to;</li>
+<li class="old">      printf("OK.\n");</li>
+<li class="old">   }</li>
+<li class="old">}</li>
+</ol>
+</td>
+</tr></table>
+<p>
+The weight check makes use of a new function <i>weightOfContents</i>;
+it will be implemented in <i>misc.c</i>.
+In the same module,
+we also make modifications to some of the existing functions,
+to support the last few attributes.
+</p>
+<p>
+Attribute <b>health</b> will be used
+to tell persons apart from &lsquo;dead&rsquo; objects.
+And <b>contents</b> replaces the fixed text <i>&ldquo;You see&rdquo;</i>.
+The original text was already a bit odd
+when listing the player&rsquo;s inventory,
+but now that function <i>listObjectsAtLocation</i> is used to display
+contents of any possible object (see function <i>executeLook</i> above),
+we really need something more flexible.
+</p>
+<p>
+By replacing attribute <i>destination</i> by <b>prospect</b>
+in function <i>getPassageTo</i>,
+we are improving responses to <i>all</i> commands
+(not just <i>go</i> and <i>look</i>)
+applied to a location that is seen lying on the other end of
+a &lsquo;passage with a twist.&rsquo;
+</p>
+<table class="code"><tr>
+<th>misc.h</th>
+</tr><tr>
+<td>
+<ol>
+<li class="old">typedef enum {</li>
+<li class="old">   distPlayer,</li>
+<li class="old">   distHeld,</li>
+<li class="old">   distHeldContained,</li>
+<li class="old">   distLocation,</li>
+<li class="old">   distHere,</li>
+<li class="old">   distHereContained,</li>
+<li class="old">   distOverthere,</li>
+<li class="old">   distNotHere,</li>
+<li class="old">   distUnknownObject,</li>
+<li class="old">   distNoObjectSpecified</li>
+<li class="old">} DISTANCE;</li>
+<li class="old"></li>
+<li class="old">extern OBJECT *getPassageTo(OBJECT *targetLocation);</li>
+<li class="old">extern DISTANCE distanceTo(OBJECT *obj);</li>
+<li class="old">extern OBJECT *actorHere(void);</li>
+<li class="old">extern int listObjectsAtLocation(OBJECT *location);</li>
+<li class="new">extern int weightOfContents(OBJECT *container);</li>
+</ol>
+</td>
+</tr><tr>
+<th>misc.c</th>
+</tr><tr>
+<td>
+<ol>
+<li class="old">#include &lt;stdio.h&gt;</li>
+<li class="old">#include "object.h"</li>
+<li class="old">#include "misc.h"</li>
+<li class="old"></li>
+<li class="old">OBJECT *getPassageTo(OBJECT *targetLocation)</li>
+<li class="old">{</li>
+<li class="old">   OBJECT *obj;</li>
+<li class="old">   for (obj = objs; obj &lt; endOfObjs; obj++)</li>
+<li class="old">   {</li>
+<li class="old">      if (obj-&gt;location == player-&gt;location &amp;&amp;</li>
+<li class="new"><span class="old">          </span>obj-&gt;prospect<span class="old"> == targetLocation)</span></li>
+<li class="old">      {</li>
+<li class="old">         return obj;</li>
+<li class="old">      }</li>
+<li class="old">   }</li>
+<li class="old">   return NULL;</li>
+<li class="old">}</li>
+<li class="old"></li>
+<li class="old">DISTANCE distanceTo(OBJECT *obj)</li>
+<li class="old">{</li>
+<li class="old">   return obj == NULL                                 ? distUnknownObject :</li>
+<li class="old">          obj == player                               ? distPlayer :</li>
+<li class="old">          obj-&gt;location == player                     ? distHeld :</li>
+<li class="old">          obj == player-&gt;location                     ? distLocation :</li>
+<li class="old">          obj-&gt;location == player-&gt;location           ? distHere :</li>
+<li class="old">          getPassageTo(obj) != NULL                   ? distOverthere :</li>
+<li class="old">          obj-&gt;location == NULL                       ? distNotHere :</li>
+<li class="old">          obj-&gt;location-&gt;location == player           ? distHeldContained :</li>
+<li class="old">          obj-&gt;location-&gt;location == player-&gt;location ? distHereContained :</li>
+<li class="old">                                                        distNotHere;</li>
+<li class="old">}</li>
+<li class="old"></li>
+<li class="old">OBJECT *actorHere(void)</li>
+<li class="old">{</li>
+<li class="old">   OBJECT *obj;</li>
+<li class="old">   for (obj = objs; obj &lt; endOfObjs; obj++)</li>
+<li class="old">   {</li>
+<li class="new"><span class="old">      if (distanceTo(obj) == distHere &amp;&amp; </span>obj-&gt;health &gt; 0)</li>
+<li class="old">      {</li>
+<li class="old">         return obj;</li>
+<li class="old">      }</li>
+<li class="old">   }</li>
+<li class="old">   return NULL;</li>
+<li class="old">}</li>
+<li class="old"></li>
+<li class="old">int listObjectsAtLocation(OBJECT *location)</li>
+<li class="old">{</li>
+<li class="old">   int count = 0;</li>
+<li class="old">   OBJECT *obj;</li>
+<li class="old">   for (obj = objs; obj &lt; endOfObjs; obj++)</li>
+<li class="old">   {</li>
+<li class="old">      if (obj != player &amp;&amp; obj-&gt;location == location)</li>
+<li class="old">      {</li>
+<li class="old">         if (count++ == 0)</li>
+<li class="old">         {</li>
+<li class="new"><span class="old">            </span>printf("%s:\n", location-&gt;contents);</li>
+<li class="old">         }</li>
+<li class="old">         printf("%s\n", obj-&gt;description);</li>
+<li class="old">      }</li>
+<li class="old">   }</li>
+<li class="old">   return count;</li>
+<li class="new">}</li>
+<li class="new"></li>
+<li class="new">int weightOfContents(OBJECT *container)</li>
+<li class="new">{</li>
+<li class="new">   int sum = 0;</li>
+<li class="new">   OBJECT *obj;</li>
+<li class="new">   for (obj = objs; obj &lt; endOfObjs; obj++)</li>
+<li class="new">   {</li>
+<li class="new">      if (obj-&gt;location == container) sum += obj-&gt;weight;</li>
+<li class="new">   }</li>
+<li class="new">   return sum;</li>
+<li class="old">}</li>
+</ol>
+</td>
+</tr></table>
+<p>
+To make the whole picture complete,
+it would be nice to expand the generated map from the previous chapter
+with dashed lines for the &lsquo;apparent&rsquo; passages
+(leading towards a <b>prospect</b>).
+</p>
+<img class="genmap" src="genmap10.png" />
+<table class="code"><tr>
+<th>map.awk</th>
+</tr><tr>
+<td>
+<ol>
+<li class="old">BEGIN               { print "digraph map {"; }</li>
+<li class="new"><span class="old">/^- /               { outputEdge(); location = destination = </span>prospect =<span class="old"> ""; }</span></li>
+<li class="old">$1 == "location"    { location = $2; }</li>
+<li class="old">$1 == "destination" { destination = $2; }</li>
+<li class="new">$1 == "prospect"    { prospect = $2; }</li>
+<li class="old">END                 { outputEdge(); print "}"; }</li>
+<li class="old"></li>
+<li class="old">function outputEdge()</li>
+<li class="old">{</li>
+<li class="old">   if (location &amp;&amp; destination) print "\t" location " -&gt; " destination;</li>
+<li class="new"><span class="old">   </span>if (location &amp;&amp; prospect) print "\t" location " -&gt; " prospect " [style=dashed]";</li>
+<li class="old">}</li>
+</ol>
+</td>
+</tr></table>
+<p>
+Notes:
+<ul>
+<li>Please be aware that more detailed descriptions often warrant
+a bigger dictionary (more objects, more tags).
+For example, the command <i>look silver coin</i> now returns
+<i>&ldquo;The coin has an eagle on the obverse.&rdquo;</i>
+Very atmospheric, but it invites the player to &lsquo;drill down&rsquo;
+by entering a command <i>look eagle</i>.
+To avoid the disgrace of the game having to admit
+that it does not actually know what &lsquo;eagle&rsquo; means,
+you either have to go for evasive answers
+(<i>&ldquo;You see nothing special&rdquo;</i> &ndash;
+quite disappointing, really),
+or add an &lsquo;ornamental&rsquo; <i>eagle</i> object.
+You can use the <i>location</i> attribute to attach the eagle to the coin;
+this ensures the eagle will follow wherever the coin goes.
+</li>
+<li>Try not to worry too much about the memory space
+wasted on attributes that are only used in certain types of objects
+(for example, <i>textGo</i> is only used in passages),
+or the many duplicate string literals
+(especially the default ones generated by <i>object.awk</i>).
+We will discuss these issues in chapter 19.
+</li>
+<li>To demonstrate the use of attribute <i>prospect</i>,
+we made the cave inaccessible.
+This becomes immediately obvious when you look at the new <i>map.png</i>
+(see the picture above);
+the arrow going into the cave is dashed,
+meaning it is an apparent passage, but not an actual passage.
+Rest assured, the cave will be re-opened in the next chapter.
+</li>
+</ul>
+</p>
+<hr />
+<p>
+Next chapter: <a href="htpataic11.html">11. Conditions</a>
+</p>
+</body>
+</html>

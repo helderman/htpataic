@@ -1,0 +1,31 @@
+Welcome to Little Cave Adventure.
+You are in an open field.
+You see:
+a silver coin
+a burly guard
+
+--> go cave
+OK.
+You are in a little cave.
+You see:
+a gold coin
+
+--> go field
+OK.
+You are in an open field.
+You see:
+a silver coin
+a burly guard
+
+--> go field
+You are already there.
+
+--> look around
+You are in an open field.
+You see:
+a silver coin
+a burly guard
+
+--> quit
+
+Bye!

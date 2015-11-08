@@ -1,0 +1,13 @@
+get coin
+give coin
+go cave
+get key
+go south
+open door
+go south
+unlock box
+open box
+look box
+get gold from box
+inventory
+quit

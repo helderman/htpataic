@@ -1,0 +1,377 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+<title>8. North, east, south, west</title>
+<link rel="stylesheet" href="htpataic.css" type="text/css" />
+</head>
+<body>
+<table class="contents"><tr><td>
+<h4>Contents</h4>
+<div><a href="htpataic01.html">1. Introduction</a></div>
+<div><a href="htpataic02.html">2. The main loop</a></div>
+<div><a href="htpataic03.html">3. Locations</a></div>
+<div><a href="htpataic04.html">4. Objects</a></div>
+<div><a href="htpataic05.html">5. Inventory</a></div>
+<div><a href="htpataic06.html">6. Passages</a></div>
+<div><a href="htpataic07.html">7. Distance</a></div>
+<div><b>8. North, east, south, west</b></div>
+<div><a href="htpataic09.html">9. Code generation</a></div>
+<div><a href="htpataic10.html">10. More attributes</a></div>
+<div><a href="htpataic11.html">11. Conditions</a></div>
+<div><a href="htpataic12.html">12. Open and close</a></div>
+<div><a href="htpataic13.html">13. The parser</a></div>
+<div><a href="htpataic14.html">14. Multiple arguments</a></div>
+<div><a href="htpataic15.html">15. Light and dark</a></div>
+<div><a href="htpataic16.html">16. Savegame</a></div>
+<div><a href="htpataic17.html">17. Test automation</a></div>
+<div><a href="htpataic18.html">18. Abbreviations</a></div>
+<div><a href="htpataic19.html">19. Conversations</a></div>
+<div><a href="htpataic20.html">20. Combat</a></div>
+<div><a href="htpataic21.html">21. Database</a></div>
+<div><a href="htpataic22.html">22. Speech</a></div>
+<div><a href="htpataic23.html">23. JavaScript</a></div>
+</td></tr></table>
+
+<h1>How to program a text adventure in C</h1>
+<h2>8. North, east, south, west</h2>
+<p class="intro">
+Traditional text adventures use
+<a href="http://en.wikipedia.org/wiki/Cardinal_direction">compass directions</a>
+to navigate.
+</p>
+<p>
+<a href="mockmap08.gif" title="Click to enlarge">
+<img class="mockmap" alt="Basic map with compass directions" src="mockmap08.gif" />
+</a>
+</p>
+<p>
+For example, on the map I drew in chapter 6,
+the player might want to enter <b>go east</b>
+to move from the field to the cave.
+We can implement this
+by giving passage <i>intoCave</i> the tag &ldquo;east&rdquo;.
+However, there are two problems that we need to solve first.
+</p>
+<ol>
+<li>We may still want to refer to the passage as &ldquo;entrance&rdquo;
+as well as &ldquo;east&rdquo;.
+But right now, an object can have one tag only.
+</li>
+<li>On a bigger map, with more locations and passages,
+the tag &ldquo;east&rdquo; will be defined many times.
+Currently, our parser cannot handle this:
+tags are assumed to be globally unique
+(see function <i>matchingObject</i> in module <i>match.c</i>).
+</li>
+</ol>
+<p>
+These problems apply to other objects as well, not just passages.
+In our adventure, we have a silver coin and a gold coin.
+On the one hand, it would be silly not to accept <i>get coin</i>
+in a location where only one of the coins is present.
+On the other hand, it should be possible to use <i>get silver coin</i> instead
+in case both coins are present at the same location.
+</p>
+<p>
+This immediately brings us to a third problem with our parser:
+<ol start="3">
+<li>A tag can only be a single word;
+&ldquo;silver coin&rdquo; would never be recognized.
+</li>
+</ol>
+</p>
+<p>
+All three problems will be solved in this chapter, starting with problem #1.
+It is resolved by giving each object a list of tags,
+instead of just a single tag.
+</p>
+<table class="demo">
+<tr><th>Sample output</th></tr>
+<tr><td>
+Welcome to Little Cave Adventure.<br />
+You are in an open field.<br />
+You see:<br />
+a silver coin<br />
+a burly guard<br />
+a cave entrance to the east<br />
+dense forest all around<br />
+<br />
+--&gt; go west<br />
+You can't get much closer than this.<br />
+<br />
+--&gt; go east<br />
+OK.<br />
+You are in a little cave.<br />
+You see:<br />
+a gold coin<br />
+a way out to the west<br />
+solid rock all around<br />
+<br />
+--&gt; go west<br />
+OK.<br />
+You are in an open field.<br />
+You see:<br />
+a silver coin<br />
+a burly guard<br />
+a cave entrance to the east<br />
+dense forest all around<br />
+<br />
+--&gt; go entrance<br />
+OK.<br />
+You are in a little cave.<br />
+You see:<br />
+a gold coin<br />
+a way out to the west<br />
+solid rock all around<br />
+<br />
+--&gt; get gold coin<br />
+OK.<br />
+<br />
+--&gt; quit<br />
+<br />
+Bye!<br />
+</td></tr>
+</table>
+<table class="code"><tr>
+<th>object.h</th>
+</tr><tr>
+<td>
+<ol>
+<li class="old">typedef struct object {</li>
+<li class="old">   const char    *description;</li>
+<li class="new"><span class="old">   const char   </span>**tags;</li>
+<li class="old">   struct object *location;</li>
+<li class="old">   struct object *destination;</li>
+<li class="old">} OBJECT;</li>
+<li class="old"></li>
+<li class="old">extern OBJECT objs[];</li>
+<li class="old"></li>
+<li class="old">#define field      (objs + 0)</li>
+<li class="old">#define cave       (objs + 1)</li>
+<li class="old">#define silver     (objs + 2)</li>
+<li class="old">#define gold       (objs + 3)</li>
+<li class="old">#define guard      (objs + 4)</li>
+<li class="old">#define player     (objs + 5)</li>
+<li class="old">#define intoCave   (objs + 6)</li>
+<li class="old">#define exitCave   (objs + 7)</li>
+<li class="new"><span class="old">#define </span>wallField<span class="old">  (objs + 8)</span></li>
+<li class="new">#define wallCave   (objs + 9)</li>
+<li class="new"></li>
+<li class="new">#define endOfObjs  (objs + 10)</li>
+</ol>
+</td>
+</tr></table>
+<table class="code"><tr>
+<th>object.c</th>
+</tr><tr>
+<td>
+<ol>
+<li class="old">#include &lt;stdio.h&gt;</li>
+<li class="old">#include "object.h"</li>
+<li class="old"></li>
+<li class="new">static const char *tags0[] = {"field", NULL};</li>
+<li class="new">static const char *tags1[] = {"cave", NULL};</li>
+<li class="new">static const char *tags2[] = {"silver", "coin", "silver coin", NULL};</li>
+<li class="new">static const char *tags3[] = {"gold", "coin", "gold coin", NULL};</li>
+<li class="new">static const char *tags4[] = {"guard", "burly guard", NULL};</li>
+<li class="new">static const char *tags5[] = {"yourself", NULL};</li>
+<li class="new">static const char *tags6[] = {"east", "entrance", NULL};</li>
+<li class="new">static const char *tags7[] = {"west", "out", NULL};</li>
+<li class="new">static const char *tags8[] = {"west", "north", "south", "forest", NULL};</li>
+<li class="new">static const char *tags9[] = {"east", "north", "south", "rock", NULL};</li>
+<li class="old"></li>
+<li class="old">OBJECT objs[] = {</li>
+<li class="new"><span class="old">   {"an open field"              , </span>tags0,<span class="old"> NULL , NULL  },</span></li>
+<li class="new"><span class="old">   {"a little cave"              , </span>tags1,<span class="old"> NULL , NULL  },</span></li>
+<li class="new"><span class="old">   {"a silver coin"              , </span>tags2,<span class="old"> field, NULL  },</span></li>
+<li class="new"><span class="old">   {"a gold coin"                , </span>tags3,<span class="old"> cave , NULL  },</span></li>
+<li class="new"><span class="old">   {"a burly guard"              , </span>tags4,<span class="old"> field, NULL  },</span></li>
+<li class="new"><span class="old">   {"yourself"                   , </span>tags5,<span class="old"> field, NULL  },</span></li>
+<li class="new"><span class="old">   {"a cave </span>entrance to the east", tags6,<span class="old"> field, cave  },</span></li>
+<li class="new"><span class="old">   {"a way </span>out to the west"<span class="old">      , </span>tags7,<span class="old"> cave , field </span>},</li>
+<li class="new">   {"dense forest all around"    , tags8, field, NULL  },</li>
+<li class="new">   {"solid rock all around"      , tags9, cave , NULL<span class="old">  }</span></li>
+<li class="old">};</li>
+</ol>
+</td>
+</tr></table>
+<div class="explanation">
+<p>
+Explanation:
+</p>
+<ul>
+<li>Line 4-13:
+tag lists do not have a fixed length; we use
+<a href="http://en.wikipedia.org/wiki/Null_pointer#Null_pointer">NULL</a>
+to tell function <i>nounIsInTags</i> (defined below) where the list ends.
+</li>
+<li>Line 24-25:
+I added passages for any &lsquo;walls&rsquo; surrounding the locations;
+otherwise &ldquo;go west&rdquo; in the field
+would return &ldquo;You don&rsquo;t see any west here.&rdquo;
+One might represent a wall by a passage
+with a destination that equals the point of origin,
+but that results in a misleading response to &ldquo;go west&rdquo;
+(&ldquo;OK&rdquo; followed by a description of the current location).
+Instead I simply made the destination
+<a href="http://en.wikipedia.org/wiki/Null_pointer#Null_pointer">NULL</a>,
+effectively making the passage a dummy non-passage object.
+The game&rsquo;s reply will still be dodgy
+(&ldquo;you can&rsquo;t get much closer than this&rdquo;)
+but that will be fixed in chapter 10.
+</li>
+</ul>
+</div>
+<p>
+Of course, for this change to take effect,
+we also need to adjust function <i>matchingObject</i>.
+In the same function, we can also fix problem #2:
+by giving precedence to objects that are located near the player.
+The function <i>distanceTo</i>, introduced in the previous chapter,
+really pays off now!
+</p>
+<table class="code"><tr>
+<th>match.h</th>
+</tr><tr>
+<td>
+<ol>
+<li class="old">extern OBJECT *matchingObject(const char *noun);</li>
+</ol>
+</td>
+</tr><tr>
+<th>match.c</th>
+</tr><tr>
+<td>
+<ol>
+<li class="new"><span class="old">#include </span>&lt;stdbool.h&gt;</li>
+<li class="new">#include<span class="old"> &lt;string.h&gt;</span></li>
+<li class="old">#include "object.h"</li>
+<li class="new">#include "misc.h"</li>
+<li class="new"></li>
+<li class="new">static bool nounIsInTags(const char *noun, const char **tags)</li>
+<li class="new">{</li>
+<li class="new">   while (*tags != NULL)</li>
+<li class="new">   {</li>
+<li class="new">      if (strcmp(noun, *tags++) == 0) return true;</li>
+<li class="new">   }</li>
+<li class="new">   return false;</li>
+<li class="new">}</li>
+<li class="old"></li>
+<li class="old">OBJECT *matchingObject(const char *noun)</li>
+<li class="old">{</li>
+<li class="old">   OBJECT *obj, *found = NULL;</li>
+<li class="old">   for (obj = objs; obj &lt; endOfObjs; obj++)</li>
+<li class="old">   {</li>
+<li class="new"><span class="old">      if (noun != NULL &amp;&amp; </span>nounIsInTags(noun, obj-&gt;tags) &amp;&amp;</li>
+<li class="new">          distanceTo(obj) &lt; distanceTo(found))</li>
+<li class="old">      {</li>
+<li class="old">         found = obj;</li>
+<li class="old">      }</li>
+<li class="old">   }</li>
+<li class="old">   return found;</li>
+<li class="old">}</li>
+</ol>
+</td>
+</tr></table>
+<div class="explanation">
+<p>
+Explanation:
+</p>
+<ul>
+<li>Line 20:
+with lists of tags, we need more than just a simple <i>strcmp</i>;
+so I made a separate function <i>nounIsInTags</i> (defined in lines 6-13).
+</li>
+<li>Line 21:
+because of the way enum <i>DISTANCE</i> is numbered
+(increasing values for increasing distance),
+the &lsquo;less than&rsquo; operator (<tt>&lt;</tt>)
+automatically means &lsquo;nearer than&rsquo;.
+</li>
+</ul>
+</div>
+<p>
+Problem #3 can be fixed by simply removing a single
+<a href="http://en.wikipedia.org/wiki/Space_(punctuation)">space</a>
+character from function <i>parseAndExecute</i> (line 10 below).
+This solution is far from perfect (a double space
+between &lsquo;silver&rsquo; and &lsquo;coin&rsquo; is not accepted),
+but it will do until we make ourselves a better parser in chapter 13.
+</p>
+<table class="code"><tr>
+<th>parsexec.c</th>
+</tr><tr>
+<td>
+<ol>
+<li class="old">#include &lt;stdio.h&gt;</li>
+<li class="old">#include &lt;stdbool.h&gt;</li>
+<li class="old">#include &lt;string.h&gt;</li>
+<li class="old">#include "location.h"</li>
+<li class="old">#include "execute.h"</li>
+<li class="old"></li>
+<li class="old">bool parseAndExecute(char *input)</li>
+<li class="old">{</li>
+<li class="old">   char *verb = strtok(input, " \n");</li>
+<li class="new"><span class="old">   char *noun = strtok(NULL, </span>"\n");</li>
+<li class="old">   if (verb != NULL)</li>
+<li class="old">   {</li>
+<li class="old">      if (strcmp(verb, "quit") == 0)</li>
+<li class="old">      {</li>
+<li class="old">         return false;</li>
+<li class="old">      }</li>
+<li class="old">      else if (strcmp(verb, "look") == 0)</li>
+<li class="old">      {</li>
+<li class="old">         executeLook(noun);</li>
+<li class="old">      }</li>
+<li class="old">      else if (strcmp(verb, "go") == 0)</li>
+<li class="old">      {</li>
+<li class="old">         executeGo(noun);</li>
+<li class="old">      }</li>
+<li class="old">      else if (strcmp(verb, "get") == 0)</li>
+<li class="old">      {</li>
+<li class="old">         executeGet(noun);</li>
+<li class="old">      }</li>
+<li class="old">      else if (strcmp(verb, "drop") == 0)</li>
+<li class="old">      {</li>
+<li class="old">         executeDrop(noun);</li>
+<li class="old">      }</li>
+<li class="old">      else if (strcmp(verb, "give") == 0)</li>
+<li class="old">      {</li>
+<li class="old">         executeGive(noun);</li>
+<li class="old">      }</li>
+<li class="old">      else if (strcmp(verb, "ask") == 0)</li>
+<li class="old">      {</li>
+<li class="old">         executeAsk(noun);</li>
+<li class="old">      }</li>
+<li class="old">      else if (strcmp(verb, "inventory") == 0)</li>
+<li class="old">      {</li>
+<li class="old">         executeInventory();</li>
+<li class="old">      }</li>
+<li class="old">      else</li>
+<li class="old">      {</li>
+<li class="old">         printf("I don't know how to '%s'.\n", verb);</li>
+<li class="old">      }</li>
+<li class="old">   }</li>
+<li class="old">   return true;</li>
+<li class="old">}</li>
+</ol>
+</td>
+</tr></table>
+<p>
+Modules <i>execute.c</i>, <i>location.c</i>, <i>move.c</i>, <i>misc.c</i>
+remain unchanged,
+you can see them in the previous chapters.
+</p>
+<p>
+Now that the array of objects (<i>object.c</i>)
+starts to grow in multiple dimensions
+(in particular with the introduction of multiple tags),
+we need a way to make it more maintainable.
+We will do so in the next chapter.
+</p>
+<hr />
+<p>
+Next chapter: <a href="htpataic09.html">9. Code generation</a>
+</p>
+</body>
+</html>

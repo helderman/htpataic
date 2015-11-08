@@ -1,0 +1,310 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+<title>2. The main loop</title>
+<link rel="stylesheet" href="htpataic.css" type="text/css" />
+</head>
+<body>
+<table class="contents"><tr><td>
+<h4>Contents</h4>
+<div><a href="htpataic01.html">1. Introduction</a></div>
+<div><b>2. The main loop</b></div>
+<div><a href="htpataic03.html">3. Locations</a></div>
+<div><a href="htpataic04.html">4. Objects</a></div>
+<div><a href="htpataic05.html">5. Inventory</a></div>
+<div><a href="htpataic06.html">6. Passages</a></div>
+<div><a href="htpataic07.html">7. Distance</a></div>
+<div><a href="htpataic08.html">8. North, east, south, west</a></div>
+<div><a href="htpataic09.html">9. Code generation</a></div>
+<div><a href="htpataic10.html">10. More attributes</a></div>
+<div><a href="htpataic11.html">11. Conditions</a></div>
+<div><a href="htpataic12.html">12. Open and close</a></div>
+<div><a href="htpataic13.html">13. The parser</a></div>
+<div><a href="htpataic14.html">14. Multiple arguments</a></div>
+<div><a href="htpataic15.html">15. Light and dark</a></div>
+<div><a href="htpataic16.html">16. Savegame</a></div>
+<div><a href="htpataic17.html">17. Test automation</a></div>
+<div><a href="htpataic18.html">18. Abbreviations</a></div>
+<div><a href="htpataic19.html">19. Conversations</a></div>
+<div><a href="htpataic20.html">20. Combat</a></div>
+<div><a href="htpataic21.html">21. Database</a></div>
+<div><a href="htpataic22.html">22. Speech</a></div>
+<div><a href="htpataic23.html">23. JavaScript</a></div>
+</td></tr></table>
+
+<h1>How to program a text adventure in C</h1>
+<h2>2. The main loop</h2>
+<p class="intro">
+Let&rsquo;s bring some basic interaction into our program!
+</p>
+<p>
+The basic principle of a text adventure is simple:
+<ol type="1">
+<li>The player enters a command.</li>
+<li>The program
+<a href="http://en.wikipedia.org/wiki/Parsing">parses</a>
+and executes the command.</li>
+<li>Repeat steps 1 and 2 until the player decides to quit.</li>
+</ol>
+The code sample below consists of three functions,
+one for each step:
+<ol type="1">
+<li>function <i>getInput</i>;</li>
+<li>function <i>parseAndExecute</i>;</li>
+<li>function <i>main</i>,
+which takes care of calling the other two functions repeatedly.</li>
+</ol>
+</p>
+<table class="code"><tr>
+<th>main.c</th>
+</tr><tr>
+<td>
+<ol>
+<li class="old">#include &lt;stdio.h&gt;</li>
+<li class="new">#include &lt;stdbool.h&gt;</li>
+<li class="new">#include "parsexec.h"</li>
+<li class="new"></li>
+<li class="new">static char input[100] = "look around";</li>
+<li class="new"></li>
+<li class="new">static bool getInput(void)</li>
+<li class="new">{</li>
+<li class="new">   printf("\n--&gt; ");</li>
+<li class="new">   return fgets(input, sizeof(input), stdin) != NULL;</li>
+<li class="new">}</li>
+<li class="old"></li>
+<li class="old">int main()</li>
+<li class="old">{</li>
+<li class="old">   printf("Welcome to Little Cave Adventure.\n");</li>
+<li class="new"><span class="old">   </span>while (parseAndExecute(input) &amp;&amp; getInput());</li>
+<li class="old">   printf("\nBye!\n");</li>
+<li class="old">   return 0;</li>
+<li class="old">}</li>
+</ol>
+</td>
+</tr></table>
+<div class="explanation">
+<p>
+Explanation:
+</p>
+<ul>
+<li>Line 2:
+in case some legacy compiler does not support <i>stdbool.h</i>
+(it was introduced with
+<a href="https://en.wikipedia.org/wiki/C99">C99</a>),
+please be informed that you can easily do without;
+just replace all instances of <i>bool</i>, <i>true</i> and <i>false</i>
+by <i>int</i>, 1 and 0, respectively.
+</li>
+<li>Line 5:
+string buffer to collect keyboard input.
+It is pre-filled with a command that will be executed at startup:
+&ldquo;look around.&rdquo;
+</li>
+<li>Line 9:
+the
+<a href="https://en.wikipedia.org/wiki/Command-line_interface#Command_prompt">prompt</a>;
+feel free to change it into anything you like,
+for example a polite &ldquo;Please enter command.&rdquo;
+</li>
+<li>Line 10:
+standard function
+<a href="http://en.wikipedia.org/wiki/Fgets">fgets</a>
+gets input from the keyboard.
+If the player presses
+<a href="http://en.wikipedia.org/wiki/End-of-file">end-of-file</a>,
+function <i>getInput</i> will return <i>false</i>
+and the program will end (see line 16).
+</li>
+<li>Line 16:
+this is the main loop;
+it alternately calls <i>getInput</i> and <i>parseAndExecute</i>
+until either one of them returns <i>false</i>.
+I deliberately swapped the function calls
+(calling <i>parseAndExecute</i> before <i>getInput</i>)
+because I want to execute a pre-determined command first
+(as specified on line 5).
+</li>
+</ul>
+</div>
+<p>
+I implemented function <i>parseAndExecute</i> in a separate module;
+it is the one function that is subject to change.
+</p>
+<table class="code"><tr>
+<th>parsexec.h</th>
+</tr><tr>
+<td>
+<ol>
+<li class="new">extern bool parseAndExecute(char *input);</li>
+</ol>
+</td>
+</tr><tr>
+<th>parsexec.c</th>
+</tr><tr>
+<td>
+<ol>
+<li class="new">#include &lt;stdio.h&gt;</li>
+<li class="new">#include &lt;stdbool.h&gt;</li>
+<li class="new">#include &lt;string.h&gt;</li>
+<li class="new"></li>
+<li class="new"></li>
+<li class="new">bool parseAndExecute(char *input)</li>
+<li class="new">{</li>
+<li class="new">   char *verb = strtok(input, " \n");</li>
+<li class="new">   char *noun = strtok(NULL, " \n");</li>
+<li class="new">   if (verb != NULL)</li>
+<li class="new">   {</li>
+<li class="new">      if (strcmp(verb, "quit") == 0)</li>
+<li class="new">      {</li>
+<li class="new">         return false;</li>
+<li class="new">      }</li>
+<li class="new">      else if (strcmp(verb, "look") == 0)</li>
+<li class="new">      {</li>
+<li class="new">         printf("It's very dark in here.\n");</li>
+<li class="new">      }</li>
+<li class="new">      else if (strcmp(verb, "go") == 0)</li>
+<li class="new">      {</li>
+<li class="new">         printf("It's too dark to go anywhere.\n");</li>
+<li class="new">      }</li>
+<li class="new">      else</li>
+<li class="new">      {</li>
+<li class="new">         printf("I don't know how to '%s'.\n", verb);</li>
+<li class="new">      }</li>
+<li class="new">   }</li>
+<li class="new">   return true;</li>
+<li class="new">}</li>
+</ol>
+</td>
+</tr></table>
+<div class="explanation">
+<p>
+Explanation:
+</p>
+<ul>
+<li>Line 3:
+from <a href="http://en.wikipedia.org/wiki/String.h">string.h</a>
+we will be using some standard string manipulation functions
+(<i>strcmp</i>, <i>strtok</i>).
+</li>
+<li>Line 8, 9:
+standard function <i>strtok</i> is used to build a very basic verb-noun
+<a href="http://en.wikipedia.org/wiki/Parsing">parser</a>
+in just two lines of code.
+</li>
+<li>Line 9:
+your C compiler may give a warning
+regarding the unused variable &lsquo;noun&rsquo; on this line.
+Please ignore this message; the issue will be gone in the next chapter.
+</li>
+<li>Line 10:
+nothing to do if the player enters nothing (or just spaces).
+</li>
+<li>Line 12, 16, 20:
+using standard function
+<a href="http://en.wikipedia.org/wiki/Strcmp">strcmp</a>
+to match keyboard input with known verbs
+(<i>quit</i>, <i>look</i> and <i>go</i>).
+For now, this is a
+<a href="http://en.wikipedia.org/wiki/Case-sensitive">case-sensitive</a> match,
+so the player should be careful not to hold
+<a href="http://en.wikipedia.org/wiki/Shift_key">shift</a> or press
+<a href="http://en.wikipedia.org/wiki/Caps_lock">caps lock</a>.
+</li>
+<li>Line 14:
+returning <i>false</i> will cause the main loop to end
+(see <i>main.c</i> line 16).
+</li>
+<li>Line 26:
+a typical
+<a href="http://en.wikipedia.org/wiki/Printf">printf</a>-style format string,
+with <tt>%s</tt> as placeholder for the additional parameter <i>verb</i>.
+</li>
+</ul>
+</div>
+<table class="demo">
+<tr><th>Sample output</th></tr>
+<tr><td>
+Welcome to Little Cave Adventure.<br />
+It's very dark in here.<br />
+<br />
+--&gt; go north<br />
+It's too dark to go anywhere.<br />
+<br />
+--&gt; look around<br />
+It's very dark in here.<br />
+<br />
+--&gt; eat sandwich<br />
+I don't know how to 'eat'.<br />
+<br />
+--&gt; quit<br />
+<br />
+Bye!<br />
+</td></tr>
+</table>
+<p>
+This program, however small it may be, already responds
+to commands like <i>go north</i>, <i>look around</i> and <i>quit</i>;
+see the sample output on the right.
+But of course, it is not much of a game.
+It has no locations, no items; all there is, is darkness.
+So in the next chapter, we will begin adding locations.
+</p>
+<h3>Quit</h3>
+<p>
+Notice our program stops at nothing but a command from the player
+(either <i>quit</i> or
+<a href="http://en.wikipedia.org/wiki/End-of-file">end-of-file</a>).
+So what about
+&lsquo;<a href="http://en.wikipedia.org/wiki/Game_over">game over</a>&rsquo;
+situations, i.e. <i>death</i> and <i>victory</i>?
+Well, those are conditions that might end the game,
+but not necessarily end the program.
+</p>
+<ul>
+<li><b>Death:</b>
+the player gets killed by an
+<a href="http://en.wikipedia.org/wiki/Orc">orc</a>;
+he falls from a cliff; his spaceship blows up.
+A good adventure should encourage the player to try again;
+not cast him off upon his first failure.
+</li>
+<li><b>Victory:</b>
+the player found each and every treasure,
+he rescued the princess,
+he escaped the maze.
+It took the player days, maybe months to reach this ultimate goal.
+Imagine his disappointment to get thrown out of the program
+right after the obligatory &lsquo;congratulations&rsquo; message,
+just because there is nothing left to achieve.
+Why not give the player the time to move around freely
+and cherish his moment of victory?
+</li>
+</ul>
+<p>
+There is also a practical problem
+with terminating the program without the player&rsquo;s consent: in a
+<a href="http://en.wikipedia.org/wiki/Windowing_system">windowing system</a>,
+it is not unlikely for a
+<a href="http://en.wikipedia.org/wiki/Text-based_(computing)">text-based</a>
+program to be running in an application window
+that immediately closes when the program ends,
+even before the player has had a chance to read the final message.
+We could delay this effect with &ldquo;press
+<a href="http://en.wikipedia.org/wiki/Any_key">any key</a>
+to exit&rdquo; or &ldquo;wanna quit (y/n)&rdquo;,
+but why bother when there is already a perfectly sane alternative?
+Just let the player type in &lsquo;quit&rsquo;
+whenever he is ready to leave the imaginary world behind.
+</p>
+<p>
+Naturally, all this is just an advice; you can take it or leave it.
+That&rsquo;s the great thing about writing a game in a
+<a href="http://en.wikipedia.org/wiki/General-purpose_programming_language">general-purpose language</a>:
+you can craft it to your likings.
+</p>
+<hr />
+<p>
+Next chapter: <a href="htpataic03.html">3. Locations</a>
+</p>
+</body>
+</html>

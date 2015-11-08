@@ -1,0 +1,262 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+<title>10. More attributes</title>
+<link rel="stylesheet" href="htpataic.css" type="text/css" />
+</head>
+<body>
+<table class="contents"><tr><td>
+#contents
+</td></tr></table>
+
+<h1>How to program a text adventure in C</h1>
+<h2>10. More attributes</h2>
+<p class="intro">
+There are many possible reasons
+for expanding the &lsquo;object&rsquo; structure.
+</p>
+<p>
+When we introduced objects in chapter 4, they had only three attributes.
+In chapter 6, we added a fourth.
+This is more or less the absolute minimum.
+To put more detail into our adventure, we need some more attributes.
+Here are a few examples.
+</p>
+<ol type="1">
+<li>The command <i>look around</i>
+gives a global description of the player&rsquo;s location,
+including a list of items, persons and other objects present there.
+Many adventures require the player to examine these objects,
+either to reveal certain clues that are needed to make progress in the game,
+or simply to enhance the game&rsquo;s atmosphere.
+We will add an attribute <b>details</b>
+that holds a detailed description of each object,
+plus an attribute <b>contents</b>
+that is used with objects that contain other objects.
+</li>
+<li>When the player follows a passage,
+the response is invariably &ldquo;OK&rdquo;
+followed by a description of the new location.
+This is a bit dull;
+it would be so much nicer to give each passage its own custom message.
+We will add an attribute <b>textGo</b> to hold this message.
+</li>
+<li>Some passages have a &lsquo;twist&rsquo;;
+they do not go where the player expects them to go.
+For example, a forest path may be hiding a pitfall.
+While the passage <i>appears</i> to be leading from location A to location B,
+in reality the end point is location C, i.e. the bottom of a pit.
+More common &lsquo;twists&rsquo; are passages that are &lsquo;blocked&rsquo;:
+a closed grating, a broken bridge, a narrow crack.
+Suppose our cave entrance is blocked by the guard.
+Any attempt to enter the cave will fail;
+instead the player will stay at his original location, i.e. the field.
+We could simply change the passage&rsquo;s <i>destination</i>
+to <i>field</i> (or <i>NULL</i>),
+but that would result in an undesirable response to commands like
+<i>go cave</i> and <i>look cave</i>:
+&ldquo;You don&rsquo;t see any cave here.&rdquo;
+We need separate attributes for
+the <i>actual</i> and the <i>apparent</i> end point of a passage.
+We will introduce an attribute <b>prospect</b> to represent the latter;
+the attribute <i>destination</i>, introduced in chapter 6,
+still holds the <i>actual</i> end point.
+In most cases, the two will be equal,
+so we will have <i>object.awk</i> generate an appropriate default;
+<i>prospect</i> only needs to be specified in <i>object.txt</i>
+when it differs from <i>destination</i>.
+</li>
+<li>In many adventures, the player, as well as other persons in the game,
+are limited in how much they can carry.
+Give each item a <b>weight</b>;
+the combined weight of all items in a person&rsquo;s inventory
+should not exceed that person&rsquo;s <b>capacity</b>.
+Give an object a very high weight to make it immovable
+(a tree, a house, a mountain).
+</li>
+<li><a href="http://en.wikipedia.org/wiki/Role-playing_video_game">RPG</a>-style
+adventure games will need a whole range of attributes for persons
+(both player and non-player), for example <b>health</b>.
+Objects with zero health are either dead, or they are not a person at all.
+</li>
+</ol>
+<p>
+We define seven new attributes in <i>object.txt</i>:
+</p>
+<table class="code"><tr>
+<th>object.txt</th>
+</tr><tr>
+<td>
+#diff 10 object.txt
+</td>
+</tr></table>
+<div class="explanation">
+<p>
+Explanation:
+</p>
+<ul>
+<li>Lines 9-15:
+the seven new attributes.
+</li>
+<li>Lines 35 and 42:
+the silver and gold coin have the same weight;
+in case you find this unrealistic,
+feel free to apply a more accurate unit of weight for your objects.
+</li>
+<li>Lines 50-51 and 59-60:
+both the player and the non-player characters
+are alive (they have <i>health</i>),
+and they have a limited ability to carry objects
+(here: the equivalent of 20 coins).
+</li>
+<li>Line 66:
+I am using the cave entrance
+to demonstrate the effect of attribute <i>prospect</i>.
+Normally, <i>prospect</i> takes on the value of <i>destination</i>
+(see <i>object.awk</i> below, specifically line 70).
+By specifying <i>prospect</i> instead of <i>destination</i>
+(consequently leaving the latter <i>NULL</i>),
+we effectively &lsquo;block&rsquo; the cave entrance
+without making it disappear.
+</li>
+<li>Lines 83 and 90:
+<i>textGo</i> is useful not only for passages,
+but for non-passage objects as well
+(in this case the two &lsquo;walls&rsquo; we introduced in chapter 8).
+</li>
+</ul>
+</div>
+<p>
+New attributes also require an adjustment in the code generator.
+</p>
+<table class="code"><tr>
+<th>object.awk</th>
+</tr><tr>
+<td>
+#diff 10 object.awk
+</td>
+</tr></table>
+<p>
+Now we&rsquo;re all set to start using the new attributes!
+<b>details</b> is used in a newly recognized command
+<i>look &lt;object&gt;</i>,
+and <b>textGo</b> replaces the fixed text <i>&ldquo;OK&rdquo;</i>
+in our implementation of command <i>go</i>.
+</p>
+<table class="demo">
+<tr><th>Sample output</th></tr>
+<tr><td>
+#test 10
+</td></tr>
+</table>
+<table class="code"><tr>
+<th>location.c</th>
+</tr><tr>
+<td>
+#diff 10 location.c
+</td>
+</tr></table>
+<p>
+Attributes <b>weight</b> and <b>capacity</b> together become
+a possible reason for not being able to move certain objects around.
+</p>
+<table class="code"><tr>
+<th>move.c</th>
+</tr><tr>
+<td>
+#diff 10 move.c
+</td>
+</tr></table>
+<p>
+The weight check makes use of a new function <i>weightOfContents</i>;
+it will be implemented in <i>misc.c</i>.
+In the same module,
+we also make modifications to some of the existing functions,
+to support the last few attributes.
+</p>
+<p>
+Attribute <b>health</b> will be used
+to tell persons apart from &lsquo;dead&rsquo; objects.
+And <b>contents</b> replaces the fixed text <i>&ldquo;You see&rdquo;</i>.
+The original text was already a bit odd
+when listing the player&rsquo;s inventory,
+but now that function <i>listObjectsAtLocation</i> is used to display
+contents of any possible object (see function <i>executeLook</i> above),
+we really need something more flexible.
+</p>
+<p>
+By replacing attribute <i>destination</i> by <b>prospect</b>
+in function <i>getPassageTo</i>,
+we are improving responses to <i>all</i> commands
+(not just <i>go</i> and <i>look</i>)
+applied to a location that is seen lying on the other end of
+a &lsquo;passage with a twist.&rsquo;
+</p>
+<table class="code"><tr>
+<th>misc.h</th>
+</tr><tr>
+<td>
+#diff 10 misc.h
+</td>
+</tr><tr>
+<th>misc.c</th>
+</tr><tr>
+<td>
+#diff 10 misc.c
+</td>
+</tr></table>
+<p>
+To make the whole picture complete,
+it would be nice to expand the generated map from the previous chapter
+with dashed lines for the &lsquo;apparent&rsquo; passages
+(leading towards a <b>prospect</b>).
+</p>
+<img class="genmap" src="genmap10.png" />
+<table class="code"><tr>
+<th>map.awk</th>
+</tr><tr>
+<td>
+#diff 10 map.awk
+</td>
+</tr></table>
+<p>
+Notes:
+<ul>
+<li>Please be aware that more detailed descriptions often warrant
+a bigger dictionary (more objects, more tags).
+For example, the command <i>look silver coin</i> now returns
+<i>&ldquo;The coin has an eagle on the obverse.&rdquo;</i>
+Very atmospheric, but it invites the player to &lsquo;drill down&rsquo;
+by entering a command <i>look eagle</i>.
+To avoid the disgrace of the game having to admit
+that it does not actually know what &lsquo;eagle&rsquo; means,
+you either have to go for evasive answers
+(<i>&ldquo;You see nothing special&rdquo;</i> &ndash;
+quite disappointing, really),
+or add an &lsquo;ornamental&rsquo; <i>eagle</i> object.
+You can use the <i>location</i> attribute to attach the eagle to the coin;
+this ensures the eagle will follow wherever the coin goes.
+</li>
+<li>Try not to worry too much about the memory space
+wasted on attributes that are only used in certain types of objects
+(for example, <i>textGo</i> is only used in passages),
+or the many duplicate string literals
+(especially the default ones generated by <i>object.awk</i>).
+We will discuss these issues in chapter 19.
+</li>
+<li>To demonstrate the use of attribute <i>prospect</i>,
+we made the cave inaccessible.
+This becomes immediately obvious when you look at the new <i>map.png</i>
+(see the picture above);
+the arrow going into the cave is dashed,
+meaning it is an apparent passage, but not an actual passage.
+Rest assured, the cave will be re-opened in the next chapter.
+</li>
+</ul>
+</p>
+<hr />
+<p>
+Next chapter: <a href="htpataic11.html">11. Conditions</a>
+</p>
+</body>
+</html>

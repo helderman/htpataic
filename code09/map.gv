@@ -1,0 +1,4 @@
+digraph map {
+	field -> cave
+	cave -> field
+}

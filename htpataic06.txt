@@ -1,0 +1,191 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+<title>6. Passages</title>
+<link rel="stylesheet" href="htpataic.css" type="text/css" />
+</head>
+<body>
+<table class="contents"><tr><td>
+#contents
+</td></tr></table>
+
+<h1>How to program a text adventure in C</h1>
+<h2>6. Passages</h2>
+<p class="intro">
+It&rsquo;s time to draw a map - and implement it!
+</p>
+<p>
+The best tools for drawing a map will always be: a pencil and a piece of paper.
+A basic map consists of <b>locations</b> (the rectangles),
+connected by <b>passages</b> (the arrows).
+We already created locations in chapter 3,
+now we will start adding the passages.
+</p>
+<p>
+<a href="mockmap06.gif" title="Click to enlarge">
+<img class="mockmap" alt="Basic map with passages" src="mockmap06.gif" />
+</a>
+</p>
+<p>
+In the virtual world,
+a &lsquo;passage&rsquo; may be anything connecting two locations:
+a road, a door, a stretch of sand in a desert.
+Basically, a passage has the following properties:
+<ul>
+<li>A starting point (location).</li>
+<li>A destination (location).</li>
+<li>The narrative description, for example &ldquo;a forest path&rdquo;.</li>
+<li>The tag by which the passage is referred to in the <i>go</i> command.</li>
+</ul>
+</p>
+<p>
+Considering these properties, it may not come as a surprise that
+the <b>struct object</b> defined in chapter 4
+is very suitable to store a passage.
+In fact, a passage is not that different from an item or actor;
+it is present at a certain location as a &lsquo;visible exit&rsquo;
+(this location is the starting point).
+It just behaves differently to certain commands.
+In particular the command &lsquo;go&rsquo;:
+applied to a passage, <i>go</i> will change the player&rsquo;s location.
+The target location (the &lsquo;destination&rsquo;)
+can be stored in the <i>struct object</i> as a new attribute.
+</p>
+<table><tr>
+<td class="old snippet">struct object {
+   const char    *description;
+   const char    *tag;
+   struct object *location;
+   <span class="new">struct object *destination;</span>
+};
+</td>
+</tr></table>
+<p>
+Notes:
+<ul>
+<li>Obviously, <i>destination</i> is unused in most other objects
+(items, actors), but I consider this to be a minor waste of space.</li>
+<li>A passage runs in one direction only;
+bi-directional passages are implemented by
+defining two separate uni-directional passages.
+Again, let&rsquo;s not bother now about the apparent waste of space.</li>
+</ul>
+</p>
+<p>
+So we expand the array of objects:
+</p>
+<table class="demo">
+<tr><th>Sample output</th></tr>
+<tr><td>
+#test 6
+</td></tr>
+</table>
+<table class="code"><tr>
+<th>object.h</th>
+</tr><tr>
+<td>
+#diff 6 object.h
+</td>
+</tr><tr>
+<th>object.c</th>
+</tr><tr>
+<td>
+#diff 6 object.c
+</td>
+</tr></table>
+<p>
+Next, we have to make some changes to function <i>executeGo</i>.
+</p>
+<table class="code"><tr>
+<th>location.h</th>
+</tr><tr>
+<td>
+#diff 6 location.h
+</td>
+</tr><tr>
+<th>location.c</th>
+</tr><tr>
+<td>
+#diff 6 location.c
+</td>
+</tr></table>
+<div class="explanation">
+<p>
+Explanation:
+</p>
+<ul>
+<li>Line 31:
+we no longer allow the player to jump freely from one location to another:
+there must be a passage connecting the two.
+We use a separate function <i>getPassageTo</i> (defined below) to check this.
+</li>
+<li>Line 37-42:
+besides <i>go &lt;location&gt;</i> (lines 31-36),
+we now offer an alternative way for the player to move:
+<i>go &lt;passage&gt;</i>.
+For example, when in the field,
+<i>go cave</i> and <i>go entrance</i> will have the same effect.
+</li>
+</ul>
+</div>
+<p>
+Function <i>executeGo</i> uses a separate function
+to check if two locations are connected by a passage.
+Because such a function will prove to be useful in the next chapter as well,
+I made it a general function <i>getPassageTo</i> as part of <i>misc.c</i>.
+</p>
+<table class="code"><tr>
+<th>misc.h</th>
+</tr><tr>
+<td>
+#diff 6 misc.h
+</td>
+</tr><tr>
+<th>misc.c</th>
+</tr><tr>
+<td>
+#diff 6 misc.c
+</td>
+</tr></table>
+<div class="explanation">
+<p>
+Explanation:
+</p>
+<ul>
+<li>Line 8-11:
+we scan through all objects until we encounter a passage running
+from <i>player-&gt;location</i> (the player&rsquo;s current location)
+to <i>targetLocation</i> (the function&rsquo;s parameter).
+</li>
+<li>Line 13:
+if a matching passage is found, we return a pointer to the passage object.
+</li>
+<li>Line 16:
+if no such passage exists, we return NULL.
+</li>
+</ul>
+</div>
+<p>
+The other modules
+(<i>parsexec.c</i>, <i>execute.c</i>, <i>match.c</i>, <i>move.c</i>)
+remain unchanged, you can see them in the previous chapters.
+</p>
+<p>
+Obviously, the map in this sample is trivial:
+there are only two locations, and they are connected in both directions.
+I will leave it up to the reader to draw a more complicated map
+and turn it into a list of objects (locations and passages).
+</p>
+<p>
+Many responses in the game are still kind of dull.
+For example,
+&ldquo;go guard&rdquo; returns &ldquo;You can&rsquo;t go there.&rdquo;
+Exactly the kind of output I criticized in the previous chapter!
+This is something we will be working on in the next chapter.
+</p>
+<hr />
+<p>
+Next chapter: <a href="htpataic07.html">7. Distance</a>
+</p>
+</body>
+</html>

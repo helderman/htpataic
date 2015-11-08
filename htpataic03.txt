@@ -1,0 +1,180 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+<title>3. Locations</title>
+<link rel="stylesheet" href="htpataic.css" type="text/css" />
+</head>
+<body>
+<table class="contents"><tr><td>
+#contents
+</td></tr></table>
+
+<h1>How to program a text adventure in C</h1>
+<h2>3. Locations</h2>
+<p class="intro">
+Traditionally, a text adventure is a virtual world
+consisting of (many) different locations.
+Though this is not essential
+(some adventures take place in a single room!),
+it is a good way to explain the use of
+<a href="http://en.wikipedia.org/wiki/Data_structure">data structures</a>.
+</p>
+<p>
+We start by defining a
+<a href="http://en.wikipedia.org/wiki/Struct_(C_programming_language)">struct</a>
+to represent a location.
+It contains two simple attributes to start with (more may follow later).
+</p>
+<ul>
+<li><b>description:</b>
+how the location is described in narrative text output by the program.
+</li>
+<li><b>tag:</b>
+how the location is recognized by the
+<a href="http://en.wikipedia.org/wiki/Parsing">parser</a>.
+</li>
+</ul>
+<table><tr>
+<td class="snippet">struct location {
+   const char *description;
+   const char *tag;
+};
+</td>
+</tr></table>
+<p>
+Next, we define an array of locations.
+For now, we keep it really simple: just two locations.
+</p>
+<table><tr>
+<td class="snippet">struct location locs[2];
+</td>
+</tr></table>
+<p>
+We can use an initializer to immediately fill in all the static data.
+</p>
+<p>
+<a href="mockmap03.gif" title="Click to enlarge">
+<img class="mockmap" alt="Very basic map" src="mockmap03.gif" />
+</a>
+</p>
+<table><tr>
+<td class="snippet">struct location locs[2] = {
+   {"an open field", "field"},
+   {"a little cave", "cave"}
+};
+</td>
+</tr></table>
+<p>
+Using the data from the array is simple.
+For example, the following line of code will output "You are in an open field."
+</p>
+<table><tr>
+<td class="snippet">printf("You are in %s.\n", locs[0].description);
+</td>
+</tr></table>
+<p>
+Let&rsquo;s put this into practice.
+In the code sample from the previous chapter (<i>parsexec.c</i>),
+we alter lines 4, 18 and 22 (slightly highlighted below).
+</p>
+<table class="demo">
+<tr><th>Sample output</th></tr>
+<tr><td>
+#test 3
+</td></tr>
+</table>
+<table class="code"><tr>
+<th>parsexec.c</th>
+</tr><tr>
+<td>
+#diff 3 parsexec.c
+</td>
+</tr></table>
+<div class="explanation">
+<p>
+Explanation:
+</p>
+<ul>
+<li>Line 4:
+express your intent to use the functions defined in the module below.
+</li>
+<li>Line 18, 22:
+call the new functions.
+</li>
+</ul>
+</div>
+<p>
+Next, we add a new module to the project.
+</p>
+<table class="code"><tr>
+<th>location.h</th>
+</tr><tr>
+<td>
+#diff 3 location.h
+</td>
+</tr><tr>
+<th>location.c</th>
+</tr><tr>
+<td>
+#diff 3 location.c
+</td>
+</tr></table>
+<div class="explanation">
+<p>
+Explanation:
+</p>
+<ul>
+<li>Line 4-11:
+in C you can use a single statement to define a type (<i>struct location</i>),
+declare a variable (<i>locs</i>) and fill it with its initial values.
+</li>
+<li>Line 8:
+the array length (2) is not specified;
+in this case, the C compiler will automatically determine the length
+based on the number of elements in the initializer.
+</li>
+<li>Line 13:
+as variable <i>locs</i> is
+<a href="http://en.wikipedia.org/wiki/Static_memory_allocation">allocated statically</a>,
+we can let the compiler calculate the total number of locations;
+very handy once we start adding more locations.
+The calculation is rather obscure to look at,
+so we give it a meaningful name <i>numberOfLocations</i>.
+The calculation is performed at compile time, not in runtime,
+so we can use
+<a href="http://en.wikipedia.org/wiki/C_preprocessor">#define</a>
+without any performance penalty.
+</li>
+<li>Line 15:
+the player&rsquo;s location is initially 0
+(indexing the first array element: the field);
+change the value of <i>locationOfPlayer</i> to move to a different location
+(as is done in line 43).
+</li>
+<li>Line 15, 31:
+because <i>numberOfLocations</i> is an
+<a href="http://en.wikipedia.org/wiki/Signedness">unsigned</a> integer,
+we use the same type to declare variables <i>locationOfPlayer</i> and <i>i</i>.
+</li>
+<li>Line 44:
+after the player has moved, the new location is immediately reported back,
+as if the player entered the command &lsquo;look around&rsquo;.
+</li>
+</ul>
+</div>
+<p>
+Now the commands <i>look around</i> and <i>go &lt;location&gt;</i>
+have really come to life!
+Feel free to experiment by adding more locations.
+Of course, the game is still far from perfect.
+Right now, there is too much freedom: from every location,
+the player can freely jump to any other location.
+In chapter 6, we will show how to &lsquo;connect&rsquo; locations.
+But next up, we will start adding objects to the game.
+</p>
+<hr />
+<p>
+Next chapter: <a href="htpataic04.html">4. Objects</a>
+</p>
+</body>
+</html>

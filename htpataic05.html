@@ -1,0 +1,463 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+<title>5. Inventory</title>
+<link rel="stylesheet" href="htpataic.css" type="text/css" />
+</head>
+<body>
+<table class="contents"><tr><td>
+<h4>Contents</h4>
+<div><a href="htpataic01.html">1. Introduction</a></div>
+<div><a href="htpataic02.html">2. The main loop</a></div>
+<div><a href="htpataic03.html">3. Locations</a></div>
+<div><a href="htpataic04.html">4. Objects</a></div>
+<div><b>5. Inventory</b></div>
+<div><a href="htpataic06.html">6. Passages</a></div>
+<div><a href="htpataic07.html">7. Distance</a></div>
+<div><a href="htpataic08.html">8. North, east, south, west</a></div>
+<div><a href="htpataic09.html">9. Code generation</a></div>
+<div><a href="htpataic10.html">10. More attributes</a></div>
+<div><a href="htpataic11.html">11. Conditions</a></div>
+<div><a href="htpataic12.html">12. Open and close</a></div>
+<div><a href="htpataic13.html">13. The parser</a></div>
+<div><a href="htpataic14.html">14. Multiple arguments</a></div>
+<div><a href="htpataic15.html">15. Light and dark</a></div>
+<div><a href="htpataic16.html">16. Savegame</a></div>
+<div><a href="htpataic17.html">17. Test automation</a></div>
+<div><a href="htpataic18.html">18. Abbreviations</a></div>
+<div><a href="htpataic19.html">19. Conversations</a></div>
+<div><a href="htpataic20.html">20. Combat</a></div>
+<div><a href="htpataic21.html">21. Database</a></div>
+<div><a href="htpataic22.html">22. Speech</a></div>
+<div><a href="htpataic23.html">23. JavaScript</a></div>
+</td></tr></table>
+
+<h1>How to program a text adventure in C</h1>
+<h2>5. Inventory</h2>
+<p class="intro">
+We will now make it possible for actors to &lsquo;hold&rsquo; items.
+</p>
+<p>
+In the previous chapter, we made an array to store all objects, including the player himself.
+By considering the player as an object,
+we make the player an integrated part of the game,
+instead of a spectator watching the virtual world from a safe distance.
+</p>
+<p>
+The advantage of this approach becomes most obvious in a game with multiple player characters
+(either <a href="http://en.wikipedia.org/wiki/MUD">MUD</a>-style
+or a single-player game where you can switch between different characters),
+but it is equally useful when there is only one character.
+Player attributes no longer have to be stored in separate variables;
+we can use the same data structure as used for any other object.
+So the player, being an object:
+</p>
+<ul>
+<li><b>has a location</b> (&ldquo;where am I?&rdquo;)</li>
+<li><b>is a location</b> for any items the player may be holding.</li>
+</ul>
+<p>
+This makes certain common actions very easy to implement:
+</p>
+<table cellpadding="8"><tr>
+<th>Action</th>
+<th>Typical<br />command</th>
+<th>Example</th>
+</tr><tr>
+<td class="comment">Player moves from location to location</td>
+<td class="comment">go</td>
+<td class="snippet"><span class="red">player</span>-&gt;location = cave;</td>
+</tr><tr>
+<td class="comment">List items and actors present at a location</td>
+<td class="comment">look</td>
+<td class="snippet">listObjectsAtLocation(<span class="red">cave</span>);</td>
+</tr><tr>
+<td class="comment">Player gets an item</td>
+<td class="comment">get</td>
+<td class="snippet">silver-&gt;location = <span class="red">player</span>;</td>
+</tr><tr>
+<td class="comment">Player drops an item</td>
+<td class="comment">drop</td>
+<td class="snippet">silver-&gt;location = <span class="red">player</span>-&gt;location;</td>
+</tr><tr>
+<td class="comment">List the player&rsquo;s inventory</td>
+<td class="comment">inventory</td>
+<td class="snippet">listObjectsAtLocation(<span class="red">player</span>);</td>
+</tr><tr>
+<td class="comment">Player gives an item to an actor</td>
+<td class="comment">give</td>
+<td class="snippet">silver-&gt;location = <span class="red">guard</span>;</td>
+</tr><tr>
+<td class="comment">Player receives an item from an actor</td>
+<td class="comment">ask</td>
+<td class="snippet">silver-&gt;location = <span class="red">player</span>;</td>
+</tr><tr>
+<td class="comment">List another actor&rsquo;s inventory</td>
+<td class="comment">examine</td>
+<td class="snippet">listObjectsAtLocation(<span class="red">guard</span>);</td>
+</tr></table>
+<p>
+Commands <i>go</i> and <i>look</i> (the first two examples above)
+were already implemented in the previous chapter.
+Now we will introduce some typical <b>inventory</b> actions
+for both the player and the non-player characters (commands
+<i>get</i>, <i>drop</i>, <i>give</i>, <i>ask</i> and <i>inventory</i>).
+</p>
+<table class="demo">
+<tr><th>Sample output</th></tr>
+<tr><td>
+Welcome to Little Cave Adventure.<br />
+You are in an open field.<br />
+You see:<br />
+a silver coin<br />
+a burly guard<br />
+<br />
+--&gt; get silver<br />
+OK.<br />
+<br />
+--&gt; inventory<br />
+You see:<br />
+a silver coin<br />
+<br />
+--&gt; look around<br />
+You are in an open field.<br />
+You see:<br />
+a burly guard<br />
+<br />
+--&gt; give silver<br />
+OK.<br />
+<br />
+--&gt; inventory<br />
+You are empty-handed.<br />
+<br />
+--&gt; ask silver<br />
+OK.<br />
+<br />
+--&gt; inventory<br />
+You see:<br />
+a silver coin<br />
+<br />
+--&gt; go cave<br />
+OK.<br />
+You are in a little cave.<br />
+You see:<br />
+a gold coin<br />
+<br />
+--&gt; give silver<br />
+There is nobody here to give that to.<br />
+<br />
+--&gt; drop silver<br />
+OK.<br />
+<br />
+--&gt; look around<br />
+You are in a little cave.<br />
+You see:<br />
+a silver coin<br />
+a gold coin<br />
+<br />
+--&gt; inventory<br />
+You are empty-handed.<br />
+<br />
+--&gt; quit<br />
+<br />
+Bye!<br />
+</td></tr>
+</table>
+<table class="code"><tr>
+<th>parsexec.c</th>
+</tr><tr>
+<td>
+<ol>
+<li class="old">#include &lt;stdio.h&gt;</li>
+<li class="old">#include &lt;stdbool.h&gt;</li>
+<li class="old">#include &lt;string.h&gt;</li>
+<li class="old">#include "location.h"</li>
+<li class="new">#include "execute.h"</li>
+<li class="old"></li>
+<li class="old">bool parseAndExecute(char *input)</li>
+<li class="old">{</li>
+<li class="old">   char *verb = strtok(input, " \n");</li>
+<li class="old">   char *noun = strtok(NULL, " \n");</li>
+<li class="old">   if (verb != NULL)</li>
+<li class="old">   {</li>
+<li class="old">      if (strcmp(verb, "quit") == 0)</li>
+<li class="old">      {</li>
+<li class="old">         return false;</li>
+<li class="old">      }</li>
+<li class="old">      else if (strcmp(verb, "look") == 0)</li>
+<li class="old">      {</li>
+<li class="old">         executeLook(noun);</li>
+<li class="old">      }</li>
+<li class="old">      else if (strcmp(verb, "go") == 0)</li>
+<li class="old">      {</li>
+<li class="old">         executeGo(noun);</li>
+<li class="new">      }</li>
+<li class="new">      else if (strcmp(verb, "get") == 0)</li>
+<li class="new">      {</li>
+<li class="new">         executeGet(noun);</li>
+<li class="new">      }</li>
+<li class="new">      else if (strcmp(verb, "drop") == 0)</li>
+<li class="new">      {</li>
+<li class="new">         executeDrop(noun);</li>
+<li class="new">      }</li>
+<li class="new">      else if (strcmp(verb, "give") == 0)</li>
+<li class="new">      {</li>
+<li class="new">         executeGive(noun);</li>
+<li class="new">      }</li>
+<li class="new">      else if (strcmp(verb, "ask") == 0)</li>
+<li class="new">      {</li>
+<li class="new">         executeAsk(noun);</li>
+<li class="new">      }</li>
+<li class="new">      else if (strcmp(verb, "inventory") == 0)</li>
+<li class="new">      {</li>
+<li class="new">         executeInventory();</li>
+<li class="old">      }</li>
+<li class="old">      else</li>
+<li class="old">      {</li>
+<li class="old">         printf("I don't know how to '%s'.\n", verb);</li>
+<li class="old">      }</li>
+<li class="old">   }</li>
+<li class="old">   return true;</li>
+<li class="old">}</li>
+</ol>
+</td>
+</tr></table>
+<div class="explanation">
+<p>
+Explanation:
+</p>
+<ul>
+<li>Line 5:
+another new module is included.
+</li>
+<li>Line 25-44:
+adding these 20 lines makes the game recognize five more commands.
+</li>
+</ul>
+</div>
+<p>
+The new commands are implemented by the following module.
+</p>
+<table class="code"><tr>
+<th>execute.h</th>
+</tr><tr>
+<td>
+<ol>
+<li class="new">extern void executeGet(const char *noun);</li>
+<li class="new">extern void executeDrop(const char *noun);</li>
+<li class="new">extern void executeAsk(const char *noun);</li>
+<li class="new">extern void executeGive(const char *noun);</li>
+<li class="new">extern void executeInventory(void);</li>
+</ol>
+</td>
+</tr><tr>
+<th>execute.c</th>
+</tr><tr>
+<td>
+<ol>
+<li class="new">#include &lt;stdio.h&gt;</li>
+<li class="new">#include "object.h"</li>
+<li class="new">#include "misc.h"</li>
+<li class="new">#include "move.h"</li>
+<li class="new"></li>
+<li class="new">void executeGet(const char *noun)</li>
+<li class="new">{</li>
+<li class="new">   moveObject(noun, player-&gt;location, player);</li>
+<li class="new">}</li>
+<li class="new"></li>
+<li class="new">void executeDrop(const char *noun)</li>
+<li class="new">{</li>
+<li class="new">   moveObject(noun, player, player-&gt;location);</li>
+<li class="new">}</li>
+<li class="new"></li>
+<li class="new">void executeAsk(const char *noun)</li>
+<li class="new">{</li>
+<li class="new">   moveObject(noun, actorHere(), player);</li>
+<li class="new">}</li>
+<li class="new"></li>
+<li class="new">void executeGive(const char *noun)</li>
+<li class="new">{</li>
+<li class="new">   moveObject(noun, player, actorHere());</li>
+<li class="new">}</li>
+<li class="new"></li>
+<li class="new">void executeInventory(void)</li>
+<li class="new">{</li>
+<li class="new">   if (listObjectsAtLocation(player) == 0)</li>
+<li class="new">   {</li>
+<li class="new">      printf("You are empty-handed.\n");</li>
+<li class="new">   }</li>
+<li class="new">}</li>
+</ol>
+</td>
+</tr></table>
+<div class="explanation">
+<p>
+Explanation:
+</p>
+<ul>
+<li>Line 18, 23:
+due to the simplicity of our verb-noun parser,
+commands <i>give</i> and <i>ask</i> have only one argument: the item.
+The actor involved is implied by using function <i>actorHere</i>
+(defined below).
+</li>
+<li>Line 28:
+function <i>listObjectsAtLocation</i> is defined in <i>misc.*</i>,
+see the previous chapter.
+Its return value tells us how many objects were found.
+</li>
+<li>Line 30:
+the user expects some response, even when the list of objects is empty.
+</li>
+</ul>
+</div>
+<p>
+Commands <i>get</i>, <i>drop</i>, <i>give</i> and <i>ask</i>
+do little more than move an item from one place to another.
+A single function <i>moveObject</i> can deal with that.
+</p>
+<table class="code"><tr>
+<th>move.h</th>
+</tr><tr>
+<td>
+<ol>
+<li class="new">extern void moveObject(const char *noun, OBJECT *from, OBJECT *to);</li>
+</ol>
+</td>
+</tr><tr>
+<th>move.c</th>
+</tr><tr>
+<td>
+<ol>
+<li class="new">#include &lt;stdio.h&gt;</li>
+<li class="new">#include "object.h"</li>
+<li class="new">#include "match.h"</li>
+<li class="new"></li>
+<li class="new">void moveObject(const char *noun, OBJECT *from, OBJECT *to)</li>
+<li class="new">{</li>
+<li class="new">   OBJECT *obj = matchingObject(noun);</li>
+<li class="new">   if (obj == NULL)</li>
+<li class="new">   {</li>
+<li class="new">      printf("I don't understand what item you mean.\n");</li>
+<li class="new">   }</li>
+<li class="new">   else if (from != obj-&gt;location)</li>
+<li class="new">   {</li>
+<li class="new">      printf("You can't.\n");</li>
+<li class="new">   }</li>
+<li class="new">   else if (to == NULL)</li>
+<li class="new">   {</li>
+<li class="new">      printf("There is nobody here to give that to.\n");</li>
+<li class="new">   }</li>
+<li class="new">   else</li>
+<li class="new">   {</li>
+<li class="new">      obj-&gt;location = to;</li>
+<li class="new">      printf("OK.\n");</li>
+<li class="new">   }</li>
+<li class="new">}</li>
+</ol>
+</td>
+</tr></table>
+<div class="explanation">
+<p>
+Explanation:
+</p>
+<ul>
+<li>Line 12-15:
+you can&rsquo;t pick up something that isn&rsquo;t lying around here,
+you can&rsquo;t give or drop something you are not holding,
+and you can&rsquo;t ask something the other actor isn&rsquo;t holding.
+</li>
+<li>Line 16-19:
+there is only one possibility for the item&rsquo;s destination to be NULL:
+when trying to &lsquo;give&rsquo; something
+at a location where the player is alone.
+</li>
+</ul>
+</div>
+<p>
+Function <i>actorHere</i> is used in commands <i>give</i> and <i>ask</i>,
+but it could be useful for other commands as well.
+So we define it in <i>misc.c</i>.
+</p>
+<table class="code"><tr>
+<th>misc.h</th>
+</tr><tr>
+<td>
+<ol>
+<li class="new">extern OBJECT *actorHere(void);</li>
+<li class="old">extern int listObjectsAtLocation(OBJECT *location);</li>
+</ol>
+</td>
+</tr><tr>
+<th>misc.c</th>
+</tr><tr>
+<td>
+<ol>
+<li class="old">#include &lt;stdio.h&gt;</li>
+<li class="old">#include "object.h"</li>
+<li class="old">#include "misc.h"</li>
+<li class="old"></li>
+<li class="new">OBJECT *actorHere(void)</li>
+<li class="new">{</li>
+<li class="new">   OBJECT *obj;</li>
+<li class="new">   for (obj = objs; obj &lt; endOfObjs; obj++)</li>
+<li class="new">   {</li>
+<li class="new">      if (obj-&gt;location == player-&gt;location &amp;&amp; obj == guard)</li>
+<li class="new">      {</li>
+<li class="new">         return obj;</li>
+<li class="new">      }</li>
+<li class="new">   }</li>
+<li class="new">   return NULL;</li>
+<li class="new">}</li>
+<li class="new"></li>
+<li class="old">int listObjectsAtLocation(OBJECT *location)</li>
+<li class="old">{</li>
+<li class="old">   int count = 0;</li>
+<li class="old">   OBJECT *obj;</li>
+<li class="old">   for (obj = objs; obj &lt; endOfObjs; obj++)</li>
+<li class="old">   {</li>
+<li class="old">      if (obj != player &amp;&amp; obj-&gt;location == location)</li>
+<li class="old">      {</li>
+<li class="old">         if (count++ == 0)</li>
+<li class="old">         {</li>
+<li class="old">            printf("You see:\n");</li>
+<li class="old">         }</li>
+<li class="old">         printf("%s\n", obj-&gt;description);</li>
+<li class="old">      }</li>
+<li class="old">   }</li>
+<li class="old">   return count;</li>
+<li class="old">}</li>
+</ol>
+</td>
+</tr></table>
+<div class="explanation">
+<p>
+Explanation:
+</p>
+<ul>
+<li>Line 5-16:
+function <i>actorHere</i> returns a pointer to the actor
+present at the same location as the player,
+or NULL if the player is alone.
+In line 24 there is an exhaustive, hard-coded list of non-player characters
+(up until now, just one: the <i>guard</i>).
+In chapter 10, we will start using an attribute as a more elegant way
+to distinguish actors from items and other non-actor objects.
+</li>
+</ul>
+</div>
+<p>
+The other modules (<i>object.c</i>, <i>match.c</i>, <i>location.c</i>)
+remain unchanged,
+you can see them in the previous chapter.
+</p>
+<p>
+In chapter 12, you will see us add more commands.
+But first, we will be making some improvements to command <i>go</i>.
+</p>
+<hr />
+<p>
+Next chapter: <a href="htpataic06.html">6. Passages</a>
+</p>
+</body>
+</html>

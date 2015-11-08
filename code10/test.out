@@ -1,0 +1,38 @@
+Welcome to Little Cave Adventure.
+You are in an open field.
+You see:
+a silver coin
+a burly guard
+a cave entrance to the east
+dense forest all around
+
+--> look guard
+The guard is a really big fellow.
+
+--> get guard
+That is way too heavy.
+
+--> get coin
+OK.
+
+--> inventory
+You have:
+a silver coin
+
+--> give coin
+OK.
+
+--> look guard
+The guard is a really big fellow.
+He has:
+a silver coin
+
+--> go cave
+The guard stops you from walking into the cave.
+
+--> go north
+Dense forest is blocking the way.
+
+--> quit
+
+Bye!

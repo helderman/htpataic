@@ -1,0 +1,97 @@
+Put everything in GitHub
+
+ch6: misc.c: getPassageTo parameterize player->location
+ch7: misc.c: distanceTo parameterize player->location
+ch7: misc.h: distPlayer --> distSelf
+ch7: move.c: investigate whether we can simplify that
+
+code07/move.c - case distHereContained:
+'get gold' should work because box's health == 0
+
+ch13: objectWithinReach heeft extra param; unused; under construction?
+
+new chapter 14: multiple arguments
+because there is more to it than just the parser:
+- order of patterns
+- breadth-first distance handling
+- difficult semantics; how to respond to "put key in door"?
+ch14: you can ask silver from guard when you are in the cave;
+      you can get gold from box when you are in the field
+ch14: 2-param get/put have same impl as ask/give; must refine
+change argument for introducing 2-param commands: put gold in box
+
+sort object.txt
+
+copyright/copyleft
+
+ch8: leg uit dat het nog niet perfect is (geen objDup)
+
+ch15: listObjectsAtLocation: make visible light exit in dark location
+ch15: cannot see cave exit; can "go <location>" between dark locations
+ch15: "turn on lamp" works, "turn lamp on" does not
+
+more chapters:
+12. Open and close
+- uitleg rugzak, en andere objecten die meeliften met objecten (coin + eagle)
+13. A different parser
+- case-insensitive, multiple spaces ("silver coin", ch8)
+- something about distUnknownObject (see ch7)
+- new struct: object, tag, distance, isDuplicate, passage?
+- yacc!
+14. light+dark
+- a typical feature for games that involve dungeon exploration (Adventure/Zork)
+- an attribute 'light' that is set in 2 objects: field + torch
+- can only 'look' if there is any lit object with distance < distOverthere
+- same for other commands (go, get) - maybe increase distance of objects?
+  - distanceTo: swap 3rd and 4th test, and put 'light' check in between
+    (checking whether obj->location is lit, or contains a lit object)
+- commands 'light' and 'dim' (?); only work on torch --> swapLocation like ch12
+- the lamp gets exhausted; this is a sense of 'time'!
+15. Savegame
+http://en.wikipedia.org/wiki/Saved_game
+- save the whole objs (+ any other state vars)
+  - optimization: only save what is subject to change (location, health)
+    - note that location has been used for the state of doors and light too
+    - skip pointers, for safety!
+  - add a checksum to prevent manipulation
+  - or use checkpointing software like CryoPID
+    http://en.wikipedia.org/wiki/Application_checkpointing
+- alternative: save log instead of state
+  - or use a test automation tool
+16. Abbreviations (n,e,s,w,u,d,inv; x/exam???)
+17. Conversations
+- http://www.scribd.com/doc/17682546/Dynamic-Conversation-Engine-Concept
+18. How simple it is to add commands (push/pull, move x to y) - refer to ch5
+- also: combat!
+- maybe rather focus on combat in ch18, plus discuss 'time' (turn-based vs real-time)
+19. Performance, space (refer to/from ch6)
+20. Database (sqlite)
+- replace function pointers (ch11) by enums; have object.awk generate a switch
+21. Speech
+22. Javascript
+
+wanneer objDup? parser?
+
+More docu
+- http://www.bbc.co.uk/dna/h2g2/A20600641
+
+---------------------------------------------------------
+field
+"You are in an open field"
+"What a pleasant place to be, with a cool breeze and birds chirping."
+"You see "
+
+silver
+"a silver coin"
+"The silver coin looks nice and shiny."
+"It has "
+
+silver_eagle
+"an eagle on the obverse"
+"The eagle stands proud with spread wings."
+
+silver_wings
+"There is nothing special about them."
+
+Look around: 1st time short + long + contents, 2nd time short description
+Look field: long + contents

@@ -1,0 +1,41 @@
+Welcome to Little Cave Adventure.
+You are in an open field.
+You see:
+a silver coin
+a burly guard
+a cave entrance
+
+--> go guard
+You can't get much closer than this.
+
+--> give silver
+You have no silver.
+
+--> ask silver
+Sorry, a burly guard has no silver.
+
+--> get silver
+OK.
+
+--> get gold
+You don't see any gold here.
+
+--> give silver
+OK.
+
+--> go cave
+OK.
+You are in a little cave.
+You see:
+a gold coin
+a way out
+
+--> get gold
+OK.
+
+--> give gold
+There is nobody here to give that to.
+
+--> quit
+
+Bye!

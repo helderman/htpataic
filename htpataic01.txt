@@ -1,0 +1,155 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+<title>1. Introduction</title>
+<link rel="stylesheet" href="htpataic.css" type="text/css" />
+</head>
+<body>
+<table class="contents"><tr><td>
+#contents
+</td></tr></table>
+
+<h1>How to program a text adventure in C</h1>
+<h2>1. Introduction</h2>
+<p class="intro">
+This is not a C tutorial; there are plenty of those on the web.
+The reader is assumed to have some basic knowledge of programming in general,
+and preferrably the C programming language in particular.
+Maybe you just finished reading a tutorial somewhere,
+and you would like to learn some more about programming
+by studying other people&rsquo;s source code.
+Or could it be that you really are genuinely interested in
+the ancient art of writing text adventure games from scratch?
+Maybe you are just having a sense of nostalgia about the old days,
+when life was simple, and so was software.
+In either case, you have come to the right place.
+</p>
+<p>
+In the 1980s,
+<a href="http://en.wikipedia.org/wiki/Text_adventure">text adventures</a>
+were a respectable genre of computer games.
+But times have changed:
+in the 21st century, they pale in comparison with modern
+<a href="http://en.wikipedia.org/wiki/Mmorpg">MMORPGs</a> with 3D engines.
+Where books survived the rise of film,
+text-based games quickly lost the battle against their graphical counterparts.
+&lsquo;Interactive fiction&rsquo; is kept alive by an active community,
+but its commercial value is long gone.
+</p>
+<p>
+There is a bright side to this:
+authoring tools of professional quality are now available free of charge.
+This is also the single biggest advice I can give you
+if you intend to write your own adventure:
+use one of the many dedicated
+<a href="http://en.wikipedia.org/wiki/Text_adventure#Development_systems">development systems</a>.
+</p>
+<p>
+But then, why this tutorial?
+Why write an adventure game using a
+<a href="http://en.wikipedia.org/wiki/General-purpose_programming_language">general-purpose programming language</a>?
+Because doing so can be entertaining, challenging and educational.
+The programming language
+<a href="http://en.wikipedia.org/wiki/C_(programming_language)">C</a>
+may not be the most obvious choice for writing a text adventure;
+it&rsquo;s nothing like LISP-based languages like
+<a href="http://en.wikipedia.org/wiki/MDL_programming_language">MDL</a> and
+<a href="http://en.wikipedia.org/wiki/Zork_Implementation_Language">ZIL</a>.
+But while writing my own humble text adventure,
+I learned that C fits the bill quite well.
+</p>
+<p>
+The ideas you find here apply not only to C
+but to other programming languages as well.
+If you prefer
+<a href="http://en.wikipedia.org/wiki/Java_(programming_language)">Java</a>
+or
+<a href="http://en.wikipedia.org/wiki/Python_(programming_language)">Python</a>
+over C, it should not be too difficult to translate my code samples.
+</p>
+<p>
+I tried to keep this tutorial readable for a broad audience,
+without too much off-topic elaboration.
+For terms that might warrant further explanation,
+please follow the hyperlinks to relevant
+<a href="http://en.wikipedia.org/wiki/Wikipedia">Wikipedia</a> articles.
+</p>
+<h3>Incremental development</h3>
+<p>
+Throughout this tutorial,
+we will be developing a fully functional text adventure game.
+This will be done in an
+<a href="http://en.wikipedia.org/wiki/Incremental_build_model">incremental</a>
+fashion.
+With every chapter, some code is added to our program.
+Each increment, however small, adds some value to the game.
+And every time, the result is a working program,
+ready to run once built with a proper C
+<a href="http://en.wikipedia.org/wiki/Compiler">compiler</a>.
+</p>
+<p>
+We start off with just 9 lines of code;
+it is little more than a trivial
+<a href="http://en.wikipedia.org/wiki/Hello_world_program">&ldquo;Hello World&rdquo; program</a>.
+If you can&rsquo;t even get this simple example to work,
+you should find some help with that first,
+before you are ready to move on to the next chapter.
+</p>
+<table class="demo">
+<tr><th>Sample output</th></tr>
+<tr><td>
+#test 1
+</td></tr>
+</table>
+<table class="code"><tr>
+<th>main.c</th>
+</tr><tr>
+<td>
+#diff 1 main.c
+</td>
+</tr></table>
+<div class="explanation">
+<p>
+Some explanation for those not quite familiar with C:
+</p>
+<ul>
+<li>Line 1:
+a text adventure needs no fancy libraries; the
+<a href="https://en.wikipedia.org/wiki/C_standard_library">C standard library</a>
+is sufficient, and widely available.
+But feel free to replace it with any
+<a href="http://en.wikipedia.org/wiki/Category:User_interface">user interface</a>
+library you like, for example
+<a href="http://en.wikipedia.org/wiki/Glk_(software)">Glk</a>.
+</li>
+<li>Line 3:
+function
+<a href="http://en.wikipedia.org/wiki/Main_function_(programming)">main</a>
+is the starting point of a typical C program.
+</li>
+<li>Line 5-7:
+output text to the screen; the escape sequence <tt>\n</tt> represents a
+<a href="http://en.wikipedia.org/wiki/Newline">newline</a>.
+</li>
+<li>Line 8:
+function <i>main</i> returns a zero
+<a href="http://en.wikipedia.org/wiki/Exit_code">exit code</a>
+to indicate the program completed successfully.
+</li>
+</ul>
+</div>
+<p>
+Trivial as it may be, the program does demonstrate
+<i>the</i> most important aspect of any text adventure:
+descriptive text.
+A good story is one of the things that makes a good adventure game.
+I deliberately kept it brief in my code sample.
+I will focus on the programming aspect of the game,
+and leave the rest up to your imagination.
+</p>
+<hr />
+<p>
+Next chapter: <a href="htpataic02.html">2. The main loop</a>
+</p>
+</body>
+</html>

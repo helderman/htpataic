@@ -1,0 +1,55 @@
+Welcome to Little Cave Adventure.
+You are in an open field.
+You see:
+a silver coin
+a burly guard
+
+--> get silver
+OK.
+
+--> inventory
+You see:
+a silver coin
+
+--> look around
+You are in an open field.
+You see:
+a burly guard
+
+--> give silver
+OK.
+
+--> inventory
+You are empty-handed.
+
+--> ask silver
+OK.
+
+--> inventory
+You see:
+a silver coin
+
+--> go cave
+OK.
+You are in a little cave.
+You see:
+a gold coin
+
+--> give silver
+There is nobody here to give that to.
+
+--> drop silver
+OK.
+
+--> look around
+You are in a little cave.
+You see:
+a silver coin
+a gold coin
+
+--> inventory
+You are empty-handed.
+
+--> quit
+
+Bye!

@@ -1,0 +1,269 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+<title>11. Conditions</title>
+<link rel="stylesheet" href="htpataic.css" type="text/css" />
+</head>
+<body>
+<table class="contents"><tr><td>
+#contents
+</td></tr></table>
+
+<h1>How to program a text adventure in C</h1>
+<h2>11. Conditions</h2>
+<p class="intro">
+So far, all the objects&rsquo; attributes were data: text, numbers.
+But attributes may just as well be code.
+</p>
+<p>
+In the previous chapter, we limited the player&rsquo;s freedom of movement
+by closing the cave entrance (passage <i>intoCave</i>).
+This already makes the game a lot more challenging,
+but it does not make much of a puzzle,
+unless we offer a tiny possibility for the player to <b>open the passage</b>.
+The real challenge should be for the player
+to find the <b>condition</b> under which the passage opens.
+</p>
+<p>
+Let&rsquo;s take a simple example.
+To get past the guard and enter the cave,
+the player has to either kill or bribe the guard
+(or both, for what it&rsquo;s worth).
+In other words:
+<ul>
+<li>when the guard is dead (health = 0), the entrance is <b>open</b></li>
+<li>when the guard is holding the silver coin, the entrance is <b>open</b></li>
+<li>when neither is the case, the entrance is <b>closed</b></li>
+</ul>
+</p>
+<p>
+Opening a closed passage (in this case <i>intoCave</i>)
+involves changing a number of attribute values:
+<ul>
+<li><b>destination</b>
+changes from <i>NULL</i> to <i>cave</i>
+</li>
+<li><b>textGo</b>
+changes from
+<i>&lsquo;the guard stops you...&rsquo;</i>
+to
+<i>&lsquo;you walk into the cave&rsquo;</i>
+</li>
+<li><b>description</b> and <b>detail</b>
+need not change in this particular case;
+but for a doorway or grating,
+either one (or both) would typically contain some text that changes
+from <i>&lsquo;open&rsquo;</i> to <i>&lsquo;closed&rsquo;</i>
+</li>
+</ul>
+</p>
+<p>
+There are a number of ways to accomplish this.
+Here, I will discuss an approach that is simple, maintainable and versatile.
+</p>
+<p>
+First of all, we define two separate passages:
+one that represents the <i>open</i> passage,
+and the other representing the <i>closed</i> passage.
+The passages are identical in every attribute except for the ones listed above.
+(In the generated map you see below,
+notice the two arrows leading into the cave; one solid, one dashed.)
+</p>
+<p>
+Next, we introduce a new attribute named <b>condition</b>
+that determines whether or not a certain object exists.
+The two passages will be given
+<a href="http://en.wikipedia.org/wiki/Mutually_exclusive#Logic">mutually exclusive</a>
+conditions, so that only one of them can exist at any given time.
+</p>
+<p>
+Each condition will be implemented as a
+<a href="http://en.wikipedia.org/wiki/Boolean-valued_function">boolean-valued function</a>;
+<i>true</i> means the object exists, <i>false</i> means it does not.
+</p>
+<img class="genmap" src="genmap11.png" />
+<table><tr>
+<td class="snippet">bool intoCaveIsOpen(void)
+{
+   return guard-&gt;health == 0 || silver-&gt;location == guard;
+}
+
+bool intoCaveIsClosed(void)
+{
+   return guard-&gt;health &gt; 0 &amp;&amp; silver-&gt;location != guard;
+}
+</td>
+</tr></table>
+<p>
+The new attribute <i>condition</i> is a pointer to such a function:
+</p>
+<table><tr>
+<td class="snippet">bool (*condition)(void);
+</td>
+</tr></table>
+<p>
+After some small modifications to <i>object.awk</i>,
+similar to those made in the previous chapter,
+we can immediately start assigning functions to the new attribute
+in <i>object.txt</i>.
+</p>
+<table class="demo">
+<tr><th>Sample output</th></tr>
+<tr><td>
+#test 11
+</td></tr>
+</table>
+<table><tr>
+<td class="snippet">- intoCave
+     condition   <span class="red">intoCaveIsOpen</span>
+     description "a cave entrance to the east"
+     tags        "east", "entrance"
+     location    field
+     <span class="red">destination</span> cave
+     detail      "The entrance is just a narrow opening in a small outcrop.\n"
+     textGo      <span class="red">"You walk into the cave.\n"</span>
+
+- intoCaveBlocked
+     condition   <span class="red">intoCaveIsClosed</span>
+     description "a cave entrance to the east"
+     tags        "east", "entrance"
+     location    field
+     <span class="red">prospect</span>    cave
+     detail      "The entrance is just a narrow opening in a small outcrop.\n"
+     textGo      <span class="red">"The guard stops you from walking into the cave.\n"</span>
+</td>
+</tr></table>
+<p>
+The two &lsquo;condition&rsquo; functions are so specific,
+each of them is used just this once.
+Now, wouldn&rsquo;t it be nice to define the functions right where we need them?
+Many programming languages support
+<a href="http://en.wikipedia.org/wiki/Anonymous_function">anonymous functions</a>;
+something like this:
+</p>
+<table><tr>
+<td class="snippet">- intoCave
+     condition   <span class="red">{ return guard-&gt;health == 0 || silver-&gt;location == guard; }</span>
+     ...
+
+- intoCaveBlocked
+     condition   <span class="red">{ return guard-&gt;health &gt; 0 &amp;&amp; silver-&gt;location != guard; }</span>
+     ...
+</td>
+</tr></table>
+<p>
+Plain C does not allow this,
+but since <i>object.txt</i> is a product of our own
+<a href="http://en.wikipedia.org/wiki/Domain-specific_language">domain-specific language</a>
+(see chapter 9),
+we can do anything we like!
+That is, if we can make the code generator
+turn it into something the C compiler will swallow.
+The following adjustments to <i>object.awk</i> will do just that.
+</p>
+<table class="code"><tr>
+<th>object.awk</th>
+</tr><tr>
+<td>
+#diff 11 object.awk
+</td>
+</tr></table>
+<div class="explanation">
+<p>
+Explanation:
+</p>
+<ul>
+<li>Line 8, 16:
+most objects are unconditional;
+their condition is a trivial function that always returns <i>true</i>.
+</li>
+<li>Line 35-38:
+an anonymous function (anything starting with a curly brace)
+is replaced by a function with a generated name;
+the name is the attribute name (in this case <i>condition</i>)
+followed by a number (the object count).
+This technique is similar to the way we handle tags (lines 67 and 73).
+</li>
+<li>Line 55-56:
+so far, our program contains five
+<a href="http://en.wikipedia.org/wiki/For_loop">for loops</a>,
+each of which needs to be expanded with an embedded condition check.
+To avoid having to write (and maintain) the same code many times, I defined
+a macro that encapsulates the <i>for</i> statement and the condition check.
+It replaces the original <i>for</i> statement in a transparent way;
+there is no need for an additional pair of curly braces
+surrounding the loop&rsquo;s body, despite the additional <i>if</i> statement.
+</li>
+</ul>
+</div>
+<p>
+So now we can add the extra passage and the conditions to <i>object.txt</i>,
+as explained earlier.
+</p>
+<table class="code"><tr>
+<th>object.txt</th>
+</tr><tr>
+<td>
+#diff 11 object.txt
+</td>
+</tr></table>
+<p>
+To make the conditions work, we need to adjust function <i>distanceTo</i>,
+plus every loop that scans through objects.
+</p>
+<table class="code"><tr>
+<th>misc.c</th>
+</tr><tr>
+<td>
+#diff 11 misc.c
+</td>
+</tr></table>
+<p>
+There is one more object loop to be fixed, in <i>match.c</i>:
+</p>
+<table class="code"><tr>
+<th>match.c</th>
+</tr><tr>
+<td>
+#diff 11 match.c
+</td>
+</tr></table>
+<p>
+Notes:
+</p>
+<ul>
+<li>Right now, there is no way the guard will die.
+So you might say
+the &lsquo;health check&rsquo; in our condition functions is quite useless.
+Of course, this is easily fixed by adding a <i>kill</i> command;
+see chapter 18.
+</li>
+<li>The two condition functions are complementary; they qualify as
+<a href="http://en.wikipedia.org/wiki/Duplicate_code">duplicate code</a>.
+To eliminate that, we might decide to make one function call the other
+(with the &lsquo;!&rsquo; operator to negate the result).
+An anonymous function has no (stable) name,
+but we can refer to it by its object.
+We could replace the condition function of <i>intoCaveBlocked</i> by:
+<table><tr>
+<td class="snippet">{ return <span class="red">!</span>(*intoCave-&gt;condition)(); }
+</td>
+</tr></table>
+</li>
+<li>For simplicity, the condition functions have no parameter.
+It might actually be better to pass a parameter <i>OBJECT *obj</i>;
+that makes it possible to write more generic condition functions
+that can be re-used across multiple objects.
+</li>
+<li>In theory, any object can be made &lsquo;conditional&rsquo;.
+In practice, its main benefit lies with passages.
+But in the next chapter,
+you can see a similar technique being applied to an item.
+</li>
+</ul>
+<hr />
+<p>
+Next chapter: <a href="htpataic12.html">12. Open and close</a>
+</p>
+</body>
+</html>

@@ -1,0 +1,25 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+<title>16. Savegame</title>
+<link rel="stylesheet" href="htpataic.css" type="text/css" />
+</head>
+<body>
+<table class="contents"><tr><td>
+#contents
+</td></tr></table>
+
+<h1>How to program a text adventure in C</h1>
+<h2>16. Savegame</h2>
+<p class="intro">
+TODO
+</p>
+<p>
+TODO
+</p>
+<hr />
+<p>
+Next chapter: <a href="htpataic17.html">17. Test automation</a>
+</p>
+</body>
+</html>

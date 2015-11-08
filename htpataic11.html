@@ -1,0 +1,614 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+<title>11. Conditions</title>
+<link rel="stylesheet" href="htpataic.css" type="text/css" />
+</head>
+<body>
+<table class="contents"><tr><td>
+<h4>Contents</h4>
+<div><a href="htpataic01.html">1. Introduction</a></div>
+<div><a href="htpataic02.html">2. The main loop</a></div>
+<div><a href="htpataic03.html">3. Locations</a></div>
+<div><a href="htpataic04.html">4. Objects</a></div>
+<div><a href="htpataic05.html">5. Inventory</a></div>
+<div><a href="htpataic06.html">6. Passages</a></div>
+<div><a href="htpataic07.html">7. Distance</a></div>
+<div><a href="htpataic08.html">8. North, east, south, west</a></div>
+<div><a href="htpataic09.html">9. Code generation</a></div>
+<div><a href="htpataic10.html">10. More attributes</a></div>
+<div><b>11. Conditions</b></div>
+<div><a href="htpataic12.html">12. Open and close</a></div>
+<div><a href="htpataic13.html">13. The parser</a></div>
+<div><a href="htpataic14.html">14. Multiple arguments</a></div>
+<div><a href="htpataic15.html">15. Light and dark</a></div>
+<div><a href="htpataic16.html">16. Savegame</a></div>
+<div><a href="htpataic17.html">17. Test automation</a></div>
+<div><a href="htpataic18.html">18. Abbreviations</a></div>
+<div><a href="htpataic19.html">19. Conversations</a></div>
+<div><a href="htpataic20.html">20. Combat</a></div>
+<div><a href="htpataic21.html">21. Database</a></div>
+<div><a href="htpataic22.html">22. Speech</a></div>
+<div><a href="htpataic23.html">23. JavaScript</a></div>
+</td></tr></table>
+
+<h1>How to program a text adventure in C</h1>
+<h2>11. Conditions</h2>
+<p class="intro">
+So far, all the objects&rsquo; attributes were data: text, numbers.
+But attributes may just as well be code.
+</p>
+<p>
+In the previous chapter, we limited the player&rsquo;s freedom of movement
+by closing the cave entrance (passage <i>intoCave</i>).
+This already makes the game a lot more challenging,
+but it does not make much of a puzzle,
+unless we offer a tiny possibility for the player to <b>open the passage</b>.
+The real challenge should be for the player
+to find the <b>condition</b> under which the passage opens.
+</p>
+<p>
+Let&rsquo;s take a simple example.
+To get past the guard and enter the cave,
+the player has to either kill or bribe the guard
+(or both, for what it&rsquo;s worth).
+In other words:
+<ul>
+<li>when the guard is dead (health = 0), the entrance is <b>open</b></li>
+<li>when the guard is holding the silver coin, the entrance is <b>open</b></li>
+<li>when neither is the case, the entrance is <b>closed</b></li>
+</ul>
+</p>
+<p>
+Opening a closed passage (in this case <i>intoCave</i>)
+involves changing a number of attribute values:
+<ul>
+<li><b>destination</b>
+changes from <i>NULL</i> to <i>cave</i>
+</li>
+<li><b>textGo</b>
+changes from
+<i>&lsquo;the guard stops you...&rsquo;</i>
+to
+<i>&lsquo;you walk into the cave&rsquo;</i>
+</li>
+<li><b>description</b> and <b>detail</b>
+need not change in this particular case;
+but for a doorway or grating,
+either one (or both) would typically contain some text that changes
+from <i>&lsquo;open&rsquo;</i> to <i>&lsquo;closed&rsquo;</i>
+</li>
+</ul>
+</p>
+<p>
+There are a number of ways to accomplish this.
+Here, I will discuss an approach that is simple, maintainable and versatile.
+</p>
+<p>
+First of all, we define two separate passages:
+one that represents the <i>open</i> passage,
+and the other representing the <i>closed</i> passage.
+The passages are identical in every attribute except for the ones listed above.
+(In the generated map you see below,
+notice the two arrows leading into the cave; one solid, one dashed.)
+</p>
+<p>
+Next, we introduce a new attribute named <b>condition</b>
+that determines whether or not a certain object exists.
+The two passages will be given
+<a href="http://en.wikipedia.org/wiki/Mutually_exclusive#Logic">mutually exclusive</a>
+conditions, so that only one of them can exist at any given time.
+</p>
+<p>
+Each condition will be implemented as a
+<a href="http://en.wikipedia.org/wiki/Boolean-valued_function">boolean-valued function</a>;
+<i>true</i> means the object exists, <i>false</i> means it does not.
+</p>
+<img class="genmap" src="genmap11.png" />
+<table><tr>
+<td class="snippet">bool intoCaveIsOpen(void)
+{
+   return guard-&gt;health == 0 || silver-&gt;location == guard;
+}
+
+bool intoCaveIsClosed(void)
+{
+   return guard-&gt;health &gt; 0 &amp;&amp; silver-&gt;location != guard;
+}
+</td>
+</tr></table>
+<p>
+The new attribute <i>condition</i> is a pointer to such a function:
+</p>
+<table><tr>
+<td class="snippet">bool (*condition)(void);
+</td>
+</tr></table>
+<p>
+After some small modifications to <i>object.awk</i>,
+similar to those made in the previous chapter,
+we can immediately start assigning functions to the new attribute
+in <i>object.txt</i>.
+</p>
+<table class="demo">
+<tr><th>Sample output</th></tr>
+<tr><td>
+Welcome to Little Cave Adventure.<br />
+You are in an open field.<br />
+You see:<br />
+a silver coin<br />
+a burly guard<br />
+a cave entrance to the east<br />
+dense forest all around<br />
+<br />
+--&gt; go entrance<br />
+The guard stops you from walking into the cave.<br />
+<br />
+--&gt; get coin<br />
+OK.<br />
+<br />
+--&gt; give coin<br />
+OK.<br />
+<br />
+--&gt; go entrance<br />
+You walk into the cave.<br />
+<br />
+You are in a little cave.<br />
+You see:<br />
+a gold coin<br />
+a way out to the west<br />
+solid rock all around<br />
+<br />
+--&gt; quit<br />
+<br />
+Bye!<br />
+</td></tr>
+</table>
+<table><tr>
+<td class="snippet">- intoCave
+     condition   <span class="red">intoCaveIsOpen</span>
+     description "a cave entrance to the east"
+     tags        "east", "entrance"
+     location    field
+     <span class="red">destination</span> cave
+     detail      "The entrance is just a narrow opening in a small outcrop.\n"
+     textGo      <span class="red">"You walk into the cave.\n"</span>
+
+- intoCaveBlocked
+     condition   <span class="red">intoCaveIsClosed</span>
+     description "a cave entrance to the east"
+     tags        "east", "entrance"
+     location    field
+     <span class="red">prospect</span>    cave
+     detail      "The entrance is just a narrow opening in a small outcrop.\n"
+     textGo      <span class="red">"The guard stops you from walking into the cave.\n"</span>
+</td>
+</tr></table>
+<p>
+The two &lsquo;condition&rsquo; functions are so specific,
+each of them is used just this once.
+Now, wouldn&rsquo;t it be nice to define the functions right where we need them?
+Many programming languages support
+<a href="http://en.wikipedia.org/wiki/Anonymous_function">anonymous functions</a>;
+something like this:
+</p>
+<table><tr>
+<td class="snippet">- intoCave
+     condition   <span class="red">{ return guard-&gt;health == 0 || silver-&gt;location == guard; }</span>
+     ...
+
+- intoCaveBlocked
+     condition   <span class="red">{ return guard-&gt;health &gt; 0 &amp;&amp; silver-&gt;location != guard; }</span>
+     ...
+</td>
+</tr></table>
+<p>
+Plain C does not allow this,
+but since <i>object.txt</i> is a product of our own
+<a href="http://en.wikipedia.org/wiki/Domain-specific_language">domain-specific language</a>
+(see chapter 9),
+we can do anything we like!
+That is, if we can make the code generator
+turn it into something the C compiler will swallow.
+The following adjustments to <i>object.awk</i> will do just that.
+</p>
+<table class="code"><tr>
+<th>object.awk</th>
+</tr><tr>
+<td>
+<ol>
+<li class="old">BEGIN {</li>
+<li class="old">   count = 0;</li>
+<li class="old">   obj = "";</li>
+<li class="new">   if (pass == "h") {</li>
+<li class="new">      print "#include &lt;stdbool.h&gt;";</li>
+<li class="new">   }</li>
+<li class="old">   if (pass == "c2") {</li>
+<li class="new">      print "\nstatic bool alwaysTrue(void) { return true; }";</li>
+<li class="old">      print "\nOBJECT objs[] = {";</li>
+<li class="old">   }</li>
+<li class="old">}</li>
+<li class="old"></li>
+<li class="old">/^- / {</li>
+<li class="old">   outputRecord(",");</li>
+<li class="old">   obj = $2;</li>
+<li class="new">   prop["condition"]   = "alwaysTrue";</li>
+<li class="old">   prop["description"] = "NULL";</li>
+<li class="old">   prop["tags"]        = "";</li>
+<li class="old">   prop["location"]    = "NULL";</li>
+<li class="old">   prop["destination"] = "NULL";</li>
+<li class="old">   prop["prospect"]    = "";</li>
+<li class="old">   prop["details"]     = "\"You see nothing special.\\n\"";</li>
+<li class="old">   prop["contents"]    = "\"You see\"";</li>
+<li class="old">   prop["textGo"]      = "\"You can't get much closer than this.\\n\"";</li>
+<li class="old">   prop["weight"]      = "99";</li>
+<li class="old">   prop["capacity"]    = "0";</li>
+<li class="old">   prop["health"]      = "0";</li>
+<li class="old">}</li>
+<li class="old"></li>
+<li class="old">obj &amp;&amp; /^[ \t]+[a-z]/ {</li>
+<li class="old">   name = $1;</li>
+<li class="old">   $1 = "";</li>
+<li class="old">   if (name in prop) {</li>
+<li class="old">      prop[name] = $0;</li>
+<li class="new">      if (/^[ \t]*\{/) {</li>
+<li class="new">         prop[name] = name count;</li>
+<li class="new">         if (pass == "c1") print "static bool " prop[name] "(void) " $0;</li>
+<li class="new">      }</li>
+<li class="old">   }</li>
+<li class="old">   else if (pass == "c2") {</li>
+<li class="old">      print "#error \"" FILENAME " line " NR ": unknown attribute '" name "'\"";</li>
+<li class="old">   }</li>
+<li class="old">}</li>
+<li class="old"></li>
+<li class="old">!obj &amp;&amp; pass == (/^#include/ ? "c1" : "h") {</li>
+<li class="old">   print;</li>
+<li class="old">}</li>
+<li class="old"></li>
+<li class="old">END {</li>
+<li class="old">   outputRecord("\n};");</li>
+<li class="old">   if (pass == "h") {</li>
+<li class="old">      print "\n#define endOfObjs\t(objs + " count ")";</li>
+<li class="new">      print "\n#define validObject(obj)\t" \</li>
+<li class="new">            "((obj) != NULL &amp;&amp; (*(obj)-&gt;condition)())";</li>
+<li class="new">      print "\n#define forEachObject(obj)\t" \</li>
+<li class="new">            "for (obj = objs; obj &lt; endOfObjs; obj++) if (validObject(obj))";</li>
+<li class="old">   }</li>
+<li class="old">}</li>
+<li class="old"></li>
+<li class="old">function outputRecord(separator)</li>
+<li class="old">{</li>
+<li class="old">   if (obj) {</li>
+<li class="old">      if (pass == "h") {</li>
+<li class="old">         print "#define " obj "\t(objs + " count ")";</li>
+<li class="old">      }</li>
+<li class="old">      else if (pass == "c1") {</li>
+<li class="old">         print "static const char *tags" count "[] = {" prop["tags"] ", NULL};";</li>
+<li class="old">      }</li>
+<li class="old">      else if (pass == "c2") {</li>
+<li class="old">         print "\t{\t/* " count " = " obj " */";</li>
+<li class="new">         print "\t\t" prop["condition"] ",";</li>
+<li class="old">         print "\t\t" prop["description"] ",";</li>
+<li class="old">         print "\t\ttags" count ",";</li>
+<li class="old">         print "\t\t" prop["location"] ",";</li>
+<li class="old">         print "\t\t" prop["destination"] ",";</li>
+<li class="old">         print "\t\t" prop[prop["prospect"] ? "prospect" : "destination"] ",";</li>
+<li class="old">         print "\t\t" prop["details"] ",";</li>
+<li class="old">         print "\t\t" prop["contents"] ",";</li>
+<li class="old">         print "\t\t" prop["textGo"] ",";</li>
+<li class="old">         print "\t\t" prop["weight"] ",";</li>
+<li class="old">         print "\t\t" prop["capacity"] ",";</li>
+<li class="old">         print "\t\t" prop["health"];</li>
+<li class="old">         print "\t}" separator;</li>
+<li class="old">         delete prop;</li>
+<li class="old">      }</li>
+<li class="old">      count++;</li>
+<li class="old">   }</li>
+<li class="old">}</li>
+</ol>
+</td>
+</tr></table>
+<div class="explanation">
+<p>
+Explanation:
+</p>
+<ul>
+<li>Line 8, 16:
+most objects are unconditional;
+their condition is a trivial function that always returns <i>true</i>.
+</li>
+<li>Line 35-38:
+an anonymous function (anything starting with a curly brace)
+is replaced by a function with a generated name;
+the name is the attribute name (in this case <i>condition</i>)
+followed by a number (the object count).
+This technique is similar to the way we handle tags (lines 67 and 73).
+</li>
+<li>Line 55-56:
+so far, our program contains five
+<a href="http://en.wikipedia.org/wiki/For_loop">for loops</a>,
+each of which needs to be expanded with an embedded condition check.
+To avoid having to write (and maintain) the same code many times, I defined
+a macro that encapsulates the <i>for</i> statement and the condition check.
+It replaces the original <i>for</i> statement in a transparent way;
+there is no need for an additional pair of curly braces
+surrounding the loop&rsquo;s body, despite the additional <i>if</i> statement.
+</li>
+</ul>
+</div>
+<p>
+So now we can add the extra passage and the conditions to <i>object.txt</i>,
+as explained earlier.
+</p>
+<table class="code"><tr>
+<th>object.txt</th>
+</tr><tr>
+<td>
+<ol>
+<li class="old">#include &lt;stdio.h&gt;</li>
+<li class="old">#include "object.h"</li>
+<li class="old"></li>
+<li class="old">typedef struct object {</li>
+<li class="new">   bool         (*condition)(void);</li>
+<li class="old">   const char    *description;</li>
+<li class="old">   const char   **tags;</li>
+<li class="old">   struct object *location;</li>
+<li class="old">   struct object *destination;</li>
+<li class="old">   struct object *prospect;</li>
+<li class="old">   const char    *details;</li>
+<li class="old">   const char    *contents;</li>
+<li class="old">   const char    *textGo;</li>
+<li class="old">   int            weight;</li>
+<li class="old">   int            capacity;</li>
+<li class="old">   int            health;</li>
+<li class="old">} OBJECT;</li>
+<li class="old"></li>
+<li class="old">extern OBJECT objs[];</li>
+<li class="old"></li>
+<li class="old">- field</li>
+<li class="old">     description "an open field"</li>
+<li class="old">     tags        "field"</li>
+<li class="old">     details     "The field is a nice and quiet place under a clear blue sky.\n"</li>
+<li class="old">     capacity    9999</li>
+<li class="old"></li>
+<li class="old">- cave</li>
+<li class="old">     description "a little cave"</li>
+<li class="old">     tags        "cave"</li>
+<li class="old">     details     "The cave is just a cold, damp, rocky chamber.\n"</li>
+<li class="old">     capacity    9999</li>
+<li class="old"></li>
+<li class="old">- silver</li>
+<li class="old">     description "a silver coin"</li>
+<li class="old">     tags        "silver", "coin", "silver coin"</li>
+<li class="old">     location    field</li>
+<li class="old">     details     "The coin has an eagle on the obverse.\n"</li>
+<li class="old">     weight      1</li>
+<li class="old"></li>
+<li class="old">- gold</li>
+<li class="old">     description "a gold coin"</li>
+<li class="old">     tags        "gold", "coin", "gold coin"</li>
+<li class="old">     location    cave</li>
+<li class="old">     details     "The shiny coin seems to be a rare and priceless artefact.\n"</li>
+<li class="old">     weight      1</li>
+<li class="old"></li>
+<li class="old">- guard</li>
+<li class="old">     description "a burly guard"</li>
+<li class="old">     tags        "guard", "burly guard"</li>
+<li class="old">     location    field</li>
+<li class="old">     details     "The guard is a really big fellow.\n"</li>
+<li class="old">     contents    "He has"</li>
+<li class="old">     health      100</li>
+<li class="old">     capacity    20</li>
+<li class="old"></li>
+<li class="old">- player</li>
+<li class="old">     description "yourself"</li>
+<li class="old">     tags        "yourself"</li>
+<li class="old">     location    field</li>
+<li class="old">     details     "You would need a mirror to look at yourself.\n"</li>
+<li class="old">     contents    "You have"</li>
+<li class="old">     health      100</li>
+<li class="old">     capacity    20</li>
+<li class="old"></li>
+<li class="old">- intoCave</li>
+<li class="new">     condition   { return guard-&gt;health == 0 || silver-&gt;location == guard; }</li>
+<li class="new">     description "a cave entrance to the east"</li>
+<li class="new">     tags        "east", "entrance"</li>
+<li class="new">     location    field</li>
+<li class="new">     destination cave</li>
+<li class="new">     details     "The entrance is just a narrow opening in a small outcrop.\n"</li>
+<li class="new">     textGo      "You walk into the cave.\n"</li>
+<li class="new"></li>
+<li class="new">- intoCaveBlocked</li>
+<li class="new">     condition   { return guard-&gt;health &gt; 0 &amp;&amp; silver-&gt;location != guard; }</li>
+<li class="old">     description "a cave entrance to the east"</li>
+<li class="old">     tags        "east", "entrance"</li>
+<li class="old">     location    field</li>
+<li class="old">     prospect    cave</li>
+<li class="old">     details     "The entrance is just a narrow opening in a small outcrop.\n"</li>
+<li class="old">     textGo      "The guard stops you from walking into the cave.\n"</li>
+<li class="old"></li>
+<li class="old">- exitCave</li>
+<li class="old">     description "a way out to the west"</li>
+<li class="old">     tags        "west", "out"</li>
+<li class="old">     location    cave</li>
+<li class="old">     destination field</li>
+<li class="old">     details     "Sunlight pours in through an opening in the cave's wall.\n"</li>
+<li class="old">     textGo      "You walk out of the cave.\n"</li>
+<li class="old"></li>
+<li class="old">- wallField</li>
+<li class="old">     description "dense forest all around"</li>
+<li class="old">     tags        "west", "north", "south", "forest"</li>
+<li class="old">     location    field</li>
+<li class="old">     details     "The field is surrounded by trees and undergrowth.\n"</li>
+<li class="old">     textGo      "Dense forest is blocking the way.\n"</li>
+<li class="old"></li>
+<li class="old">- wallCave</li>
+<li class="old">     description "solid rock all around"</li>
+<li class="old">     tags        "east", "north", "south", "rock"</li>
+<li class="old">     location    cave</li>
+<li class="old">     details     "Carved in stone is a secret password 'abccb'.\n"</li>
+<li class="old">     textGo      "Solid rock is blocking the way.\n"</li>
+</ol>
+</td>
+</tr></table>
+<p>
+To make the conditions work, we need to adjust function <i>distanceTo</i>,
+plus every loop that scans through objects.
+</p>
+<table class="code"><tr>
+<th>misc.c</th>
+</tr><tr>
+<td>
+<ol>
+<li class="old">#include &lt;stdio.h&gt;</li>
+<li class="old">#include "object.h"</li>
+<li class="old">#include "misc.h"</li>
+<li class="old"></li>
+<li class="old">OBJECT *getPassageTo(OBJECT *targetLocation)</li>
+<li class="old">{</li>
+<li class="old">   OBJECT *obj;</li>
+<li class="new"><span class="old">   </span>forEachObject(obj)</li>
+<li class="old">   {</li>
+<li class="old">      if (obj-&gt;location == player-&gt;location &amp;&amp;</li>
+<li class="old">          obj-&gt;prospect == targetLocation)</li>
+<li class="old">      {</li>
+<li class="old">         return obj;</li>
+<li class="old">      }</li>
+<li class="old">   }</li>
+<li class="old">   return NULL;</li>
+<li class="old">}</li>
+<li class="old"></li>
+<li class="old">DISTANCE distanceTo(OBJECT *obj)</li>
+<li class="old">{</li>
+<li class="new"><span class="old">   return </span>!validObject(obj)<span class="old">                           ? distUnknownObject :</span></li>
+<li class="old">          obj == player                               ? distPlayer :</li>
+<li class="old">          obj-&gt;location == player                     ? distHeld :</li>
+<li class="old">          obj == player-&gt;location                     ? distLocation :</li>
+<li class="old">          obj-&gt;location == player-&gt;location           ? distHere :</li>
+<li class="old">          getPassageTo(obj) != NULL                   ? distOverthere :</li>
+<li class="new"><span class="old">          </span>!validObject(obj-&gt;location)<span class="old">                 ? distNotHere :</span></li>
+<li class="old">          obj-&gt;location-&gt;location == player           ? distHeldContained :</li>
+<li class="old">          obj-&gt;location-&gt;location == player-&gt;location ? distHereContained :</li>
+<li class="old">                                                        distNotHere;</li>
+<li class="old">}</li>
+<li class="old"></li>
+<li class="old">OBJECT *actorHere(void)</li>
+<li class="old">{</li>
+<li class="old">   OBJECT *obj;</li>
+<li class="new"><span class="old">   </span>forEachObject(obj)</li>
+<li class="old">   {</li>
+<li class="old">      if (distanceTo(obj) == distHere &amp;&amp; obj-&gt;health &gt; 0)</li>
+<li class="old">      {</li>
+<li class="old">         return obj;</li>
+<li class="old">      }</li>
+<li class="old">   }</li>
+<li class="old">   return NULL;</li>
+<li class="old">}</li>
+<li class="old"></li>
+<li class="old">int listObjectsAtLocation(OBJECT *location)</li>
+<li class="old">{</li>
+<li class="old">   int count = 0;</li>
+<li class="old">   OBJECT *obj;</li>
+<li class="new"><span class="old">   </span>forEachObject(obj)</li>
+<li class="old">   {</li>
+<li class="old">      if (obj != player &amp;&amp; obj-&gt;location == location)</li>
+<li class="old">      {</li>
+<li class="old">         if (count++ == 0)</li>
+<li class="old">         {</li>
+<li class="old">            printf("%s:\n", location-&gt;contents);</li>
+<li class="old">         }</li>
+<li class="old">         printf("%s\n", obj-&gt;description);</li>
+<li class="old">      }</li>
+<li class="old">   }</li>
+<li class="old">   return count;</li>
+<li class="old">}</li>
+<li class="old"></li>
+<li class="old">int weightOfContents(OBJECT *container)</li>
+<li class="old">{</li>
+<li class="old">   int sum = 0;</li>
+<li class="old">   OBJECT *obj;</li>
+<li class="new"><span class="old">   </span>forEachObject(obj)</li>
+<li class="old">   {</li>
+<li class="old">      if (obj-&gt;location == container) sum += obj-&gt;weight;</li>
+<li class="old">   }</li>
+<li class="old">   return sum;</li>
+<li class="old">}</li>
+</ol>
+</td>
+</tr></table>
+<p>
+There is one more object loop to be fixed, in <i>match.c</i>:
+</p>
+<table class="code"><tr>
+<th>match.c</th>
+</tr><tr>
+<td>
+<ol>
+<li class="old">#include &lt;string.h&gt;</li>
+<li class="old">#include "object.h"</li>
+<li class="old">#include "misc.h"</li>
+<li class="old"></li>
+<li class="old">static bool nounIsInTags(const char *noun, const char **tags)</li>
+<li class="old">{</li>
+<li class="old">   while (*tags != NULL)</li>
+<li class="old">   {</li>
+<li class="old">      if (strcmp(noun, *tags++) == 0) return true;</li>
+<li class="old">   }</li>
+<li class="old">   return false;</li>
+<li class="old">}</li>
+<li class="old"></li>
+<li class="old">OBJECT *matchingObject(const char *noun)</li>
+<li class="old">{</li>
+<li class="old">   OBJECT *obj, *found = NULL;</li>
+<li class="new"><span class="old">   </span>forEachObject(obj)</li>
+<li class="old">   {</li>
+<li class="old">      if (noun != NULL &amp;&amp; nounIsInTags(noun, obj-&gt;tags) &amp;&amp;</li>
+<li class="old">          distanceTo(obj) &lt; distanceTo(found))</li>
+<li class="old">      {</li>
+<li class="old">         found = obj;</li>
+<li class="old">      }</li>
+<li class="old">   }</li>
+<li class="old">   return found;</li>
+<li class="old">}</li>
+</ol>
+</td>
+</tr></table>
+<p>
+Notes:
+</p>
+<ul>
+<li>Right now, there is no way the guard will die.
+So you might say
+the &lsquo;health check&rsquo; in our condition functions is quite useless.
+Of course, this is easily fixed by adding a <i>kill</i> command;
+see chapter 18.
+</li>
+<li>The two condition functions are complementary; they qualify as
+<a href="http://en.wikipedia.org/wiki/Duplicate_code">duplicate code</a>.
+To eliminate that, we might decide to make one function call the other
+(with the &lsquo;!&rsquo; operator to negate the result).
+An anonymous function has no (stable) name,
+but we can refer to it by its object.
+We could replace the condition function of <i>intoCaveBlocked</i> by:
+<table><tr>
+<td class="snippet">{ return <span class="red">!</span>(*intoCave-&gt;condition)(); }
+</td>
+</tr></table>
+</li>
+<li>For simplicity, the condition functions have no parameter.
+It might actually be better to pass a parameter <i>OBJECT *obj</i>;
+that makes it possible to write more generic condition functions
+that can be re-used across multiple objects.
+</li>
+<li>In theory, any object can be made &lsquo;conditional&rsquo;.
+In practice, its main benefit lies with passages.
+But in the next chapter,
+you can see a similar technique being applied to an item.
+</li>
+</ul>
+<hr />
+<p>
+Next chapter: <a href="htpataic12.html">12. Open and close</a>
+</p>
+</body>
+</html>

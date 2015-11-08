@@ -1,0 +1,337 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+<title>7. Distance</title>
+<link rel="stylesheet" href="htpataic.css" type="text/css" />
+</head>
+<body>
+<table class="contents"><tr><td>
+#contents
+</td></tr></table>
+
+<h1>How to program a text adventure in C</h1>
+<h2>7. Distance</h2>
+<p class="intro">
+A typical adventure contains many puzzles.
+<a href="http://en.wikipedia.org/wiki/Infocom">Infocom</a>
+adventures were notoriously difficult to complete; solving every puzzle
+might require weeks, even months of trial and error.
+Don&rsquo;t be surprised if the majority of replies from the game
+are &lsquo;errors&rsquo;:
+you can&rsquo;t do this; you can&rsquo;t go there; you died.
+</p>
+<p>
+So far, our <b>error handling</b> has been very basic.
+For example, command <i>get</i> just returns &ldquo;You can&rsquo;t&rdquo;
+in all possible situations that prevent the player from picking up something.
+Such a reply is dull and not very helpful.
+It neglects an important aspect of any computer game;
+in fact, an essential part of life itself:
+the player has to learn from his mistakes.
+It is OK for an adventure to be difficult, even frustratingly difficult.
+But when the player has the feeling he is not making any progress at all,
+or when the only way to make progress is a
+<a href="http://en.wikipedia.org/wiki/Brute-force">brute-force</a>
+attack on all verb-noun combinations,
+then even the most hardened player will lose interest and eventually give up.
+The least an adventure game should do,
+is explain <i>why</i> the player&rsquo;s command cannot be completed:
+&ldquo;You can&rsquo;t do that, because...&rdquo;
+This helps to make the virtual world more convincing,
+the story more credible, and the game more enjoyable.
+</p>
+<p>
+Most commands operate on one or more <b>objects</b>, for example:
+</p>
+<ul>
+<li>The player picks up an <b>item</b>, then gives it to another <b>actor</b>.
+</li>
+<li>The player follows a <b>passage</b> to another <b>location</b>.
+</li>
+</ul>
+<p>
+The first thing to check (after the obvious
+<a href="http://en.wikipedia.org/wiki/Typographical_error">typos</a>
+caught by the
+<a href="http://en.wikipedia.org/wiki/Parsing">parser</a>)
+is for the <b>presence</b> of these objects;
+failure should result in something like
+&ldquo;There is no ... here&rdquo; or
+&ldquo;You don&rsquo;t see any ...&rdquo;
+In this chapter, we will build a generic function that can be used
+by every command to find out if an object is within reach of the player.
+</p>
+<p>
+You may think we only need to distinguish two cases:
+either the object is here, or it is not.
+But many commands require more gradients than just
+&lsquo;here&rsquo; and &lsquo;not here&rsquo;.
+Examples:
+<ul>
+<li>To <b>use</b> a weapon or a tool, the player must be holding it;
+its mere presence at the scene is not enough.
+</li>
+<li>To <b>drop</b> an item, you must be holding it;
+to <b>pick up</b> an item, you must <i>not</i> be holding it.
+</li>
+<li>Another actor holding an item, may keep the player from getting that item;
+<b>get item</b> is typically easier when the item is just lying here.
+</li>
+</ul>
+</p>
+<p>
+It all boils down to the fact that
+there are different notions of &lsquo;here&rsquo;:
+</p>
+<table cellpadding="8"><tr>
+<td class="snippet">distPlayer</td>
+<td class="comment">The object is the player</td>
+<td class="snippet"><span class="red">object</span> == <span class="red">player</span></td>
+</tr><tr>
+<td class="snippet">distHeld</td>
+<td class="comment">The player is holding the object</td>
+<td class="snippet"><span class="red">object</span>-&gt;location == <span class="red">player</span></td>
+</tr><tr>
+<td class="snippet">distHeldContained</td>
+<td class="comment">The player is holding another object (for example a bag)
+containing the object</td>
+<td class="snippet"><span class="red">object</span>-&gt;location != NULL &amp;&amp;
+<span class="red">object</span>-&gt;location-&gt;location == <span class="red">player</span></td>
+</tr><tr>
+<td class="snippet">distLocation</td>
+<td class="comment">The object is the player&rsquo;s location</td>
+<td class="snippet"><span class="red">object</span> == <span class="red">player</span>-&gt;location</td>
+</tr><tr>
+<td class="snippet">distHere</td>
+<td class="comment">The object is present at the player&rsquo;s location</td>
+<td class="snippet"><span class="red">object</span>-&gt;location == <span class="red">player</span>-&gt;location</td>
+</tr><tr>
+<td class="snippet">distHereContained</td>
+<td class="comment">Another object
+(either an actor or a &lsquo;container&rsquo;),
+present at the player&rsquo;s location,
+is holding (but <i>not</i> hiding) the object</td>
+<td class="snippet"><span class="red">object</span>-&gt;location != NULL &amp;&amp;
+<span class="red">object</span>-&gt;location-&gt;location == <span class="red">player</span>-&gt;location</td>
+</tr><tr>
+<td class="snippet">distOverthere</td>
+<td class="comment">The object is a nearby location</td>
+<td class="snippet">getPassageTo(<span class="red">object</span>) != NULL</td>
+</tr></table>
+<p>
+The first case (object is player) may seem trivial,
+but it is important nonetheless.
+For example, the command "examine yourself" should <i>not</i> return
+"There is no yourself here."
+</p>
+<p>
+I tried to follow a logical order:
+nearby things are at the top, further down below they become more distant.
+We can continue the list, to cover objects that are even further away:
+</p>
+<table cellpadding="8"><tr>
+<td class="snippet">distNotHere</td>
+<td class="comment">The object is (or appears to be) not here</td>
+<td class="snippet">&nbsp;</td>
+</tr><tr>
+<td class="snippet">distUnknownObject</td>
+<td class="comment">The parser did not recognize the noun entered
+(we will use this in a later chapter)</td>
+<td class="snippet"><span class="red">object</span> == NULL</td>
+</tr><tr>
+<td class="snippet">distNoObjectSpecified</td>
+<td class="comment">The player entered a command with no noun</td>
+<td class="snippet"><span class="red">object</span> == NULL</td>
+</tr></table>
+<p>
+Notice we have seven different cases of &lsquo;here&rsquo;,
+but only one for &lsquo;not here&rsquo;.
+This is because typically, the game only needs to provide information
+about things that can be perceived by the player.
+If it&rsquo;s not here, then there&rsquo;s nothing more to say.
+</p>
+<p>
+In the leftmost column, I proposed a symbolic name for each case.
+We will gather these names in an
+<a href="http://en.wikipedia.org/wiki/Enumerated_type">enum</a>
+named <b>DISTANCE</b>.
+</p>
+<table><tr>
+<td class="snippet">typedef enum {
+   distPlayer,
+   distHeld,
+   distHeldContained,
+   distLocation,
+   distHere,
+   distHereContained,
+   distOverthere,
+   distNotHere,
+   distUnknownObject,
+   distNoObjectSpecified
+} DISTANCE;
+</td>
+</tr></table>
+<p>
+And in the rightmost column, I proposed a condition for each case to satisfy.
+With a little reshuffling, we can easily turn this into a function
+that calculates the &lsquo;distance&rsquo; of an object
+(as seen from the player&rsquo;s point of view):
+</p>
+<table><tr>
+<td class="snippet">DISTANCE distanceTo(OBJECT *obj)
+{
+   return obj == NULL                                 ? distUnknownObject :
+          obj == player                               ? distPlayer :
+          obj-&gt;location == player                     ? distHeld :
+          obj == player-&gt;location                     ? distLocation :
+          obj-&gt;location == player-&gt;location           ? distHere :
+          getPassageTo(obj) != NULL                   ? distOverthere :
+          obj-&gt;location == NULL                       ? distNotHere :
+          obj-&gt;location-&gt;location == player           ? distHeldContained :
+          obj-&gt;location-&gt;location == player-&gt;location ? distHereContained :
+                                                        distNotHere;
+}
+</td>
+</tr></table>
+<p>
+That&rsquo;s all!
+We can call this function and do a comparison on its return value, for example:
+</p>
+<table><tr>
+<td class="snippet">DISTANCE distance = distanceTo(<span class="red">gold</span>);
+if (distance &lt;= <span class="red">distHeldContained</span>)
+{
+   printf("It feels great to be in possession of gold.\n");
+}
+else if (distance &lt; <span class="red">distNotHere</span>)
+{
+   printf("The sight of gold makes you feel greedy.\n");
+}
+else
+{
+   printf("There is no gold here.\n");
+}
+</td>
+</tr></table>
+<p>
+Time to put things into place.
+The definitions of enum <i>DISTANCE</i> and function <i>distanceTo</i>
+are added to <i>misc.h</i> and <i>misc.c</i>,
+since we will be using them in more than one module.
+</p>
+<table class="code"><tr>
+<th>misc.h</th>
+</tr><tr>
+<td>
+#diff 7 misc.h
+</td>
+</tr><tr>
+<th>misc.c</th>
+</tr><tr>
+<td>
+#diff 7 misc.c
+</td>
+</tr></table>
+<div class="explanation">
+<p>
+Explanation:
+</p>
+<ul>
+<li>Line 38:
+here is our first opportunity to simplify some code
+by using the new function <i>distanceTo</i>.
+More will follow below!
+</li>
+</ul>
+</div>
+<p>
+In function <i>executeGo</i>,
+we can replace all <i>if</i> conditions by checks on distance.
+This immediately helps us replace the meaningless
+&ldquo;You can&rsquo;t go there&rdquo; message by two new replies:
+<ul>
+<li>&ldquo;You don&rsquo;t see any...&rdquo;
+in case the object is not here.
+</li>
+<li>&ldquo;You can&rsquo;t get much closer than this&rdquo;
+in case the object <i>is</i> here, but command <i>go</i> is not applicable.
+</li>
+</ul>
+</p>
+<table class="demo">
+<tr><th>Sample output</th></tr>
+<tr><td>
+#test 7
+</td></tr>
+</table>
+<table class="code"><tr>
+<th>location.h</th>
+</tr><tr>
+<td>
+#diff 7 location.h
+</td>
+</tr><tr>
+<th>location.c</th>
+</tr><tr>
+<td>
+#diff 7 location.c
+</td>
+</tr></table>
+<p>
+Module <i>move.c</i> had an equally meaningless
+&ldquo;You can&rsquo;t&rdquo; reply;
+we will split it up into eight separate messages.
+That may sound like a lot;
+however, these messages cover four different commands
+(<i>get</i>, <i>drop</i>, <i>give</i>, <i>ask</i>).
+</p>
+<table class="code"><tr>
+<th>move.h</th>
+</tr><tr>
+<td>
+#diff 7 move.h
+</td>
+</tr><tr>
+<th>move.c</th>
+</tr><tr>
+<td>
+#diff 7 move.c
+</td>
+</tr></table>
+<div class="explanation">
+<p>
+Explanation:
+</p>
+<ul>
+<li>Lines 34, 38, 45:
+I deliberately output <i>noun</i> here, not <i>obj-&gt;description</i>;
+the latter would give away too much of the game.
+For example,
+the player might make a lucky guess and type &ldquo;get gold&rdquo;
+without ever having visited the cave (where the gold coin is located).
+Replying with &ldquo;You don&rsquo;t see <b>a gold coin</b> here&rdquo;
+is like failing to hide the wires suspending the spaceships in a
+<a href="http://en.wikipedia.org/wiki/Science_fiction_film">sci-fi movie</a>.
+Instead, we just echo the noun entered by the player:
+&ldquo;You don&rsquo;t see any <b>gold</b> here.&rdquo;
+</li>
+</ul>
+</div>
+<p>
+The other modules
+(<i>parsexec.c</i>, <i>execute.c</i>, <i>match.c</i>, <i>object.c</i>)
+remain unchanged, you can see them in previous chapters.
+</p>
+<p>
+In this chapter, the concept of <i>distance</i> was used
+to improve the quality of replies returned by the game.
+But the benefits of distance are not reserved to the output side;
+it can be used equally well to make improvements on the input side.
+In the next chapter, we will use distance to improve the recognition of nouns.
+</p>
+<hr />
+<p>
+Next chapter: <a href="htpataic08.html">8. North, east, south, west</a>
+</p>
+</body>
+</html>

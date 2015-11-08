@@ -1,0 +1,383 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+<title>6. Passages</title>
+<link rel="stylesheet" href="htpataic.css" type="text/css" />
+</head>
+<body>
+<table class="contents"><tr><td>
+<h4>Contents</h4>
+<div><a href="htpataic01.html">1. Introduction</a></div>
+<div><a href="htpataic02.html">2. The main loop</a></div>
+<div><a href="htpataic03.html">3. Locations</a></div>
+<div><a href="htpataic04.html">4. Objects</a></div>
+<div><a href="htpataic05.html">5. Inventory</a></div>
+<div><b>6. Passages</b></div>
+<div><a href="htpataic07.html">7. Distance</a></div>
+<div><a href="htpataic08.html">8. North, east, south, west</a></div>
+<div><a href="htpataic09.html">9. Code generation</a></div>
+<div><a href="htpataic10.html">10. More attributes</a></div>
+<div><a href="htpataic11.html">11. Conditions</a></div>
+<div><a href="htpataic12.html">12. Open and close</a></div>
+<div><a href="htpataic13.html">13. The parser</a></div>
+<div><a href="htpataic14.html">14. Multiple arguments</a></div>
+<div><a href="htpataic15.html">15. Light and dark</a></div>
+<div><a href="htpataic16.html">16. Savegame</a></div>
+<div><a href="htpataic17.html">17. Test automation</a></div>
+<div><a href="htpataic18.html">18. Abbreviations</a></div>
+<div><a href="htpataic19.html">19. Conversations</a></div>
+<div><a href="htpataic20.html">20. Combat</a></div>
+<div><a href="htpataic21.html">21. Database</a></div>
+<div><a href="htpataic22.html">22. Speech</a></div>
+<div><a href="htpataic23.html">23. JavaScript</a></div>
+</td></tr></table>
+
+<h1>How to program a text adventure in C</h1>
+<h2>6. Passages</h2>
+<p class="intro">
+It&rsquo;s time to draw a map - and implement it!
+</p>
+<p>
+The best tools for drawing a map will always be: a pencil and a piece of paper.
+A basic map consists of <b>locations</b> (the rectangles),
+connected by <b>passages</b> (the arrows).
+We already created locations in chapter 3,
+now we will start adding the passages.
+</p>
+<p>
+<a href="mockmap06.gif" title="Click to enlarge">
+<img class="mockmap" alt="Basic map with passages" src="mockmap06.gif" />
+</a>
+</p>
+<p>
+In the virtual world,
+a &lsquo;passage&rsquo; may be anything connecting two locations:
+a road, a door, a stretch of sand in a desert.
+Basically, a passage has the following properties:
+<ul>
+<li>A starting point (location).</li>
+<li>A destination (location).</li>
+<li>The narrative description, for example &ldquo;a forest path&rdquo;.</li>
+<li>The tag by which the passage is referred to in the <i>go</i> command.</li>
+</ul>
+</p>
+<p>
+Considering these properties, it may not come as a surprise that
+the <b>struct object</b> defined in chapter 4
+is very suitable to store a passage.
+In fact, a passage is not that different from an item or actor;
+it is present at a certain location as a &lsquo;visible exit&rsquo;
+(this location is the starting point).
+It just behaves differently to certain commands.
+In particular the command &lsquo;go&rsquo;:
+applied to a passage, <i>go</i> will change the player&rsquo;s location.
+The target location (the &lsquo;destination&rsquo;)
+can be stored in the <i>struct object</i> as a new attribute.
+</p>
+<table><tr>
+<td class="old snippet">struct object {
+   const char    *description;
+   const char    *tag;
+   struct object *location;
+   <span class="new">struct object *destination;</span>
+};
+</td>
+</tr></table>
+<p>
+Notes:
+<ul>
+<li>Obviously, <i>destination</i> is unused in most other objects
+(items, actors), but I consider this to be a minor waste of space.</li>
+<li>A passage runs in one direction only;
+bi-directional passages are implemented by
+defining two separate uni-directional passages.
+Again, let&rsquo;s not bother now about the apparent waste of space.</li>
+</ul>
+</p>
+<p>
+So we expand the array of objects:
+</p>
+<table class="demo">
+<tr><th>Sample output</th></tr>
+<tr><td>
+Welcome to Little Cave Adventure.<br />
+You are in an open field.<br />
+You see:<br />
+a silver coin<br />
+a burly guard<br />
+a cave entrance<br />
+<br />
+--&gt; go entrance<br />
+OK.<br />
+You are in a little cave.<br />
+You see:<br />
+a gold coin<br />
+a way out<br />
+<br />
+--&gt; go out<br />
+OK.<br />
+You are in an open field.<br />
+You see:<br />
+a silver coin<br />
+a burly guard<br />
+a cave entrance<br />
+<br />
+--&gt; go cave<br />
+OK.<br />
+You are in a little cave.<br />
+You see:<br />
+a gold coin<br />
+a way out<br />
+<br />
+--&gt; quit<br />
+<br />
+Bye!<br />
+</td></tr>
+</table>
+<table class="code"><tr>
+<th>object.h</th>
+</tr><tr>
+<td>
+<ol>
+<li class="old">typedef struct object {</li>
+<li class="old">   const char    *description;</li>
+<li class="old">   const char    *tag;</li>
+<li class="old">   struct object *location;</li>
+<li class="new"><span class="old">   </span>struct object *destination;</li>
+<li class="old">} OBJECT;</li>
+<li class="old"></li>
+<li class="old">extern OBJECT objs[];</li>
+<li class="old"></li>
+<li class="old">#define field      (objs + 0)</li>
+<li class="old">#define cave       (objs + 1)</li>
+<li class="old">#define silver     (objs + 2)</li>
+<li class="old">#define gold       (objs + 3)</li>
+<li class="old">#define guard      (objs + 4)</li>
+<li class="old">#define player     (objs + 5)</li>
+<li class="new"><span class="old">#define </span>intoCave<span class="old">   (objs + 6)</span></li>
+<li class="new">#define exitCave   (objs + 7)</li>
+<li class="new"></li>
+<li class="new">#define endOfObjs  (objs + 8)</li>
+</ol>
+</td>
+</tr><tr>
+<th>object.c</th>
+</tr><tr>
+<td>
+<ol>
+<li class="old">#include &lt;stdio.h&gt;</li>
+<li class="old">#include "object.h"</li>
+<li class="old"></li>
+<li class="old">OBJECT objs[] = {</li>
+<li class="new"><span class="old">   {"an open </span>field"  ,<span class="old"> "field"   , NULL </span>, NULL<span class="old">  },</span></li>
+<li class="new"><span class="old">   {"a little </span>cave"  ,<span class="old"> "cave"    , NULL </span>, NULL<span class="old">  },</span></li>
+<li class="new"><span class="old">   {"a silver </span>coin"  ,<span class="old"> "silver"  , </span>field, NULL<span class="old">  },</span></li>
+<li class="new"><span class="old">   {"a gold coin"    , "gold"    , cave </span>, NULL<span class="old">  },</span></li>
+<li class="new"><span class="old">   {"a burly </span>guard"  ,<span class="old"> "guard"   , </span>field, NULL<span class="old">  },</span></li>
+<li class="new"><span class="old">   {"yourself"       , "yourself", </span>field, NULL  },</li>
+<li class="new">   {"a cave entrance", "entrance", field, cave  },</li>
+<li class="new">   {"a way out"      , "out"     , cave ,<span class="old"> field }</span></li>
+<li class="old">};</li>
+</ol>
+</td>
+</tr></table>
+<p>
+Next, we have to make some changes to function <i>executeGo</i>.
+</p>
+<table class="code"><tr>
+<th>location.h</th>
+</tr><tr>
+<td>
+<ol>
+<li class="old">extern void executeLook(const char *noun);</li>
+<li class="old">extern void executeGo(const char *noun);</li>
+</ol>
+</td>
+</tr><tr>
+<th>location.c</th>
+</tr><tr>
+<td>
+<ol>
+<li class="old">#include &lt;stdio.h&gt;</li>
+<li class="old">#include &lt;string.h&gt;</li>
+<li class="old">#include "object.h"</li>
+<li class="old">#include "misc.h"</li>
+<li class="old">#include "match.h"</li>
+<li class="old"></li>
+<li class="old">void executeLook(const char *noun)</li>
+<li class="old">{</li>
+<li class="old">   if (noun != NULL &amp;&amp; strcmp(noun, "around") == 0)</li>
+<li class="old">   {</li>
+<li class="old">      printf("You are in %s.\n", player-&gt;location-&gt;description);</li>
+<li class="old">      listObjectsAtLocation(player-&gt;location);</li>
+<li class="old">   }</li>
+<li class="old">   else</li>
+<li class="old">   {</li>
+<li class="old">      printf("I don't understand what you want to see.\n");</li>
+<li class="old">   }</li>
+<li class="old">}</li>
+<li class="old"></li>
+<li class="old">void executeGo(const char *noun)</li>
+<li class="old">{</li>
+<li class="old">   OBJECT *obj = matchingObject(noun);</li>
+<li class="old">   if (obj == NULL)</li>
+<li class="old">   {</li>
+<li class="old">      printf("I don't understand where you want to go.\n");</li>
+<li class="old">   }</li>
+<li class="old">   else if (obj == player-&gt;location)</li>
+<li class="old">   {</li>
+<li class="old">      printf("You are already there.\n");</li>
+<li class="old">   }</li>
+<li class="new"><span class="old">   else </span>if (getPassageTo(obj) != NULL)</li>
+<li class="old">   {</li>
+<li class="old">      printf("OK.\n");</li>
+<li class="old">      player-&gt;location = obj;</li>
+<li class="old">      executeLook("around");</li>
+<li class="new"><span class="old">   </span>}</li>
+<li class="new">   else if (obj-&gt;location == player-&gt;location &amp;&amp; obj-&gt;destination != NULL)</li>
+<li class="new">   {</li>
+<li class="new">      printf("OK.\n");</li>
+<li class="new">      player-&gt;location = obj-&gt;destination;</li>
+<li class="new">      executeLook("around");</li>
+<li class="new">   }</li>
+<li class="new">   else</li>
+<li class="new">   {</li>
+<li class="new">      printf("You can't go there.\n");</li>
+<li class="old">   }</li>
+<li class="old">}</li>
+</ol>
+</td>
+</tr></table>
+<div class="explanation">
+<p>
+Explanation:
+</p>
+<ul>
+<li>Line 31:
+we no longer allow the player to jump freely from one location to another:
+there must be a passage connecting the two.
+We use a separate function <i>getPassageTo</i> (defined below) to check this.
+</li>
+<li>Line 37-42:
+besides <i>go &lt;location&gt;</i> (lines 31-36),
+we now offer an alternative way for the player to move:
+<i>go &lt;passage&gt;</i>.
+For example, when in the field,
+<i>go cave</i> and <i>go entrance</i> will have the same effect.
+</li>
+</ul>
+</div>
+<p>
+Function <i>executeGo</i> uses a separate function
+to check if two locations are connected by a passage.
+Because such a function will prove to be useful in the next chapter as well,
+I made it a general function <i>getPassageTo</i> as part of <i>misc.c</i>.
+</p>
+<table class="code"><tr>
+<th>misc.h</th>
+</tr><tr>
+<td>
+<ol>
+<li class="new">extern OBJECT *getPassageTo(OBJECT *targetLocation);</li>
+<li class="old">extern OBJECT *actorHere(void);</li>
+<li class="old">extern int listObjectsAtLocation(OBJECT *location);</li>
+</ol>
+</td>
+</tr><tr>
+<th>misc.c</th>
+</tr><tr>
+<td>
+<ol>
+<li class="old">#include &lt;stdio.h&gt;</li>
+<li class="old">#include "object.h"</li>
+<li class="old">#include "misc.h"</li>
+<li class="old"></li>
+<li class="new">OBJECT *getPassageTo(OBJECT *targetLocation)</li>
+<li class="new">{</li>
+<li class="new">   OBJECT *obj;</li>
+<li class="new">   for (obj = objs; obj &lt; endOfObjs; obj++)</li>
+<li class="new">   {</li>
+<li class="new">      if (obj-&gt;location == player-&gt;location &amp;&amp;</li>
+<li class="new">          obj-&gt;destination == targetLocation)</li>
+<li class="new">      {</li>
+<li class="new">         return obj;</li>
+<li class="new">      }</li>
+<li class="new">   }</li>
+<li class="new">   return NULL;</li>
+<li class="new">}</li>
+<li class="new"></li>
+<li class="old">OBJECT *actorHere(void)</li>
+<li class="old">{</li>
+<li class="old">   OBJECT *obj;</li>
+<li class="old">   for (obj = objs; obj &lt; endOfObjs; obj++)</li>
+<li class="old">   {</li>
+<li class="old">      if (obj-&gt;location == player-&gt;location &amp;&amp; obj == guard)</li>
+<li class="old">      {</li>
+<li class="old">         return obj;</li>
+<li class="old">      }</li>
+<li class="old">   }</li>
+<li class="old">   return NULL;</li>
+<li class="old">}</li>
+<li class="old"></li>
+<li class="old">int listObjectsAtLocation(OBJECT *location)</li>
+<li class="old">{</li>
+<li class="old">   int count = 0;</li>
+<li class="old">   OBJECT *obj;</li>
+<li class="old">   for (obj = objs; obj &lt; endOfObjs; obj++)</li>
+<li class="old">   {</li>
+<li class="old">      if (obj != player &amp;&amp; obj-&gt;location == location)</li>
+<li class="old">      {</li>
+<li class="old">         if (count++ == 0)</li>
+<li class="old">         {</li>
+<li class="old">            printf("You see:\n");</li>
+<li class="old">         }</li>
+<li class="old">         printf("%s\n", obj-&gt;description);</li>
+<li class="old">      }</li>
+<li class="old">   }</li>
+<li class="old">   return count;</li>
+<li class="old">}</li>
+</ol>
+</td>
+</tr></table>
+<div class="explanation">
+<p>
+Explanation:
+</p>
+<ul>
+<li>Line 8-11:
+we scan through all objects until we encounter a passage running
+from <i>player-&gt;location</i> (the player&rsquo;s current location)
+to <i>targetLocation</i> (the function&rsquo;s parameter).
+</li>
+<li>Line 13:
+if a matching passage is found, we return a pointer to the passage object.
+</li>
+<li>Line 16:
+if no such passage exists, we return NULL.
+</li>
+</ul>
+</div>
+<p>
+The other modules
+(<i>parsexec.c</i>, <i>execute.c</i>, <i>match.c</i>, <i>move.c</i>)
+remain unchanged, you can see them in the previous chapters.
+</p>
+<p>
+Obviously, the map in this sample is trivial:
+there are only two locations, and they are connected in both directions.
+I will leave it up to the reader to draw a more complicated map
+and turn it into a list of objects (locations and passages).
+</p>
+<p>
+Many responses in the game are still kind of dull.
+For example,
+&ldquo;go guard&rdquo; returns &ldquo;You can&rsquo;t go there.&rdquo;
+Exactly the kind of output I criticized in the previous chapter!
+This is something we will be working on in the next chapter.
+</p>
+<hr />
+<p>
+Next chapter: <a href="htpataic07.html">7. Distance</a>
+</p>
+</body>
+</html>
