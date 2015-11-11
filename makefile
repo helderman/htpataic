@@ -11,7 +11,7 @@ html: $(patsubst %.txt,%.html,$(wildcard htpataic??.txt))
 # Each .html will be rebuilt upon modification of its .txt
 # and/or its sample code (based on build target code??/test.out)
 htpataic%.html: htpataic%.txt code%/test.out
-	awk -f compile.awk $< > $@
+	tools/compile.sh $< > $@
 
 # Prevent error in case the sample code has not been built successfully yet
 .SECONDARY: code%/test.out

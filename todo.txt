@@ -1,5 +1,3 @@
-Put everything in GitHub
-
 ch6: misc.c: getPassageTo parameterize player->location
 ch7: misc.c: distanceTo parameterize player->location
 ch7: misc.h: distPlayer --> distSelf
