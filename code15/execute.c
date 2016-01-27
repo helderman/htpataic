@@ -2,83 +2,132 @@
 #include "object.h"
 #include "misc.h"
 #include "match.h"
+#include "noun.h"
 #include "move.h"
 #include "toggle.h"
 
 bool executeOpen(void)
 {
-   if (objectWithinReach("open", params))
-   {
-      printf("%s", (*params->object->open)());
-   }
+   OBJECT *obj = reachableObject("what you want to open", params[0]);
+   if (obj != NULL) printf("%s", (*obj->open)());
    return true;
 }
 
 bool executeClose(void)
 {
-   if (objectWithinReach("close", params))
-   {
-      printf("%s", (*params->object->close)());
-   }
+   OBJECT *obj = reachableObject("what you want to close", params[0]);
+   if (obj != NULL) printf("%s", (*obj->close)());
    return true;
 }
 
 bool executeLock(void)
 {
-   if (objectWithinReach("lock", params))
-   {
-      printf("%s", (*params->object->lock)());
-   }
+   OBJECT *obj = reachableObject("what you want to lock", params[0]);
+   if (obj != NULL) printf("%s", (*obj->lock)());
    return true;
 }
 
 bool executeUnlock(void)
 {
-   if (objectWithinReach("unlock", params))
-   {
-      printf("%s", (*params->object->unlock)());
-   }
+   OBJECT *obj = reachableObject("what you want to unlock", params[0]);
+   if (obj != NULL) printf("%s", (*obj->unlock)());
    return true;
 }
 
 bool executeGet(void)
 {
-   return moveObject(params, player->location, player);
+   OBJECT *obj = getVisible("what you want to get", params[0]);
+   switch (getDistance(player, obj))
+   {
+   case distSelf:
+      printf("You should not be doing that to %s.\n", obj->description);
+      break;
+   case distHeld:
+      printf("You already have %s.\n", obj->description);
+      break;
+   case distOverthere:
+      printf("Too far away, move closer please.\n");
+      break;
+   case distUnknownObject:
+      // already handled by getVisible
+      break;
+   default:
+      if (obj->location != NULL && obj->location->health > 0)
+      {
+         printf("You should ask %s nicely.\n", obj->location->description);
+      }
+      else
+      {
+         moveObject(obj, player);
+      }
+   }
+   return true;
 }
 
 bool executeDrop(void)
 {
-   return moveObject(params, player, player->location);
+   moveObject(getPossession(player, "drop", params[0]), player->location);
+   return true;
 }
 
 bool executeAsk(void)
 {
-   return moveObject(params, actorHere(), player);
+   moveObject(getPossession(actorHere(), "ask", params[0]), player);
+   return true;
 }
 
 bool executeGive(void)
 {
-   return moveObject(params, player, actorHere());
+   moveObject(getPossession(player, "give", params[0]), actorHere());
+   return true;
 }
 
 bool executeGetFrom(void)
 {
-   return moveObject(params, params[1].object, player);
+   // TODO: getVisible not suitable because it checks dups
+   // TODO: check not actor
+   if (getVisible("what you want to get", params[0]) != NULL)
+   {
+      OBJECT *from = reachableObject("where to get that from", params[1]);
+      moveObject(getPossession(from, "get", params[0]), player);
+   }
+   return true;
 }
 
 bool executePutIn(void)
 {
-   return moveObject(params, player, params[1].object);
+   // TODO: check not actor
+   OBJECT *obj = getPossession(player, "put", params[0]);
+   if (obj != NULL)
+   {
+      OBJECT *to = reachableObject("where to put that in", params[1]);
+      moveObject(obj, to);
+   }
+   return true;
 }
 
 bool executeAskFrom(void)
 {
-   return moveObject(params, params[1].object, player);
+   // TODO: getVisible not suitable because it checks dups
+   // TODO: check not actor
+   if (getVisible("what you want to get", params[0]) != NULL)
+   {
+      OBJECT *from = reachableObject("where to get that from", params[1]);
+      moveObject(getPossession(from, "get", params[0]), player);
+   }
+   return true;
 }
 
 bool executeGiveTo(void)
 {
-   return moveObject(params, player, params[1].object);
+   // TODO: check actor
+   OBJECT *obj = getPossession(player, "put", params[0]);
+   if (obj != NULL)
+   {
+      OBJECT *to = reachableObject("who to give that to", params[1]);
+      moveObject(obj, to);
+   }
+   return true;
 }
 
 bool executeInventory(void)
@@ -92,22 +141,24 @@ bool executeInventory(void)
 
 bool executeTurnOn(void)
 {
-   if (objectWithinReach("turn on", params))
+   OBJECT *obj = reachableObject("what you want to turn on", params[0]);
+   if (obj != NULL)
    {
-      printf("%s", params->object == lampOff ? toggleLamp() :
-                   params->object == lampOn  ? "The lamp is already on.\n" :
-                                               "You cannot turn that on.\n");
+      printf("%s", obj == lampOff ? toggleLamp() :
+                   obj == lampOn  ? "The lamp is already on.\n" :
+                                    "You cannot turn that on.\n");
    }
    return true;
 }
 
 bool executeTurnOff(void)
 {
-   if (objectWithinReach("turn off", params))
+   OBJECT *obj = reachableObject("what you want to turn off", params[0]);
+   if (obj != NULL)
    {
-      printf("%s", params->object == lampOn  ? toggleLamp() :
-                   params->object == lampOff ? "The lamp is already off.\n" :
-                                               "You cannot turn that off.\n");
+      printf("%s", obj == lampOn  ? toggleLamp() :
+                   obj == lampOff ? "The lamp is already off.\n" :
+                                    "You cannot turn that off.\n");
    }
    return true;
 }

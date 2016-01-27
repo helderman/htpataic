@@ -1,4 +1,4 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<!DOCTYPE html>
 <html>
 <head>
 <title>2. The main loop</title>
@@ -26,9 +26,9 @@ and executes the command.</li>
 The code sample below consists of three functions,
 one for each step:
 <ol type="1">
-<li>function <i>getInput</i>;</li>
-<li>function <i>parseAndExecute</i>;</li>
-<li>function <i>main</i>,
+<li>Function <i>getInput</i>.</li>
+<li>Function <i>parseAndExecute</i>.</li>
+<li>Function <i>main</i>,
 which takes care of calling the other two functions repeatedly.</li>
 </ol>
 </p>
@@ -84,8 +84,8 @@ because I want to execute a pre-determined command first
 </ul>
 </div>
 <p>
-I implemented function <i>parseAndExecute</i> in a separate module;
-it is the one function that is subject to change.
+I implemented function <i>parseAndExecute</i> in a separate module,
+as it is the function that is subject to change in chapters to come.
 </p>
 <table class="code"><tr>
 <th>parsexec.h</th>
@@ -118,7 +118,7 @@ in just two lines of code.
 <li>Line 9:
 your C compiler may give a warning
 regarding the unused variable &lsquo;noun&rsquo; on this line.
-Please ignore this message; the issue will be gone in the next chapter.
+Please ignore this message; the issue will be resolved in the next chapter.
 </li>
 <li>Line 10:
 nothing to do if the player enters nothing (or just spaces).
@@ -196,7 +196,7 @@ with terminating the program without the player&rsquo;s consent: in a
 <a href="http://en.wikipedia.org/wiki/Windowing_system">windowing system</a>,
 it is not unlikely for a
 <a href="http://en.wikipedia.org/wiki/Text-based_(computing)">text-based</a>
-program to be running in an application window
+program to be running in a terminal window
 that immediately closes when the program ends,
 even before the player has had a chance to read the final message.
 We could delay this effect with &ldquo;press
@@ -210,7 +210,7 @@ whenever he is ready to leave the imaginary world behind.
 Naturally, all this is just an advice; you can take it or leave it.
 That&rsquo;s the great thing about writing a game in a
 <a href="http://en.wikipedia.org/wiki/General-purpose_programming_language">general-purpose language</a>:
-you can craft it to your likings.
+you can mould it any way you like.
 </p>
 <hr />
 <p>

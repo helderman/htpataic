@@ -2,7 +2,7 @@
 #include <string.h>
 #include "object.h"
 #include "misc.h"
-#include "match.h"
+#include "noun.h"
 
 void executeLook(const char *noun)
 {
@@ -19,19 +19,19 @@ void executeLook(const char *noun)
 
 void executeGo(const char *noun)
 {
-   OBJECT *obj = matchingObject(noun);
+   OBJECT *obj = getVisible("where you want to go", noun);
    if (obj == NULL)
    {
-      printf("I don't understand where you want to go.\n");
+      // already handled by getVisible
    }
-   else if (obj == player->location)
-   {
-      printf("You are already there.\n");
-   }
-   else
+   else if (obj->location == NULL && obj != player->location)
    {
       printf("OK.\n");
       player->location = obj;
       executeLook("around");
+   }
+   else
+   {
+      printf("You can't get much closer than this.\n");
    }
 }

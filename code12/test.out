@@ -7,10 +7,10 @@ a cave entrance to the east
 dense forest all around
 
 --> get coin
-OK.
+You pick up a silver coin.
 
 --> give coin
-OK.
+You give a silver coin to a burly guard.
 
 --> go cave
 You walk into the cave.
@@ -23,7 +23,7 @@ a closed door to the south
 a tiny key
 
 --> get key
-OK.
+You pick up a tiny key.
 
 --> go south
 The door is closed.
@@ -32,7 +32,7 @@ The door is closed.
 OK.
 
 --> go south
-You walk through the door into the backroom.
+You walk through the door into a backroom.
 
 You are in a backroom.
 You see:
@@ -52,7 +52,7 @@ You see:
 a gold coin
 
 --> get gold
-Sorry, a wooden box is holding it.
+You get a gold coin from a wooden box.
 
 --> quit
 

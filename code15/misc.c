@@ -2,24 +2,23 @@
 #include "object.h"
 #include "misc.h"
 
-int isInLight(OBJECT *obj)
+static OBJECT *getLocation(OBJECT *obj)
 {
-   return player->location->location == daylight ||
-          player == lampOn->location ||
-          obj->location == daylight ||
-          obj->location == player ||
-          obj->location == lampOn->location ||
-          obj == lampOn->location ||
-          obj == lampOn;
+   while (obj->location != NULL) obj = obj->location;
+   return obj;
 }
 
-OBJECT *getPassageTo(OBJECT *targetLocation)
+bool isLit(OBJECT *location)
+{
+   return location == field || location == getLocation(lampOn);
+}
+
+OBJECT *getPassage(OBJECT *from, OBJECT *to)
 {
    OBJECT *obj;
    forEachObject(obj)
    {
-      if (obj->location == player->location &&
-          obj->prospect == targetLocation)
+      if (from != NULL && obj->location == from && obj->prospect == to)
       {
          return obj;
       }
@@ -27,19 +26,20 @@ OBJECT *getPassageTo(OBJECT *targetLocation)
    return NULL;
 }
 
-DISTANCE distanceTo(OBJECT *obj)
+DISTANCE getDistance(OBJECT *from, OBJECT *to)
 {
-   return !validObject(obj)                           ? distUnknownObject :
-          obj == player                               ? distPlayer :
-          obj->location == player                     ? distHeld :
-          !isInLight(obj)                             ? distNotHere :
-          obj == player->location                     ? distLocation :
-          obj->location == player->location           ? distHere :
-          getPassageTo(obj) != NULL                   ? distOverthere :
-          !validObject(obj->location)                 ? distNotHere :
-          obj->location->location == player           ? distHeldContained :
-          obj->location->location == player->location ? distHereContained :
-                                                        distNotHere;
+   return !validObject(to)                         ? distUnknownObject :
+          to == from                               ? distSelf :
+          to->location == from                     ? distHeld :
+          !isLit(from->location) &&
+          !isLit(to) && !isLit(to->prospect)       ? distNotHere :
+          to == from->location                     ? distLocation :
+          to->location == from->location           ? distHere :
+          getPassage(from->location, to) != NULL   ? distOverthere :
+          !validObject(to->location)               ? distNotHere :
+          to->location->location == from           ? distHeldContained :
+          to->location->location == from->location ? distHereContained :
+                                                     distNotHere;
 }
 
 OBJECT *actorHere(void)
@@ -47,7 +47,7 @@ OBJECT *actorHere(void)
    OBJECT *obj;
    forEachObject(obj)
    {
-      if (distanceTo(obj) == distHere && obj->health > 0)
+      if (getDistance(player, obj) == distHere && obj->health > 0)
       {
          return obj;
       }
@@ -61,7 +61,8 @@ int listObjectsAtLocation(OBJECT *location)
    OBJECT *obj;
    forEachObject(obj)
    {
-      if (obj != player && obj->location == location && isInLight(obj))
+      if (obj != player && obj->location == location &&
+          getDistance(player, obj) < distNotHere)
       {
          if (count++ == 0)
          {

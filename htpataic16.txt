@@ -1,4 +1,4 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<!DOCTYPE html>
 <html>
 <head>
 <title>16. Savegame</title>
@@ -12,10 +12,66 @@
 <h1>How to program a text adventure in C</h1>
 <h2>16. Savegame</h2>
 <p class="intro">
-TODO
+An adventure with any degree of difficulty
+should give the player the opportunity to save his progress,
+so he can resume the game at a later time.
 </p>
 <p>
-TODO
+Typically, adventure games simply save their state to a file on disk.
+Basically this means: write every (relevant) variable to a file,
+and read them back in again to resume the game.
+For reasons of portability and security, it would be wise to
+<a href="https://en.wikipedia.org/wiki/Serialization">serialize</a>
+the data.
+<p>
+For a traditional single-player adventure,
+an alternative would be for the game to log the player&rsquo;s input.
+When the player wants to resume, do a &lsquo;roll-forward&rsquo;;
+starting from the initial game state, replay every command.
+Unusual as it may be, it brings along a few nice advantages.
+</p>
+<ul>
+<li>The player can browse back through the entire transcription of the game.
+It can help a player get over that feeling of
+&ldquo;It has been a while since I last played, what was I doing here?&rdquo;
+</li>
+<li>Makes it easier for the player to &lsquo;undo&rsquo; a command.
+Exit the game, edit the log file, resume the game. Why not?
+</li>
+<li>Makes it harder for the player to cheat.
+There simply is no advantage in hacking the log file;
+without the right clue (or a friend&rsquo;s savegame),
+you will never make it to the other side of that locked door.
+</li>
+<li>Implementation is simple and generic.
+We only have to adjust one function: <i>getInput</i> (see chapter 2).
+</li>
+<li>Portable by nature.
+The log file is a straightforward text file; one command per line.
+Do be careful with software updates that alter the game&rsquo;s behavior;
+these might invalidate log files created in earlier versions of the game.
+</li>
+<li>It can help the developer to analyze problems.
+After an application crash,
+it will be possible to retrace the steps that led to the situation.
+</li>
+<li>It can help the developer with test automation.
+This is explained in the next chapter.
+</li>
+</ul>
+<p>
+As the game progresses,
+the log file will grow, and the time it takes to resume the game will increase.
+But with today&rsquo;s hardware,
+this can hardly be considered a problem anymore.
+</p>
+<p>
+TODO: source code (main.c)
+</p>
+<p>
+Please note that this approach is not suitable for online multi-player games.
+For that, it is better to use a database.
+This will be discussed in chapter 21.
 </p>
 <hr />
 <p>

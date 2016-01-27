@@ -2,13 +2,12 @@
 #include "object.h"
 #include "misc.h"
 
-OBJECT *getPassageTo(OBJECT *targetLocation)
+OBJECT *getPassage(OBJECT *from, OBJECT *to)
 {
    OBJECT *obj;
    for (obj = objs; obj < endOfObjs; obj++)
    {
-      if (obj->location == player->location &&
-          obj->prospect == targetLocation)
+      if (obj->location == from && obj->prospect == to)
       {
          return obj;
       }
@@ -16,18 +15,18 @@ OBJECT *getPassageTo(OBJECT *targetLocation)
    return NULL;
 }
 
-DISTANCE distanceTo(OBJECT *obj)
+DISTANCE getDistance(OBJECT *from, OBJECT *to)
 {
-   return obj == NULL                                 ? distUnknownObject :
-          obj == player                               ? distPlayer :
-          obj->location == player                     ? distHeld :
-          obj == player->location                     ? distLocation :
-          obj->location == player->location           ? distHere :
-          getPassageTo(obj) != NULL                   ? distOverthere :
-          obj->location == NULL                       ? distNotHere :
-          obj->location->location == player           ? distHeldContained :
-          obj->location->location == player->location ? distHereContained :
-                                                        distNotHere;
+   return to == NULL                               ? distUnknownObject :
+          to == from                               ? distSelf :
+          to->location == from                     ? distHeld :
+          to == from->location                     ? distLocation :
+          to->location == from->location           ? distHere :
+          getPassage(from->location, to) != NULL   ? distOverthere :
+          to->location == NULL                     ? distNotHere :
+          to->location->location == from           ? distHeldContained :
+          to->location->location == from->location ? distHereContained :
+                                                     distNotHere;
 }
 
 OBJECT *actorHere(void)
@@ -35,7 +34,7 @@ OBJECT *actorHere(void)
    OBJECT *obj;
    for (obj = objs; obj < endOfObjs; obj++)
    {
-      if (distanceTo(obj) == distHere && obj->health > 0)
+      if (getDistance(player, obj) == distHere && obj->health > 0)
       {
          return obj;
       }

@@ -1,4 +1,4 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<!DOCTYPE html>
 <html>
 <head>
 <title>12. Open and close</title>
@@ -20,7 +20,7 @@
 <div><a href="htpataic11.html">11. Conditions</a></div>
 <div><b>12. Open and close</b></div>
 <div><a href="htpataic13.html">13. The parser</a></div>
-<div><a href="htpataic14.html">14. Multiple arguments</a></div>
+<div><a href="htpataic14.html">14. Multiple nouns</a></div>
 <div><a href="htpataic15.html">15. Light and dark</a></div>
 <div><a href="htpataic16.html">16. Savegame</a></div>
 <div><a href="htpataic17.html">17. Test automation</a></div>
@@ -346,6 +346,7 @@ for each of the commands we wish to support:
 <li class="new">     description "a backroom"</li>
 <li class="new">     tags        "backroom"</li>
 <li class="new">     details     "The room is dusty and messy.\n"</li>
+<li class="new">     capacity    9999</li>
 <li class="new"></li>
 <li class="new">- wallBackroom</li>
 <li class="new">     description "solid rock all around"</li>
@@ -359,7 +360,7 @@ for each of the commands we wish to support:
 <li class="new">     tags        "south", "door", "doorway"</li>
 <li class="new">     destination backroom</li>
 <li class="new">     details     "The door is open.\n"</li>
-<li class="new">     textGo      "You walk through the door into the backroom.\n"</li>
+<li class="new">     textGo      "You walk through the door into a backroom.\n"</li>
 <li class="new">     open        isAlreadyOpen</li>
 <li class="new">     close       toggleBackdoor</li>
 <li class="new"></li>
@@ -438,12 +439,12 @@ for each of the commands we wish to support:
 Explanation:
 </p>
 <ul>
-<li>Line 86:
+<li>Line 88:
 at first sight, <i>isAlreadyOpen</i> may seem inappropriate here;
 technically, <i>intoCaveBlocked</i> is a closed passage.
 But storywise, it is still an opening.
 </li>
-<li>Line 165, 176, 187:
+<li>Line 168, 179, 190:
 If you prefer a heavy treasure chest instead of a box,
 then all you have to do is increase the weight
 (and adjust the relevant text and tags accordingly).
@@ -563,63 +564,75 @@ are totally generic.
 <li class="old">#include &lt;stdio.h&gt;</li>
 <li class="old">#include "object.h"</li>
 <li class="old">#include "misc.h"</li>
-<li class="new">#include "match.h"</li>
+<li class="old">#include "noun.h"</li>
 <li class="old">#include "move.h"</li>
-<li class="new"></li>
+<li class="old"></li>
 <li class="new">void executeOpen(const char *noun)</li>
 <li class="new">{</li>
-<li class="new">   OBJECT *obj = matchingObject(noun);</li>
-<li class="new">   if (objectWithinReach("open", obj, noun))</li>
-<li class="new">   {</li>
-<li class="new">      printf("%s", (*obj-&gt;open)());</li>
-<li class="new">   }</li>
+<li class="new">   OBJECT *obj = reachableObject("what you want to open", noun);</li>
+<li class="new">   if (obj != NULL) printf("%s", (*obj-&gt;open)());</li>
 <li class="new">}</li>
 <li class="new"></li>
 <li class="new">void executeClose(const char *noun)</li>
 <li class="new">{</li>
-<li class="new">   OBJECT *obj = matchingObject(noun);</li>
-<li class="new">   if (objectWithinReach("close", obj, noun))</li>
-<li class="new">   {</li>
-<li class="new">      printf("%s", (*obj-&gt;close)());</li>
-<li class="new">   }</li>
+<li class="new">   OBJECT *obj = reachableObject("what you want to close", noun);</li>
+<li class="new">   if (obj != NULL) printf("%s", (*obj-&gt;close)());</li>
 <li class="new">}</li>
 <li class="new"></li>
 <li class="new">void executeLock(const char *noun)</li>
 <li class="new">{</li>
-<li class="new">   OBJECT *obj = matchingObject(noun);</li>
-<li class="new">   if (objectWithinReach("lock", obj, noun))</li>
-<li class="new">   {</li>
-<li class="new">      printf("%s", (*obj-&gt;lock)());</li>
-<li class="new">   }</li>
+<li class="new">   OBJECT *obj = reachableObject("what you want to lock", noun);</li>
+<li class="new">   if (obj != NULL) printf("%s", (*obj-&gt;lock)());</li>
 <li class="new">}</li>
 <li class="new"></li>
 <li class="new">void executeUnlock(const char *noun)</li>
 <li class="new">{</li>
-<li class="new">   OBJECT *obj = matchingObject(noun);</li>
-<li class="new">   if (objectWithinReach("unlock", obj, noun))</li>
-<li class="new">   {</li>
-<li class="new">      printf("%s", (*obj-&gt;unlock)());</li>
-<li class="new">   }</li>
+<li class="new">   OBJECT *obj = reachableObject("what you want to unlock", noun);</li>
+<li class="new">   if (obj != NULL) printf("%s", (*obj-&gt;unlock)());</li>
 <li class="new">}</li>
-<li class="old"></li>
+<li class="new"></li>
 <li class="old">void executeGet(const char *noun)</li>
 <li class="old">{</li>
-<li class="old">   moveObject(noun, player-&gt;location, player);</li>
+<li class="old">   OBJECT *obj = getVisible("what you want to get", noun);</li>
+<li class="old">   switch (getDistance(player, obj))</li>
+<li class="old">   {</li>
+<li class="old">   case distSelf:</li>
+<li class="old">      printf("You should not be doing that to %s.\n", obj-&gt;description);</li>
+<li class="old">      break;</li>
+<li class="old">   case distHeld:</li>
+<li class="old">      printf("You already have %s.\n", obj-&gt;description);</li>
+<li class="old">      break;</li>
+<li class="old">   case distOverthere:</li>
+<li class="old">      printf("Too far away, move closer please.\n");</li>
+<li class="old">      break;</li>
+<li class="old">   case distUnknownObject:</li>
+<li class="old">      // already handled by getVisible</li>
+<li class="old">      break;</li>
+<li class="old">   default:</li>
+<li class="old">      if (obj-&gt;location != NULL &amp;&amp; obj-&gt;location-&gt;health &gt; 0)</li>
+<li class="old">      {</li>
+<li class="old">         printf("You should ask %s nicely.\n", obj-&gt;location-&gt;description);</li>
+<li class="old">      }</li>
+<li class="old">      else</li>
+<li class="old">      {</li>
+<li class="old">         moveObject(obj, player);</li>
+<li class="old">      }</li>
+<li class="old">   }</li>
 <li class="old">}</li>
 <li class="old"></li>
 <li class="old">void executeDrop(const char *noun)</li>
 <li class="old">{</li>
-<li class="old">   moveObject(noun, player, player-&gt;location);</li>
+<li class="old">   moveObject(getPossession(player, "drop", noun), player-&gt;location);</li>
 <li class="old">}</li>
 <li class="old"></li>
 <li class="old">void executeAsk(const char *noun)</li>
 <li class="old">{</li>
-<li class="old">   moveObject(noun, actorHere(), player);</li>
+<li class="old">   moveObject(getPossession(actorHere(), "ask", noun), player);</li>
 <li class="old">}</li>
 <li class="old"></li>
 <li class="old">void executeGive(const char *noun)</li>
 <li class="old">{</li>
-<li class="old">   moveObject(noun, player, actorHere());</li>
+<li class="old">   moveObject(getPossession(player, "give", noun), actorHere());</li>
 <li class="old">}</li>
 <li class="old"></li>
 <li class="old">void executeInventory(void)</li>
@@ -633,7 +646,7 @@ are totally generic.
 </td>
 </tr></table>
 <p>
-Above, I used a generic function <i>objectWithinReach</i>
+Above, I used a generic function <i>reachableObject</i>
 to handle objects that are not here;
 see below for its implementation.
 This way, we don&rsquo;t have to write the same code four times
@@ -646,8 +659,8 @@ these will benefit from the same function.
 </tr><tr>
 <td>
 <ol>
-<li class="old">extern void moveObject(const char *noun, OBJECT *from, OBJECT *to);</li>
-<li class="new">extern bool objectWithinReach(const char *verb, OBJECT *obj, const char *noun);</li>
+<li class="new">extern OBJECT *reachableObject(const char *intention, const char *noun);</li>
+<li class="old">extern void moveObject(OBJECT *obj, OBJECT *to);</li>
 </ol>
 </td>
 </tr><tr>
@@ -658,49 +671,39 @@ these will benefit from the same function.
 <li class="old">#include &lt;stdio.h&gt;</li>
 <li class="old">#include "object.h"</li>
 <li class="old">#include "misc.h"</li>
-<li class="old">#include "match.h"</li>
+<li class="new">#include "noun.h"</li>
+<li class="new"></li>
+<li class="new">OBJECT *reachableObject(const char *intention, const char *noun)</li>
+<li class="new">{</li>
+<li class="new">   OBJECT *obj = getVisible(intention, noun);</li>
+<li class="new">   switch (getDistance(player, obj))</li>
+<li class="new">   {</li>
+<li class="new">   case distSelf:</li>
+<li class="new">      printf("You should not be doing that to %s.\n", obj-&gt;description);</li>
+<li class="new">      break;</li>
+<li class="new">   case distHeldContained:</li>
+<li class="new">   case distHereContained:</li>
+<li class="new">      printf("You would have to get it from %s first.\n",</li>
+<li class="new">             obj-&gt;location-&gt;description);</li>
+<li class="new">      break;</li>
+<li class="new">   case distOverthere:</li>
+<li class="new">      printf("Too far away, move closer please.\n");</li>
+<li class="new">      break;</li>
+<li class="new">   case distNotHere:</li>
+<li class="new">   case distUnknownObject:</li>
+<li class="new">      // already handled by getVisible</li>
+<li class="new">      break;</li>
+<li class="new">   default:</li>
+<li class="new">      return obj;</li>
+<li class="new">   }</li>
+<li class="new">   return NULL;</li>
+<li class="new">}</li>
 <li class="old"></li>
-<li class="old">void moveObject(const char *noun, OBJECT *from, OBJECT *to)</li>
+<li class="old">void moveObject(OBJECT *obj, OBJECT *to)</li>
 <li class="old">{</li>
-<li class="old">   OBJECT *obj = matchingObject(noun);</li>
 <li class="old">   if (obj == NULL)</li>
 <li class="old">   {</li>
-<li class="old">      printf("I don't understand what item you mean.\n");</li>
-<li class="old">   }</li>
-<li class="old">   else if (from == NULL)</li>
-<li class="old">   {</li>
-<li class="old">      printf("I don't understand who you want to ask.\n");</li>
-<li class="old">   }</li>
-<li class="old">   else if (from != obj-&gt;location)</li>
-<li class="old">   {</li>
-<li class="old">      switch (distanceTo(obj))</li>
-<li class="old">      {</li>
-<li class="old">      case distPlayer:</li>
-<li class="old">         printf("You should not be doing that to yourself.\n");</li>
-<li class="old">         break;</li>
-<li class="old">      case distHeld:</li>
-<li class="old">         printf("You already have %s.\n", obj-&gt;description);</li>
-<li class="old">         break;</li>
-<li class="old">      case distLocation:</li>
-<li class="old">      case distOverthere:</li>
-<li class="old">         printf("That's not an item.\n");</li>
-<li class="old">         break;</li>
-<li class="old">      case distHere:</li>
-<li class="old">         if (from == player)</li>
-<li class="old">         {</li>
-<li class="old">            printf("You have no %s.\n", noun);</li>
-<li class="old">         }</li>
-<li class="old">         else</li>
-<li class="old">         {</li>
-<li class="old">            printf("Sorry, %s has no %s.\n", from-&gt;description, noun);</li>
-<li class="old">         }</li>
-<li class="old">         break;</li>
-<li class="old">      case distHereContained:</li>
-<li class="old">         printf("Sorry, %s is holding it.\n", obj-&gt;location-&gt;description);</li>
-<li class="old">         break;</li>
-<li class="old">      default:</li>
-<li class="old">         printf("You don't see any %s here.\n", noun);</li>
-<li class="old">      }</li>
+<li class="old">      // already handled by getVisible or getPossession</li>
 <li class="old">   }</li>
 <li class="old">   else if (to == NULL)</li>
 <li class="old">   {</li>
@@ -716,33 +719,28 @@ these will benefit from the same function.
 <li class="old">   }</li>
 <li class="old">   else</li>
 <li class="old">   {</li>
+<li class="old">      if (to == player-&gt;location)</li>
+<li class="old">      {</li>
+<li class="old">         printf("You drop %s.\n", obj-&gt;description);</li>
+<li class="old">      }</li>
+<li class="old">      else if (to != player)</li>
+<li class="old">      {</li>
+<li class="old">         printf(to-&gt;health &gt; 0 ? "You give %s to %s.\n"</li>
+<li class="old">                               : "You put %s in %s.\n",</li>
+<li class="old">                obj-&gt;description, to-&gt;description);</li>
+<li class="old">      }</li>
+<li class="old">      else if (obj-&gt;location == player-&gt;location)</li>
+<li class="old">      {</li>
+<li class="old">         printf("You pick up %s.\n", obj-&gt;description);</li>
+<li class="old">      }</li>
+<li class="old">      else</li>
+<li class="old">      {</li>
+<li class="old">         printf("You get %s from %s.\n", obj-&gt;description,</li>
+<li class="old">                                         obj-&gt;location-&gt;description);</li>
+<li class="old">      }</li>
 <li class="old">      obj-&gt;location = to;</li>
-<li class="old">      printf("OK.\n");</li>
 <li class="old">   }</li>
 <li class="old">}</li>
-<li class="new"></li>
-<li class="new">bool objectWithinReach(const char *verb, OBJECT *obj, const char *noun)</li>
-<li class="new">{</li>
-<li class="new">   bool ok = false;</li>
-<li class="new">   DISTANCE distance = distanceTo(obj);</li>
-<li class="new">   if (distance &gt; distNotHere)</li>
-<li class="new">   {</li>
-<li class="new">      printf("I don't understand what you want to %s.\n", verb);</li>
-<li class="new">   }</li>
-<li class="new">   else if (distance == distNotHere)</li>
-<li class="new">   {</li>
-<li class="new">      printf("You don't see any %s here.\n", noun);</li>
-<li class="new">   }</li>
-<li class="new">   else if (distance &gt;= distHereContained)</li>
-<li class="new">   {</li>
-<li class="new">      printf("That is out of reach.\n");</li>
-<li class="new">   }</li>
-<li class="new">   else</li>
-<li class="new">   {</li>
-<li class="new">      ok = true;</li>
-<li class="new">   }</li>
-<li class="new">   return ok;</li>
-<li class="new">}</li>
 </ol>
 </td>
 </tr></table>
@@ -865,10 +863,10 @@ a cave entrance to the east<br />
 dense forest all around<br />
 <br />
 --&gt; get coin<br />
-OK.<br />
+You pick up a silver coin.<br />
 <br />
 --&gt; give coin<br />
-OK.<br />
+You give a silver coin to a burly guard.<br />
 <br />
 --&gt; go cave<br />
 You walk into the cave.<br />
@@ -881,7 +879,7 @@ a closed door to the south<br />
 a tiny key<br />
 <br />
 --&gt; get key<br />
-OK.<br />
+You pick up a tiny key.<br />
 <br />
 --&gt; go south<br />
 The door is closed.<br />
@@ -890,7 +888,7 @@ The door is closed.<br />
 OK.<br />
 <br />
 --&gt; go south<br />
-You walk through the door into the backroom.<br />
+You walk through the door into a backroom.<br />
 <br />
 You are in a backroom.<br />
 You see:<br />
@@ -910,7 +908,7 @@ You see:<br />
 a gold coin<br />
 <br />
 --&gt; get gold<br />
-Sorry, a wooden box is holding it.<br />
+You get a gold coin from a wooden box.<br />
 <br />
 --&gt; quit<br />
 <br />
@@ -1003,18 +1001,17 @@ in this chapter.
 I can already promise you, this is only the beginning.
 <i>object.txt</i> is our main source of game data;
 once we seriously start adding locations, items and actors,
-the number of lines will quickly grow to many thousands.
+the number of lines could easily grow to many thousands.
 </li>
 <li>Function <i>swapLocation</i>
 can be used for many other things than doors and locks.
 In chapter 15, it will be used again, this time to turn the light on and off.
 </li>
 <li>As you can see in the sample output,
-the player is able to unlock and open the box.
-But he is still unable to get the gold coin from the box
-(or put it back in again),
-and our parser cannot handle &lsquo;complex&rsquo; commands like
-<i>get coin from box</i> or <i>put coin in box</i>.
+the player can get the gold from the box,
+but he is unable to put it back in again!
+Our parser cannot handle &lsquo;complex&rsquo; commands like
+<i>put coin in box</i>.
 So in the next chapter, we will write a whole new parser;
 the current two-line implementation badly needs replacement!
 </li>

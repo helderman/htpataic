@@ -1,14 +1,12 @@
 #include <stdio.h>
 #include "object.h"
-#include "misc.h"
 
-OBJECT *getPassageTo(OBJECT *targetLocation)
+OBJECT *getPassage(OBJECT *from, OBJECT *to)
 {
    OBJECT *obj;
    for (obj = objs; obj < endOfObjs; obj++)
    {
-      if (obj->location == player->location &&
-          obj->destination == targetLocation)
+      if (obj->location == from && obj->destination == to)
       {
          return obj;
       }

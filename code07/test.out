@@ -9,19 +9,19 @@ a cave entrance
 You can't get much closer than this.
 
 --> give silver
-You have no silver.
+You are not holding any silver.
 
 --> ask silver
-Sorry, a burly guard has no silver.
+There appears to be no silver you can get from a burly guard.
 
 --> get silver
-OK.
+You pick up a silver coin.
 
 --> get gold
 You don't see any gold here.
 
 --> give silver
-OK.
+You give a silver coin to a burly guard.
 
 --> go cave
 OK.
@@ -31,7 +31,7 @@ a gold coin
 a way out
 
 --> get gold
-OK.
+You pick up a gold coin.
 
 --> give gold
 There is nobody here to give that to.

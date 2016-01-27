@@ -35,7 +35,7 @@ void executeGo(const char *noun)
       {
          if (i == locationOfPlayer)
          {
-            printf("You are already there.\n");
+            printf("You can't get much closer than this.\n");
          }
          else
          {

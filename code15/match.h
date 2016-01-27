@@ -1,13 +1,7 @@
-typedef struct param {
-   const char *src;
-   const char *tag;
-   OBJECT *object;
-   DISTANCE distance;
-   int count;
-} PARAM;
+#define MAX_PARAMS  26
 
-extern PARAM params[];
+extern const char *params[];
 
 #define paramByLetter(letter)   (params + (letter) - 'A')
 
-extern int matchCommand(const char *src, const char *pattern);
+extern bool matchCommand(const char *src, const char *pattern);

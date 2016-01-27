@@ -1,49 +1,39 @@
 #include <stdio.h>
 #include "object.h"
 #include "misc.h"
-#include "match.h"
+#include "noun.h"
 
-void moveObject(const char *noun, OBJECT *from, OBJECT *to)
+OBJECT *reachableObject(const char *intention, const char *noun)
 {
-   OBJECT *obj = matchingObject(noun);
+   OBJECT *obj = getVisible(intention, noun);
+   switch (getDistance(player, obj))
+   {
+   case distSelf:
+      printf("You should not be doing that to %s.\n", obj->description);
+      break;
+   case distHeldContained:
+   case distHereContained:
+      printf("You would have to get it from %s first.\n",
+             obj->location->description);
+      break;
+   case distOverthere:
+      printf("Too far away, move closer please.\n");
+      break;
+   case distNotHere:
+   case distUnknownObject:
+      // already handled by getVisible
+      break;
+   default:
+      return obj;
+   }
+   return NULL;
+}
+
+void moveObject(OBJECT *obj, OBJECT *to)
+{
    if (obj == NULL)
    {
-      printf("I don't understand what item you mean.\n");
-   }
-   else if (from == NULL)
-   {
-      printf("I don't understand who you want to ask.\n");
-   }
-   else if (from != obj->location)
-   {
-      switch (distanceTo(obj))
-      {
-      case distPlayer:
-         printf("You should not be doing that to yourself.\n");
-         break;
-      case distHeld:
-         printf("You already have %s.\n", obj->description);
-         break;
-      case distLocation:
-      case distOverthere:
-         printf("That's not an item.\n");
-         break;
-      case distHere:
-         if (from == player)
-         {
-            printf("You have no %s.\n", noun);
-         }
-         else
-         {
-            printf("Sorry, %s has no %s.\n", from->description, noun);
-         }
-         break;
-      case distHereContained:
-         printf("Sorry, %s is holding it.\n", obj->location->description);
-         break;
-      default:
-         printf("You don't see any %s here.\n", noun);
-      }
+      // already handled by getVisible or getPossession
    }
    else if (to == NULL)
    {
@@ -59,30 +49,25 @@ void moveObject(const char *noun, OBJECT *from, OBJECT *to)
    }
    else
    {
+      if (to == player->location)
+      {
+         printf("You drop %s.\n", obj->description);
+      }
+      else if (to != player)
+      {
+         printf(to->health > 0 ? "You give %s to %s.\n"
+                               : "You put %s in %s.\n",
+                obj->description, to->description);
+      }
+      else if (obj->location == player->location)
+      {
+         printf("You pick up %s.\n", obj->description);
+      }
+      else
+      {
+         printf("You get %s from %s.\n", obj->description,
+                                         obj->location->description);
+      }
       obj->location = to;
-      printf("OK.\n");
    }
-}
-
-bool objectWithinReach(const char *verb, OBJECT *obj, const char *noun)
-{
-   bool ok = false;
-   DISTANCE distance = distanceTo(obj);
-   if (distance > distNotHere)
-   {
-      printf("I don't understand what you want to %s.\n", verb);
-   }
-   else if (distance == distNotHere)
-   {
-      printf("You don't see any %s here.\n", noun);
-   }
-   else if (distance >= distHereContained)
-   {
-      printf("That is out of reach.\n");
-   }
-   else
-   {
-      ok = true;
-   }
-   return ok;
 }

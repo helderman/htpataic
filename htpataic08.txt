@@ -1,4 +1,4 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<!DOCTYPE html>
 <html>
 <head>
 <title>8. North, east, south, west</title>
@@ -36,9 +36,8 @@ But right now, an object can have one tag only.
 </li>
 <li>On a bigger map, with more locations and passages,
 the tag &ldquo;east&rdquo; will be defined many times.
-Currently, our parser cannot handle this:
-tags are assumed to be globally unique
-(see function <i>matchingObject</i> in module <i>match.c</i>).
+So far, tags were globally unique in our game; there were no duplicates.
+This will radically change.
 </li>
 </ol>
 <p>
@@ -90,7 +89,7 @@ Explanation:
 <li>Line 4-13:
 tag lists do not have a fixed length; we use
 <a href="http://en.wikipedia.org/wiki/Null_pointer#Null_pointer">NULL</a>
-to tell function <i>nounIsInTags</i> (defined below) where the list ends.
+to tell function <i>objectHasTag</i> (defined below) where the list ends.
 </li>
 <li>Line 24-25:
 I added passages for any &lsquo;walls&rsquo; surrounding the locations;
@@ -111,23 +110,35 @@ but that will be fixed in chapter 10.
 </div>
 <p>
 Of course, for this change to take effect,
-we also need to adjust function <i>matchingObject</i>.
-In the same function, we can also fix problem #2:
-by giving precedence to objects that are located near the player.
-The function <i>distanceTo</i>, introduced in the previous chapter,
-really pays off now!
+we also need to adjust function <i>objectHasTag</i> in <i>noun.c</i>.
+</p>
+<p>
+In the same module, we can also fix problem #2.
+Partially, this problem was already solved in the previous chapter.
+The distance check introduced there,
+already makes it less likely to find more than one matching object.
+A tag like &lsquo;east&rsquo;
+would always match a passage originating from the <i>current</i> location,
+and never conflict with eastbound exits in <i>other</i> locations.
+But the possibility is still there;
+the silver and gold coin might end up in the same room.
+So how to choose between them, based on their mutual tag &lsquo;coin&rsquo;?
+The answer is, we cannot, and so we <i>should</i> not.
+So instead of randomly picking either object,
+we will let functions <i>getVisible</i> and <i>getPossession</i>
+inform the player he has to be more specific.
 </p>
 <table class="code"><tr>
-<th>match.h</th>
+<th>noun.h</th>
 </tr><tr>
 <td>
-#diff 8 match.h
+#diff 8 noun.h
 </td>
 </tr><tr>
-<th>match.c</th>
+<th>noun.c</th>
 </tr><tr>
 <td>
-#diff 8 match.c
+#diff 8 noun.c
 </td>
 </tr></table>
 <div class="explanation">
@@ -135,15 +146,24 @@ really pays off now!
 Explanation:
 </p>
 <ul>
-<li>Line 20:
-with lists of tags, we need more than just a simple <i>strcmp</i>;
-so I made a separate function <i>nounIsInTags</i> (defined in lines 6-13).
+<li>Line 12-15:
+to know whether a given object matches a given noun,
+we need to scan through the object&rsquo;s list of tags.
 </li>
-<li>Line 21:
-because of the way enum <i>DISTANCE</i> is numbered
-(increasing values for increasing distance),
-the &lsquo;less than&rsquo; operator (<tt>&lt;</tt>)
-automatically means &lsquo;nearer than&rsquo;.
+<li>Line 20:
+<i>ambiguousNoun</i> is a dummy object;
+it does not contain any useful attributes.
+All we need is its unique address (<i>&amp;ambiguousNoun</i>),
+as a special return value for <i>getObject</i>; see line 29.
+</li>
+<li>Line 29:
+in case of an ambiguous tag
+(like &lsquo;coin&rsquo;, with both coins present in the current location),
+<i>getObject</i> will make this clear by returning
+the (unique) address of a dedicated dummy object (see line 20).
+</li>
+<li>Lines 49 and 80:
+this is where the ambiguous matches are caught.
 </li>
 </ul>
 </div>
@@ -163,8 +183,8 @@ but it will do until we make ourselves a better parser in chapter 13.
 </td>
 </tr></table>
 <p>
-Modules <i>execute.c</i>, <i>location.c</i>, <i>move.c</i>, <i>misc.c</i>
-remain unchanged,
+Modules <i>main.c</i>, <i>execute.c</i>, <i>location.c</i>, <i>move.c</i>
+and <i>misc.c</i> remain unchanged,
 you can see them in the previous chapters.
 </p>
 <p>

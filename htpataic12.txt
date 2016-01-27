@@ -1,4 +1,4 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<!DOCTYPE html>
 <html>
 <head>
 <title>12. Open and close</title>
@@ -214,12 +214,12 @@ for each of the commands we wish to support:
 Explanation:
 </p>
 <ul>
-<li>Line 86:
+<li>Line 88:
 at first sight, <i>isAlreadyOpen</i> may seem inappropriate here;
 technically, <i>intoCaveBlocked</i> is a closed passage.
 But storywise, it is still an opening.
 </li>
-<li>Line 165, 176, 187:
+<li>Line 168, 179, 190:
 If you prefer a heavy treasure chest instead of a box,
 then all you have to do is increase the weight
 (and adjust the relevant text and tags accordingly).
@@ -264,7 +264,7 @@ are totally generic.
 </td>
 </tr></table>
 <p>
-Above, I used a generic function <i>objectWithinReach</i>
+Above, I used a generic function <i>reachableObject</i>
 to handle objects that are not here;
 see below for its implementation.
 This way, we don&rsquo;t have to write the same code four times
@@ -319,18 +319,17 @@ in this chapter.
 I can already promise you, this is only the beginning.
 <i>object.txt</i> is our main source of game data;
 once we seriously start adding locations, items and actors,
-the number of lines will quickly grow to many thousands.
+the number of lines could easily grow to many thousands.
 </li>
 <li>Function <i>swapLocation</i>
 can be used for many other things than doors and locks.
 In chapter 15, it will be used again, this time to turn the light on and off.
 </li>
 <li>As you can see in the sample output,
-the player is able to unlock and open the box.
-But he is still unable to get the gold coin from the box
-(or put it back in again),
-and our parser cannot handle &lsquo;complex&rsquo; commands like
-<i>get coin from box</i> or <i>put coin in box</i>.
+the player can get the gold from the box,
+but he is unable to put it back in again!
+Our parser cannot handle &lsquo;complex&rsquo; commands like
+<i>put coin in box</i>.
 So in the next chapter, we will write a whole new parser;
 the current two-line implementation badly needs replacement!
 </li>

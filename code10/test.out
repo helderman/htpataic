@@ -13,14 +13,14 @@ The guard is a really big fellow.
 That is way too heavy.
 
 --> get coin
-OK.
+You pick up a silver coin.
 
 --> inventory
 You have:
 a silver coin
 
 --> give coin
-OK.
+You give a silver coin to a burly guard.
 
 --> look guard
 The guard is a really big fellow.

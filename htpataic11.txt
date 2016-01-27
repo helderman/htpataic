@@ -1,4 +1,4 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<!DOCTYPE html>
 <html>
 <head>
 <title>11. Conditions</title>
@@ -208,7 +208,7 @@ as explained earlier.
 </td>
 </tr></table>
 <p>
-To make the conditions work, we need to adjust function <i>distanceTo</i>,
+To make the conditions work, we need to adjust function <i>getDistance</i>,
 plus every loop that scans through objects.
 </p>
 <table class="code"><tr>
@@ -219,13 +219,13 @@ plus every loop that scans through objects.
 </td>
 </tr></table>
 <p>
-There is one more object loop to be fixed, in <i>match.c</i>:
+There is one more object loop to be fixed, in <i>noun.c</i>:
 </p>
 <table class="code"><tr>
-<th>match.c</th>
+<th>noun.c</th>
 </tr><tr>
 <td>
-#diff 11 match.c
+#diff 11 noun.c
 </td>
 </tr></table>
 <p>
@@ -236,7 +236,7 @@ Notes:
 So you might say
 the &lsquo;health check&rsquo; in our condition functions is quite useless.
 Of course, this is easily fixed by adding a <i>kill</i> command;
-see chapter 18.
+see chapter 20.
 </li>
 <li>The two condition functions are complementary; they qualify as
 <a href="http://en.wikipedia.org/wiki/Duplicate_code">duplicate code</a>.

@@ -19,10 +19,9 @@ static bool executeQuit(void)
 
 static bool executeNoMatch(void)
 {
-   PARAM *par = paramByLetter('A');
-   if (par->distance != distNoObjectSpecified)
+   const char *src = *params;
+   if (*src != '\0')
    {
-      const char *src = par->src;
       printf("I don't know how to '");
       while (*src != '\0' && !isspace(*src)) putchar(*src++);
       printf("'.\n");

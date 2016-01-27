@@ -1,63 +1,75 @@
 #include <stdio.h>
 #include "object.h"
 #include "misc.h"
-#include "match.h"
+#include "noun.h"
 #include "move.h"
 
 void executeOpen(const char *noun)
 {
-   OBJECT *obj = matchingObject(noun);
-   if (objectWithinReach("open", obj, noun))
-   {
-      printf("%s", (*obj->open)());
-   }
+   OBJECT *obj = reachableObject("what you want to open", noun);
+   if (obj != NULL) printf("%s", (*obj->open)());
 }
 
 void executeClose(const char *noun)
 {
-   OBJECT *obj = matchingObject(noun);
-   if (objectWithinReach("close", obj, noun))
-   {
-      printf("%s", (*obj->close)());
-   }
+   OBJECT *obj = reachableObject("what you want to close", noun);
+   if (obj != NULL) printf("%s", (*obj->close)());
 }
 
 void executeLock(const char *noun)
 {
-   OBJECT *obj = matchingObject(noun);
-   if (objectWithinReach("lock", obj, noun))
-   {
-      printf("%s", (*obj->lock)());
-   }
+   OBJECT *obj = reachableObject("what you want to lock", noun);
+   if (obj != NULL) printf("%s", (*obj->lock)());
 }
 
 void executeUnlock(const char *noun)
 {
-   OBJECT *obj = matchingObject(noun);
-   if (objectWithinReach("unlock", obj, noun))
-   {
-      printf("%s", (*obj->unlock)());
-   }
+   OBJECT *obj = reachableObject("what you want to unlock", noun);
+   if (obj != NULL) printf("%s", (*obj->unlock)());
 }
 
 void executeGet(const char *noun)
 {
-   moveObject(noun, player->location, player);
+   OBJECT *obj = getVisible("what you want to get", noun);
+   switch (getDistance(player, obj))
+   {
+   case distSelf:
+      printf("You should not be doing that to %s.\n", obj->description);
+      break;
+   case distHeld:
+      printf("You already have %s.\n", obj->description);
+      break;
+   case distOverthere:
+      printf("Too far away, move closer please.\n");
+      break;
+   case distUnknownObject:
+      // already handled by getVisible
+      break;
+   default:
+      if (obj->location != NULL && obj->location->health > 0)
+      {
+         printf("You should ask %s nicely.\n", obj->location->description);
+      }
+      else
+      {
+         moveObject(obj, player);
+      }
+   }
 }
 
 void executeDrop(const char *noun)
 {
-   moveObject(noun, player, player->location);
+   moveObject(getPossession(player, "drop", noun), player->location);
 }
 
 void executeAsk(const char *noun)
 {
-   moveObject(noun, actorHere(), player);
+   moveObject(getPossession(actorHere(), "ask", noun), player);
 }
 
 void executeGive(const char *noun)
 {
-   moveObject(noun, player, actorHere());
+   moveObject(getPossession(player, "give", noun), actorHere());
 }
 
 void executeInventory(void)

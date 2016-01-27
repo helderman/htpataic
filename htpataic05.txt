@@ -1,4 +1,4 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<!DOCTYPE html>
 <html>
 <head>
 <title>5. Inventory</title>
@@ -127,26 +127,37 @@ The new commands are implemented by the following module.
 Explanation:
 </p>
 <ul>
-<li>Line 18, 23:
+<li>Line 9, 34, 39, 44:
+functions <i>getVisible</i> and <i>getPossession</i>
+are used to determine which object belongs to a given noun;
+see <i>noun.c</i> below.
+</li>
+<li>Line 28, 34, 39, 44:
+function <i>moveObject</i>
+is used to transport the object to its new location;
+see <i>move.c</i> below.
+</li>
+<li>Line 39, 44:
 due to the simplicity of our verb-noun parser,
-commands <i>give</i> and <i>ask</i> have only one argument: the item.
+commands <i>ask</i> and <i>give</i> have only one argument: the item.
 The actor involved is implied by using function <i>actorHere</i>
 (defined below).
 </li>
-<li>Line 28:
-function <i>listObjectsAtLocation</i> is defined in <i>misc.*</i>,
-see the previous chapter.
+<li>Line 49:
+function <i>listObjectsAtLocation</i>
+was already defined in the previous chapter (<i>misc.c</i>).
 Its return value tells us how many objects were found.
 </li>
-<li>Line 30:
+<li>Line 51:
 the user expects some response, even when the list of objects is empty.
 </li>
 </ul>
 </div>
 <p>
-Commands <i>get</i>, <i>drop</i>, <i>give</i> and <i>ask</i>
+Essentially, commands <i>get</i>, <i>drop</i>, <i>give</i> and <i>ask</i>
 do little more than move an item from one place to another.
-A single function <i>moveObject</i> can deal with that.
+A single function <i>moveObject</i>
+can perform that action for all four commands.
 </p>
 <table class="code"><tr>
 <th>move.h</th>
@@ -166,17 +177,66 @@ A single function <i>moveObject</i> can deal with that.
 Explanation:
 </p>
 <ul>
-<li>Line 12-15:
-you can&rsquo;t pick up something that isn&rsquo;t lying around here,
-you can&rsquo;t give or drop something you are not holding,
-and you can&rsquo;t ask something the other actor isn&rsquo;t holding.
+<li>Line 6-17:
+various conditions under which the move will not take place.
 </li>
-<li>Line 16-19:
+<li>Line 10-13:
 there is only one possibility for the item&rsquo;s destination to be NULL:
 when trying to &lsquo;give&rsquo; something
 at a location where the player is alone.
 </li>
+<li>Line 14-17:
+some objects are not meant to be picked up;
+for example <i>field</i> and <i>cave</i>.
+The condition to recognize those objects, is still rather crude here.
+For example, it is currently possible to pick up the guard.
+This will be improved in chapter 10.
+</li>
+<li>Line 20-38:
+various messages to confirm that the move was successful.
+Alternatively, we could have given a simple &lsquo;OK&rsquo;.
+</li>
+<li>Line 39:
+the core of the function; here the object is actually moved.
+</li>
 </ul>
+</div>
+<p>
+Command &lsquo;get&rsquo; uses function <i>getVisible</i>
+to translate a noun to an object,
+just like command &lsquo;go&rsquo; does; see the previous chapter.
+But for commands that operate on objects the player (or some other actor)
+is already holding (<i>drop</i>, <i>ask</i>, <i>give</i>),
+we need something slightly different.
+We will add a function <i>getPossession</i> to <i>noun.c</i>.
+</p>
+<table class="code"><tr>
+<th>noun.h</th>
+</tr><tr>
+<td>
+#diff 5 noun.h
+</td>
+</tr><tr>
+<th>noun.c</th>
+</tr><tr>
+<td>
+#diff 5 noun.c
+</td>
+</tr></table>
+<div class="explanation">
+<p>
+Explanation:
+</p>
+<ul>
+<li>Line 45-75:
+Just like function <i>getVisible</i>,
+the new function <i>getPossession</i> is a wrapper around <i>getObject</i>
+(see line 52)
+that either returns a matching object,
+or NULL if no appropriate object matches the noun.
+</li>
+</ul>
+</p>
 </div>
 <p>
 Function <i>actorHere</i> is used in commands <i>give</i> and <i>ask</i>,
@@ -201,11 +261,11 @@ So we define it in <i>misc.c</i>.
 Explanation:
 </p>
 <ul>
-<li>Line 5-16:
+<li>Line 4-15:
 function <i>actorHere</i> returns a pointer to the actor
 present at the same location as the player,
 or NULL if the player is alone.
-In line 24 there is an exhaustive, hard-coded list of non-player characters
+In line 9 there is an exhaustive, hard-coded list of non-player characters
 (up until now, just one: the <i>guard</i>).
 In chapter 10, we will start using an attribute as a more elegant way
 to distinguish actors from items and other non-actor objects.
@@ -213,9 +273,9 @@ to distinguish actors from items and other non-actor objects.
 </ul>
 </div>
 <p>
-The other modules (<i>object.c</i>, <i>match.c</i>, <i>location.c</i>)
+The other modules (<i>main.c</i>, <i>location.c</i>, <i>object.c</i>)
 remain unchanged,
-you can see them in the previous chapter.
+you can see them in the previous chapters.
 </p>
 <p>
 In chapter 12, you will see us add more commands.

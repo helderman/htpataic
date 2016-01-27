@@ -1,4 +1,4 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<!DOCTYPE html>
 <html>
 <head>
 <title>8. North, east, south, west</title>
@@ -20,7 +20,7 @@
 <div><a href="htpataic11.html">11. Conditions</a></div>
 <div><a href="htpataic12.html">12. Open and close</a></div>
 <div><a href="htpataic13.html">13. The parser</a></div>
-<div><a href="htpataic14.html">14. Multiple arguments</a></div>
+<div><a href="htpataic14.html">14. Multiple nouns</a></div>
 <div><a href="htpataic15.html">15. Light and dark</a></div>
 <div><a href="htpataic16.html">16. Savegame</a></div>
 <div><a href="htpataic17.html">17. Test automation</a></div>
@@ -59,9 +59,8 @@ But right now, an object can have one tag only.
 </li>
 <li>On a bigger map, with more locations and passages,
 the tag &ldquo;east&rdquo; will be defined many times.
-Currently, our parser cannot handle this:
-tags are assumed to be globally unique
-(see function <i>matchingObject</i> in module <i>match.c</i>).
+So far, tags were globally unique in our game; there were no duplicates.
+This will radically change.
 </li>
 </ol>
 <p>
@@ -96,6 +95,9 @@ a burly guard<br />
 a cave entrance to the east<br />
 dense forest all around<br />
 <br />
+--&gt; get coin<br />
+You pick up a silver coin.<br />
+<br />
 --&gt; go west<br />
 You can't get much closer than this.<br />
 <br />
@@ -111,7 +113,6 @@ solid rock all around<br />
 OK.<br />
 You are in an open field.<br />
 You see:<br />
-a silver coin<br />
 a burly guard<br />
 a cave entrance to the east<br />
 dense forest all around<br />
@@ -124,8 +125,14 @@ a gold coin<br />
 a way out to the west<br />
 solid rock all around<br />
 <br />
+--&gt; drop coin<br />
+You drop a silver coin.<br />
+<br />
+--&gt; get coin<br />
+Please be specific about which coin you mean.<br />
+<br />
 --&gt; get gold coin<br />
-OK.<br />
+You pick up a gold coin.<br />
 <br />
 --&gt; quit<br />
 <br />
@@ -203,7 +210,7 @@ Explanation:
 <li>Line 4-13:
 tag lists do not have a fixed length; we use
 <a href="http://en.wikipedia.org/wiki/Null_pointer#Null_pointer">NULL</a>
-to tell function <i>nounIsInTags</i> (defined below) where the list ends.
+to tell function <i>objectHasTag</i> (defined below) where the list ends.
 </li>
 <li>Line 24-25:
 I added passages for any &lsquo;walls&rsquo; surrounding the locations;
@@ -224,51 +231,129 @@ but that will be fixed in chapter 10.
 </div>
 <p>
 Of course, for this change to take effect,
-we also need to adjust function <i>matchingObject</i>.
-In the same function, we can also fix problem #2:
-by giving precedence to objects that are located near the player.
-The function <i>distanceTo</i>, introduced in the previous chapter,
-really pays off now!
+we also need to adjust function <i>objectHasTag</i> in <i>noun.c</i>.
+</p>
+<p>
+In the same module, we can also fix problem #2.
+Partially, this problem was already solved in the previous chapter.
+The distance check introduced there,
+already makes it less likely to find more than one matching object.
+A tag like &lsquo;east&rsquo;
+would always match a passage originating from the <i>current</i> location,
+and never conflict with eastbound exits in <i>other</i> locations.
+But the possibility is still there;
+the silver and gold coin might end up in the same room.
+So how to choose between them, based on their mutual tag &lsquo;coin&rsquo;?
+The answer is, we cannot, and so we <i>should</i> not.
+So instead of randomly picking either object,
+we will let functions <i>getVisible</i> and <i>getPossession</i>
+inform the player he has to be more specific.
 </p>
 <table class="code"><tr>
-<th>match.h</th>
+<th>noun.h</th>
 </tr><tr>
 <td>
 <ol>
-<li class="old">extern OBJECT *matchingObject(const char *noun);</li>
+<li class="old">extern OBJECT *getVisible(const char *intention, const char *noun);</li>
+<li class="old">extern OBJECT *getPossession(OBJECT *from, const char *verb, const char *noun);</li>
 </ol>
 </td>
 </tr><tr>
-<th>match.c</th>
+<th>noun.c</th>
 </tr><tr>
 <td>
 <ol>
-<li class="new"><span class="old">#include </span>&lt;stdbool.h&gt;</li>
-<li class="new">#include<span class="old"> &lt;string.h&gt;</span></li>
+<li class="old">#include &lt;stdbool.h&gt;</li>
+<li class="old">#include &lt;stdio.h&gt;</li>
+<li class="old">#include &lt;string.h&gt;</li>
 <li class="old">#include "object.h"</li>
-<li class="new">#include "misc.h"</li>
-<li class="new"></li>
-<li class="new">static bool nounIsInTags(const char *noun, const char **tags)</li>
-<li class="new">{</li>
-<li class="new">   while (*tags != NULL)</li>
+<li class="old">#include "misc.h"</li>
+<li class="old"></li>
+<li class="old">static bool objectHasTag(OBJECT *obj, const char *noun)</li>
+<li class="old">{</li>
+<li class="new"><span class="old">   </span>if (noun<span class="old"> != NULL &amp;&amp; *noun != </span>'\0')</li>
 <li class="new">   {</li>
-<li class="new">      if (strcmp(noun, *tags++) == 0) return true;</li>
+<li class="new">      const char **tag;</li>
+<li class="new">      for (tag = obj-&gt;tags; *tag != NULL; tag++)</li>
+<li class="new">      {</li>
+<li class="new">         if (strcmp(*tag, noun)<span class="old"> == </span>0) return true;</li>
+<li class="new">      }</li>
 <li class="new">   }</li>
 <li class="new">   return false;</li>
-<li class="new">}</li>
+<li class="old">}</li>
 <li class="old"></li>
-<li class="old">OBJECT *matchingObject(const char *noun)</li>
+<li class="new"><span class="old">static OBJECT </span>ambiguousNoun;</li>
+<li class="new"></li>
+<li class="new">static OBJECT<span class="old"> *getObject(const char *noun, OBJECT *from, DISTANCE maxDistance)</span></li>
 <li class="old">{</li>
-<li class="old">   OBJECT *obj, *found = NULL;</li>
+<li class="old">   OBJECT *obj, *res = NULL;</li>
 <li class="old">   for (obj = objs; obj &lt; endOfObjs; obj++)</li>
 <li class="old">   {</li>
-<li class="new"><span class="old">      if (noun != NULL &amp;&amp; </span>nounIsInTags(noun, obj-&gt;tags) &amp;&amp;</li>
-<li class="new">          distanceTo(obj) &lt; distanceTo(found))</li>
+<li class="old">      if (objectHasTag(obj, noun) &amp;&amp; getDistance(from, obj) &lt;= maxDistance)</li>
 <li class="old">      {</li>
-<li class="old">         found = obj;</li>
+<li class="new"><span class="old">         res = </span>res == NULL ? obj : &amp;ambiguousNoun;</li>
 <li class="old">      }</li>
 <li class="old">   }</li>
-<li class="old">   return found;</li>
+<li class="old">   return res;</li>
+<li class="old">}</li>
+<li class="old"></li>
+<li class="old">OBJECT *getVisible(const char *intention, const char *noun)</li>
+<li class="old">{</li>
+<li class="old">   OBJECT *obj = getObject(noun, player, distOverthere);</li>
+<li class="old">   if (obj == NULL)</li>
+<li class="old">   {</li>
+<li class="old">      if (getObject(noun, player, distNotHere) == NULL)</li>
+<li class="old">      {</li>
+<li class="old">         printf("I don't understand %s.\n", intention);</li>
+<li class="old">      }</li>
+<li class="old">      else</li>
+<li class="old">      {</li>
+<li class="old">         printf("You don't see any %s here.\n", noun);</li>
+<li class="old">      }</li>
+<li class="old">   }</li>
+<li class="new"><span class="old">   </span>else if (obj == &amp;ambiguousNoun)</li>
+<li class="new">   {</li>
+<li class="new">      printf("Please be specific about which %s you mean.\n", noun);</li>
+<li class="new">      obj = NULL;</li>
+<li class="new">   }</li>
+<li class="old">   return obj;</li>
+<li class="old">}</li>
+<li class="old"></li>
+<li class="old">OBJECT *getPossession(OBJECT *from, const char *verb, const char *noun)</li>
+<li class="old">{</li>
+<li class="old">   OBJECT *obj = NULL;</li>
+<li class="old">   if (from == NULL)</li>
+<li class="old">   {</li>
+<li class="old">      printf("I don't understand who you want to %s.\n", verb);</li>
+<li class="old">   }</li>
+<li class="old">   else if ((obj = getObject(noun, from, distHeldContained)) == NULL)</li>
+<li class="old">   {</li>
+<li class="old">      if (getObject(noun, player, distNotHere) == NULL)</li>
+<li class="old">      {</li>
+<li class="old">         printf("I don't understand what you want to %s.\n", verb);</li>
+<li class="old">      }</li>
+<li class="old">      else if (from == player)</li>
+<li class="old">      {</li>
+<li class="old">         printf("You are not holding any %s.\n", noun);</li>
+<li class="old">      }</li>
+<li class="old">      else</li>
+<li class="old">      {</li>
+<li class="old">         printf("There appears to be no %s you can get from %s.\n",</li>
+<li class="old">                noun, from-&gt;description);</li>
+<li class="old">      }</li>
+<li class="new"><span class="old">   </span>}</li>
+<li class="new">   else if (obj == &amp;ambiguousNoun)</li>
+<li class="new">   {</li>
+<li class="new">      printf("Please be specific about which %s you want to %s.\n",</li>
+<li class="new">             noun, verb);</li>
+<li class="new">      obj = NULL;</li>
+<li class="old">   }</li>
+<li class="old">   else if (obj == from)</li>
+<li class="old">   {</li>
+<li class="old">      printf("You should not be doing that to %s.\n", obj-&gt;description);</li>
+<li class="old">      obj = NULL;</li>
+<li class="old">   }</li>
+<li class="old">   return obj;</li>
 <li class="old">}</li>
 </ol>
 </td>
@@ -278,15 +363,24 @@ really pays off now!
 Explanation:
 </p>
 <ul>
-<li>Line 20:
-with lists of tags, we need more than just a simple <i>strcmp</i>;
-so I made a separate function <i>nounIsInTags</i> (defined in lines 6-13).
+<li>Line 12-15:
+to know whether a given object matches a given noun,
+we need to scan through the object&rsquo;s list of tags.
 </li>
-<li>Line 21:
-because of the way enum <i>DISTANCE</i> is numbered
-(increasing values for increasing distance),
-the &lsquo;less than&rsquo; operator (<tt>&lt;</tt>)
-automatically means &lsquo;nearer than&rsquo;.
+<li>Line 20:
+<i>ambiguousNoun</i> is a dummy object;
+it does not contain any useful attributes.
+All we need is its unique address (<i>&amp;ambiguousNoun</i>),
+as a special return value for <i>getObject</i>; see line 29.
+</li>
+<li>Line 29:
+in case of an ambiguous tag
+(like &lsquo;coin&rsquo;, with both coins present in the current location),
+<i>getObject</i> will make this clear by returning
+the (unique) address of a dedicated dummy object (see line 20).
+</li>
+<li>Lines 49 and 80:
+this is where the ambiguous matches are caught.
 </li>
 </ul>
 </div>
@@ -358,8 +452,8 @@ but it will do until we make ourselves a better parser in chapter 13.
 </td>
 </tr></table>
 <p>
-Modules <i>execute.c</i>, <i>location.c</i>, <i>move.c</i>, <i>misc.c</i>
-remain unchanged,
+Modules <i>main.c</i>, <i>execute.c</i>, <i>location.c</i>, <i>move.c</i>
+and <i>misc.c</i> remain unchanged,
 you can see them in the previous chapters.
 </p>
 <p>

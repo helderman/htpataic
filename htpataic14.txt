@@ -1,7 +1,7 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<!DOCTYPE html>
 <html>
 <head>
-<title>14. Multiple arguments</title>
+<title>14. Multiple nouns</title>
 <link rel="stylesheet" href="htpataic.css" type="text/css" />
 </head>
 <body>
@@ -10,462 +10,109 @@
 </td></tr></table>
 
 <h1>How to program a text adventure in C</h1>
-<h2>14. Multiple arguments</h2>
+<h2>14. Multiple nouns</h2>
 <p class="intro">
-Every text adventure has a
-<a href="http://en.wikipedia.org/wiki/Parsing">parser</a>.
-But there are parsers and parsers.
-A simple &lsquo;verb-noun&rsquo; parser
-(like the one we have been using ever since chapter 2)
-could be sufficient for a carefully designed adventure game.
-However,
-<a href="http://en.wikipedia.org/wiki/Infocom">Infocom</a>
-has proven that a more advanced parser
-really helps to make an enjoyable game.
-It does not have to pass the
-<a href="http://en.wikipedia.org/wiki/Turing_test">Turing test</a>;
-remember, it&rsquo;s only a game.
-But the parser should enable the player
-to express his intentions in a more or less natural way.
+Time to prove the new parser is really capable of
+interpreting more complex commands.
 </p>
 <p>
-Our current parser mainly consists of two lines of code,
-tucked away in <i>parsexec.c</i>:
-</p>
-<table><tr>
-<td class="snippet">char *verb = strtok(input, " \n");
-char *noun = strtok(NULL, "\n");
-</td>
-</tr></table>
-<p>
-Alright, plus the sequence of <i>strcmp</i> calls to map verbs to commands,
-and the functions in <i>match.c</i> to map nouns to objects.
-But that&rsquo;s it.
-This system has served us well for the past 11 chapters,
-but it has its flaws.
+So far, our parser only accepted simple verb-noun commands.
+Let&rsquo;s try and parse some more complex commands like:
 </p>
 <ul>
-<li>It only accepts simple commands of the form &lsquo;verb noun&rsquo;;
-it does not understand sentences
-with both a direct object and an indirect object, like <i>put coin in box</i>.
-</li>
-<li>It does accept multi-word objects (like <i>silver coin</i>),
-but the
-<a href="http://en.wikipedia.org/wiki/Whitespace_character">whitespace</a>
-between the words must be spot-on.
-Our game rejects a double space between <i>silver</i> and <i>coin</i>.
-</li>
-<li>It is
-<a href="http://en.wikipedia.org/wiki/Case_sensitivity">case-sensitive</a>;
-the command &ldquo;Go north&rdquo; is not recognized
-because of the capital &lsquo;G&rsquo;.
-</li>
+<li>get coin from box</li>
+<li>put coin in box</li>
+<li>ask coin from guard</li>
+<li>give coin to guard</li>
 </ul>
 <p>
-Writing a good parser is no trivial task,
-but here I will give you a relatively simple approach.
-We will define a
-<a href="http://en.wikipedia.org/wiki/Formal_grammar">grammar</a>
-that consists of a list of <b>patterns</b>,
-similar to (but much simpler than)
-<a href="http://en.wikipedia.org/wiki/Regular_expression">regular expressions</a>.
-Examples of patterns:
-</p>
-<table cellpadding="8"><tr>
-<td class="snippet">look around</td>
-<td class="comment">Matches just that;
-double spaces, leading spaces, trailing spaces and case differences
-are ignored</td>
-</tr><tr>
-<td class="snippet">go A</td>
-<td class="comment">Matches the word <i>go</i> followed by the tag of an object
-(see chapters 4 and 8 for an explanation of &lsquo;tags&rsquo;)</td>
-</tr><tr>
-<td class="snippet">put A in B</td>
-<td class="comment">Matches the word <i>put</i> followed by
-a tag, the word <i>in</i>, and another tag</td>
-</tr></table>
-</p>
-<p>
-To parse the user&rsquo;s input,
-we will traverse the list of patterns from top to bottom,
-trying to match the user&rsquo;s input with each pattern in turn.
-We will stop at the first match found.
-For the sake of simplicity, we will not make use of
-<a href="http://en.wikipedia.org/wiki/Backtracking">backtracking</a>,
-though this could be added later.
-</p>
-<p>
-Uppercase letters are the
-<a href="http://en.wikipedia.org/wiki/Nonterminal_symbol">nonterminal symbols</a>
-in our grammar;
-they <b>match</b> any object&rsquo;s tag,
-and they <b>capture</b> the properties of the associated object.
-For each nonterminal, the properties are stored in a
-<a href="http://en.wikipedia.org/wiki/Struct_(C_programming_language)">struct</a>:
-</p>
-<table><tr>
-<td class="snippet">typedef struct {
-   const char *src;
-   const char *tag;
-   OBJECT *object;
-   DISTANCE distance;
-   int count;
-} PARAM;
-</td>
-</tr></table>
-<p>
-A brief explanation of the struct&rsquo;s members:
-<ul>
-<li><b>src:</b>
-the position in the input stream where the match starts
-</li>
-<li><b>tag:</b>
-the tag that matches the player&rsquo;s input
-</li>
-<li><b>object:</b>
-the closest matching object (shortest distance to the player);
-in case of a tie, an object is picked arbitrarily
-(typically the one to come first in the array of objects)
-</li>
-<li><b>distance:</b>
-the &lsquo;distance&rsquo; between object and player;
-see chapter 7 for a detailed explanation
-</li>
-<li><b>count:</b>
-the number of objects that qualify as &lsquo;closest match&rsquo;
-(ideally 1, but could be more)
-</li>
-</ul>
-</p>
-<p>
-This struct could then be passed as a parameter
-to the function that takes care of execution of the command.
-</p>
-<table><tr>
-<td class="snippet">void executeGo(<span class="red">PARAM *param</span>)
-{
-   OBJECT *obj = <span class="red">param-&gt;object</span>;
-   DISTANCE distance = <span class="red">param-&gt;distance</span>;
-   ...
-}
-</td>
-</tr></table>
-<p>
-For simplicity, I will use a
-<a href="http://en.wikipedia.org/wiki/Global_variable">global variable</a>
-instead of parameters (despite the bad reputation of global variables).
-The variable will be an array of aforementioned struct.
-</p>
-<table><tr>
-<td class="snippet">PARAM params[26];
-</td>
-</tr></table>
-<p>
-params[0] (the first array element) captures nonterminal &lsquo;A&rsquo;,
-params[1] captures &lsquo;B&rsquo;, and so forth.
-The total number of elements in the array does not really matter.
-26 is sufficient when every uppercase letter qualifies as a nonterminal.
-In practice, the upper bound could be lowered,
-but that would require some
-<a href="http://en.wikipedia.org/wiki/Bounds_checking">bounds checking</a>
-to prevent a
-<a href="http://en.wikipedia.org/wiki/Buffer_overflow">buffer overflow</a>
-in case of a malformed pattern.
-</p>
-<p>
-Now we have to think of a way to handle missing or unrecognized objects.
-For example, if the user enters &ldquo;go kave&rdquo;,
-none of the patterns will match
-(not even &ldquo;go A&rdquo; because &ldquo;kave&rdquo; is not a known tag),
-and a generic error message
-(&ldquo;I don&rsquo;t know how to <i>go kave</i>&rdquo;) would be returned.
-This takes away every opportunity
-to improve these &lsquo;negative responses.&rsquo;
-It would be better to maintain all replies concerning command <i>go</i>
-inside function <i>executeGo</i>.
-There are a few ways to achieve this, but the easiest one is
-to introduce special nonterminals &ldquo;A?&rdquo;, &ldquo;B?&rdquo; etc.
-that match <i>anything</i> (including total gibberish).
-Capturing will be as follows.
+Adding patterns to <i>parsexec.c</i> seems straightforward:
 </p>
 <ul>
-<li><b>src:</b> the remaining input stream
-from the point where we tried to find a match
-(in the example: &ldquo;kave&rdquo;)</li>
-<li><b>tag:</b> empty string</li>
-<li><b>object:</b> NULL</li>
-<li><b>distance:</b> <i>distUnknownObject</i>, or <i>distNoObjectSpecified</i>
-if the end of the input stream had already been reached
-</li>
-<li><b>count:</b> 0</li>
+<li>get A from B</li>
+<li>put A in B</li>
+<li>ask A from B</li>
+<li>give A to B</li>
 </ul>
 <p>
-In practice, we will use these &lsquo;loose&rsquo; nonterminals
-only at the very end of a pattern.
-Examples:
-<ul>
-<li>Pattern &ldquo;go A?&rdquo;
-will match not only <i>go cave</i> (capturing location &lsquo;cave&rsquo;),
-but also <i>go kave</i>, and even a mere <i>go</i>.
-</li>
-<li>Pattern &ldquo;put A in B?&rdquo;
-matches <i>put coin in box</i> and <i>put coin in booox</i>,
-but not <i>put koin in box</i>.
-</li>
-<li>To handle <i>put koin in box</i>,
-we need an additional pattern &ldquo;put A?&rdquo;;
-<i>A?</i> will capture <i>koin in box</i> as being an unknown item,
-and the response would be something like
-&ldquo;I don&rsquo;t understand what you want to put.&rdquo;
-</li>
-<li>Because the latter two patterns <b>both</b> match a command like
-<i>put coin</i>, the order is important.
-Pattern &ldquo;put A in B?&rdquo; should come first
-because it gives the appropriate reply
-(something like &ldquo;I don&rsquo;t understand where to put it&rdquo;).
-</li>
-</ul>
+But as explained in the previous chapter, similar commands
+(like &lsquo;get A from B&rsquo; and the already existing &lsquo;get A&rsquo;)
+must be placed in the correct order.
+If &lsquo;get A&rsquo; would appear first,
+then it would consume <i>any</i> command starting with &lsquo;get&rsquo;,
+including all those that were supposed to be matched by the new pattern.
+In short, &lsquo;get A from B&rsquo; must come before &lsquo;get A&rsquo;.
 </p>
 <p>
-You saw us create two patterns for command <i>put</i>:
-&ldquo;put A in B?&rdquo; and &ldquo;put A?&rdquo;.
-This applies to every command that requires two or more parameters.
-With <i>n</i> parameters,
+Some commands (for example <i>put</i>) do not have a single-noun variant.
+Nevertheless, we will add a pattern with a single nonterminal
+(&lsquo;put A&rsquo;).
+We need this to correctly capture a misspelled noun.
+The full pattern &lsquo;put A in B&rsquo;
+will not match a command like &lsquo;put koin in box&rsquo;.
+As explained in the previous chapter,
+only a nonterminal at the end of a pattern
+is able to capture a misspelled or otherwise unrecognized noun.
+</p>
+<p>
+The same applies to commands with more than two nouns.
+With <i>n</i> nouns,
 you need <i>n</i> patterns to handle all possible mismatches.
 An example with three parameters:
+</p>
 <ol type="1">
-<li>&ldquo;paint A on B with C?&rdquo;</li>
-<li>&ldquo;paint A on B?&rdquo;</li>
-<li>&ldquo;paint A?&rdquo;</li>
+<li>&ldquo;paint A on B with C&rdquo;</li>
+<li>&ldquo;paint A on B&rdquo;</li>
+<li>&ldquo;paint A&rdquo;</li>
 </ol>
-The order of the patterns is vital here:
-if &ldquo;paint A?&rdquo; would be on top (meaning it will be tried first),
+<p>
+Again, the order of the patterns is vital:
+if &ldquo;paint A&rdquo; would be on top (meaning it will be tried first),
 then it would consume every <i>paint</i> command,
 including those that were meant to be caught by 1 and 2.
 </p>
-<!--
 <p>
-Another example.
-Suppose we want to recognize all of these commands.
-<ul>
-<li>give coin</li>
-<li>give coin to guard</li>
-<li>give guard coin</li>
-</ul>
-We need three patterns for this.
-These pattern <i>must</i> come in the following order:
-<ol type="1">
-<li>give A to B</li>
-<li>give B A</li>
-<li>give A</li>
-</ol>
-For example, if pattern 3 were to come first,
-then it would consume every <i>give</i> command,
-while making fruitless attempts to find tags like &ldquo;coin to guard&rdquo;.
-</p>
--->
-<p>
-We will discard the existing contents of module <i>parsexec.c</i>,
-and replace it by a new implementation of function <i>parseAndExecute</i>
-using a list of patterns
-that should be able to match every command we have implemented so far
-(plus a few extras such as <i>look at</i> and <i>go to</i>
-to demonstrate the correct order of patterns).
-Each pattern is tied to a function that executes the appropriate command.
+For now, we do not need patterns with more than two nonterminals.
 </p>
 <table class="code"><tr>
 <th>parsexec.h</th>
 </tr><tr>
 <td>
-#diff 13 parsexec.h
+#diff 14 parsexec.h
 </td>
 </tr><tr>
 <th>parsexec.c</th>
 </tr><tr>
 <td>
-#new 13 parsexec.c
+#diff 14 parsexec.c
 </td>
 </tr></table>
-<div class="explanation">
 <p>
-Explanation:
-</p>
-<ul>
-<li>Line 1:
-from <a href="http://en.wikipedia.org/wiki/Ctype.h">ctype.h</a>,
-we will be using <i>isspace</i> (line 28),
-which provides a more complete
-<a href="http://en.wikipedia.org/wiki/Whitespace_(computer_science)">whitespace</a>
-test than a simple comparison with
-<a href="http://en.wikipedia.org/wiki/Space_character">space</a>
-(it also matches
-<a href="http://en.wikipedia.org/wiki/Tab_character">tab</a>,
-among others).
-</li>
-</ul>
-</div>
-<p>
-The hardest part is the implementation of function <i>matchCommand</i>.
-But as you can see below, it can be done in less than 100 lines of code!
-The new parser makes functions <i>matchingObject</i> and <i>nounIsInTags</i>
-obsolete; we will discard them
-and start all over with a whole new version of <i>match.*</i>.
-</p>
-<table class="code"><tr>
-<th>match.h</th>
-</tr><tr>
-<td>
-#new 13 match.h
-</td>
-</tr><tr>
-<th>match.c</th>
-</tr><tr>
-<td>
-#new 13 match.c
-</td>
-</tr></table>
-<div class="explanation">
-<p>
-Explanation:
-</p>
-<ul>
-<li>Line 17-20:
-function <i>matchSpaces</i> 
-tries to match a stretch of whitespace, either between two words,
-or (possibly zero-width) at the start or end of the input string.
-As with most of the functions in this module,
-parsing starts at the character pointed to by parameter <i>src</i>;
-the return value is either a pointer to the position in the input string
-that immediately follows the match
-(in this case, to the first non-whitespace character encountered;
-this <i>may</i> be the NUL character denoting end-of-string),
-or NULL, meaning no match was found
-(in this case, if there was a non-whitespace character at the start position).
-</li>
-<li>Line 22-26:
-function <i>matchTerminal</i> matches a particular character,
-case-insensitively.
-If the required character (parameter <i>terminal</i>) is a space,
-the match is a stretch of (whitespace) characters, as explained above.
-</li>
-<li>Line 28-32:
-function <i>matchTag</i> matches a particular word, case-insensitively.
-If parameter <i>atEnd</i> is true (i.e. any non-zero value),
-matching only succeeds if the word is last in the input string.
-</li>
-<li>Line 34-40:
-function <i>isBetterMatch</i> is used to make a choice between
-two different tags that both match the input string.
-A comparison is made based on word length (longest takes precedence),
-followed by distance (nearest takes precedence).
-Return value is 1 (representing <i>true</i>)
-if the combination of <i>tag</i> and <i>distance</i>
-makes a better match than a match made earlier
-(stored in the <i>struct PARAM</i> pointed to by <i>par</i>);
-return value is 0 (false) if <i>tag</i> and <i>distance</i>
-are worse than or equivalent to the earlier match.
-If case of a tie, attribute <i>count</i> of the struct is incremented
-(indicating that the match satisfies multiple objects).
-</li>
-<li>Line 42-66:
-function <i>matchParam</i> matches and captures a nonterminal.
-All tags of all objects will be scanned to find the best matching tag (if any).
-The <i>struct PARAM</i> pointed to by <i>par</i>
-will be filled with information about the match.
-Set parameter <i>loose</i> to match a &lsquo;loose&rsquo; nonterminal;
-this will always consume the entire input string
-(i.e. return a pointer to the end-of-string character),
-regardless of whether there is a tag to satisfy this match.
-</li>
-<li>Line 68-86:
-function <i>matchCommand</i> matches an entire pattern,
-capturing nonterminals into <i>params</i>,
-the global array of <i>struct PARAM</i>.
-</li>
-</ul>
-</div>
-<p>
-In <i>execute.c</i>, we make implementations of commands
+In <i>execute.c</i>,
+we add functions that implement the new multi-noun commands
 <i>get</i>, <i>drop/put</i>, <i>ask</i> and <i>give</i>
-that accept two arguments (see lines 63-81 below).
+(see lines 63-81 below).
 Now we can finally put the gold coin back in the box!
 </p>
 <table class="demo">
 <tr><th>Sample output</th></tr>
 <tr><td>
-#test 13
+#test 14
 </td></tr>
 </table>
 <table class="code"><tr>
 <th>execute.h</th>
 </tr><tr>
 <td>
-#ldiff 13 execute.h
+#ldiff 14 execute.h
 </td>
 </tr><tr>
 <th>execute.c</th>
 </tr><tr>
 <td>
-#diff 13 execute.c
+#diff 14 execute.c
 </td>
 </tr></table>
-<p>
-We immediately grab the opportunity to make a check on ambiguous nouns
-(see lines 22-25 below).
-</p>
-<table class="code"><tr>
-<th>move.h</th>
-</tr><tr>
-<td>
-#diff 13 move.h
-</td>
-</tr><tr>
-<th>move.c</th>
-</tr><tr>
-<td>
-#diff 13 move.c
-</td>
-</tr></table>
-<p>
-In <i>location.c</i>, the command <i>look around</i> is given its own function,
-separate from the <i>look</i> command to inspect specific objects
-(see lines 6-11).
-</p>
-<table class="code"><tr>
-<th>location.h</th>
-</tr><tr>
-<td>
-#diff 13 location.h
-</td>
-</tr><tr>
-<th>location.c</th>
-</tr><tr>
-<td>
-#diff 13 location.c
-</td>
-</tr></table>
-<p>
-Our new parser is a huge improvement over the original verb-noun parser,
-but by today&rsquo;s standards, it is still far from perfect.
-For example,
-the player cannot manipulate multiple objects with a single command
-(&lsquo;get coin and key&rsquo; or &lsquo;drop all&rsquo;),
-or execute two or more commands in a row
-(&lsquo;get key then go east&rsquo;).
-</p>
-<p>
-In the true sense of the word, my parser is not even a parser.
-It is just a simple pattern matcher.
-IMHO, it does its job sufficiently well for a simple adventure game.
-Some of its flaws can be mitigated by adding more patterns.
-But eventually, you will run into its limitations,
-and you may want to move on to something more mature.
-In that case, I would recommend a decent parser generator
-(e.g. <a href="http://en.wikipedia.org/wiki/Yacc">Yacc</a>).
-Please be aware that this is not an easy thing to do.
-For now, it is outside the scope of this tutorial.
-</p>
 <hr />
 <p>
 Next chapter: <a href="htpataic15.html">15. Light and dark</a>

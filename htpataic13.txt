@@ -1,4 +1,4 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<!DOCTYPE html>
 <html>
 <head>
 <title>13. The parser</title>
@@ -39,7 +39,7 @@ char *noun = strtok(NULL, "\n");
 </tr></table>
 <p>
 Alright, plus the sequence of <i>strcmp</i> calls to map verbs to commands,
-and the functions in <i>match.c</i> to map nouns to objects.
+and the functions in <i>noun.c</i> and <i>move.c</i> to map nouns to objects.
 But that&rsquo;s it.
 This system has served us well for the past 11 chapters,
 but it has its flaws.
@@ -99,82 +99,52 @@ though this could be added later.
 Uppercase letters are the
 <a href="http://en.wikipedia.org/wiki/Nonterminal_symbol">nonterminal symbols</a>
 in our grammar;
-they <b>match</b> any object&rsquo;s tag,
-and they <b>capture</b> the properties of the associated object.
-For each nonterminal, the properties are stored in a
-<a href="http://en.wikipedia.org/wiki/Struct_(C_programming_language)">struct</a>:
-</p>
-<table><tr>
-<td class="snippet">typedef struct {
-   const char *src;
-   const char *tag;
-   OBJECT *object;
-   DISTANCE distance;
-   int count;
-} PARAM;
-</td>
-</tr></table>
-<p>
-A brief explanation of the struct&rsquo;s members:
-<ul>
-<li><b>src:</b>
-the position in the input stream where the match starts
-</li>
-<li><b>tag:</b>
-the tag that matches the player&rsquo;s input
-</li>
-<li><b>object:</b>
-the closest matching object (shortest distance to the player);
-in case of a tie, an object is picked arbitrarily
-(typically the one to come first in the array of objects)
-</li>
-<li><b>distance:</b>
-the &lsquo;distance&rsquo; between object and player;
-see chapter 7 for a detailed explanation
-</li>
-<li><b>count:</b>
-the number of objects that qualify as &lsquo;closest match&rsquo;
-(ideally 1, but could be more)
-</li>
-</ul>
+they match <b>any tag</b> (of any object).
+Matching is
+<a href="https://en.wikipedia.org/wiki/Greedy_algorithm">greedy</a>;
+when the parser has a choice between two different tags
+(for example &lsquo;silver coin&rsquo; and &lsquo;silver&rsquo;),
+the longer tag will take precedence.
 </p>
 <p>
-This struct could then be passed as a parameter
-to the function that takes care of execution of the command.
-</p>
-<table><tr>
-<td class="snippet">void executeGo(<span class="red">PARAM *param</span>)
-{
-   OBJECT *obj = <span class="red">param-&gt;object</span>;
-   DISTANCE distance = <span class="red">param-&gt;distance</span>;
-   ...
-}
-</td>
-</tr></table>
-<p>
+The matching tag can then be passed as parameter <i>noun</i>
+to one of the <i>execute</i> functions.
+For commands with more than one noun (introduced in the next chapter),
+parameter passing becomes a bit unpractical.
 For simplicity, I will use a
 <a href="http://en.wikipedia.org/wiki/Global_variable">global variable</a>
 instead of parameters (despite the bad reputation of global variables).
-The variable will be an array of aforementioned struct.
+The variable will be an array of string pointers.
 </p>
 <table><tr>
-<td class="snippet">PARAM params[26];
+<td class="snippet">const char *params[26];
 </td>
 </tr></table>
 <p>
+The array has 26 elements; one for each (uppercase) letter in the alphabet.
+That is sufficient for upto 26 different nonterminals in a single pattern.
+For every nonterminal in a (matching) pattern,
+a matching tag will be &lsquo;captured&rsquo; by filling
+the nonterminal&rsquo;s array element with a pointer to that particular tag.
 params[0] (the first array element) captures nonterminal &lsquo;A&rsquo;,
 params[1] captures &lsquo;B&rsquo;, and so forth.
-The total number of elements in the array does not really matter.
-26 is sufficient when every uppercase letter qualifies as a nonterminal.
-In practice, the upper bound could be lowered,
-but that would warrant some
+A simple macro can be used
+to find the array element that belongs to a given nonterminal.
+</p>
+<table><tr>
+<td class="snippet">#define paramByLetter(letter)   (params + (letter) - 'A')
+</td>
+</tr></table>
+<p>
+Note: you may find the array length of 26 a bit over the top,
+but it does save me the trouble of writing some
 <a href="http://en.wikipedia.org/wiki/Bounds_checking">bounds checking</a>
-to prevent a
+code to prevent a
 <a href="http://en.wikipedia.org/wiki/Buffer_overflow">buffer overflow</a>
 in case of a malformed pattern.
 </p>
 <p>
-Now we have to think of a way to handle missing or unrecognized objects.
+Now we have to think of a way to handle missing or unrecognized nouns.
 Suppose the user makes a typo and enters &ldquo;go kave&rdquo;.
 Question is, should this command match the pattern &ldquo;go A&rdquo; or not?
 If we don&rsquo;t, then the command will fail to match <i>any</i> pattern
@@ -191,19 +161,9 @@ inside function <i>executeGo</i>.
 There are a few ways to achieve this, but the easiest one is
 to allow nonterminals to match <i>anything</i>;
 so not just a valid tag, but also total gibberish, blanks or just nothing.
-Capturing of this &lsquo;invalid&rsquo; input will be as follows:
+This &lsquo;invalid&rsquo; input will be captured as an empty string
+(&ldquo;&rdquo;).
 </p>
-<ul>
-<li><b>src:</b> the remaining input stream
-from the point where we tried to find a match
-(in the example: &ldquo;kave&rdquo;)</li>
-<li><b>tag:</b> empty string</li>
-<li><b>object:</b> NULL</li>
-<li><b>distance:</b> <i>distUnknownObject</i>, or <i>distNoObjectSpecified</i>
-if the end of the input stream had already been reached
-</li>
-<li><b>count:</b> 0</li>
-</ul>
 <p>
 Having such a &lsquo;loose&rsquo; nonterminal in the middle of a pattern
 does complicate the pattern matching process; it would require
@@ -265,7 +225,7 @@ Each pattern is tied to a function that executes the appropriate command.
 <th>parsexec.h</th>
 </tr><tr>
 <td>
-#diff 13 parsexec.h
+#new 13 parsexec.h
 </td>
 </tr><tr>
 <th>parsexec.c</th>
@@ -281,7 +241,7 @@ Explanation:
 <ul>
 <li>Line 1:
 from <a href="http://en.wikipedia.org/wiki/Ctype.h">ctype.h</a>,
-we will be using <i>isspace</i> (line 28),
+we will be using <i>isspace</i> (line 26),
 which provides a more complete
 <a href="http://en.wikipedia.org/wiki/Whitespace_(computer_science)">whitespace</a>
 test than a simple comparison with
@@ -293,28 +253,28 @@ among others).
 <li>Line 9-13:
 type <i>COMMAND</i> is a structure that combines a pattern with a function.
 </li>
-<li>Line 15-31:
+<li>Line 15-30:
 a few generic handlers.
 </li>
-<li>Line 27:
+<li>Line 26:
 this loop prints the first word entered by the player;
 we assume this is supposed to be the (unrecognized) verb.
 </li>
-<li>Line 35:
+<li>Line 34-53:
 the array of patterns.
 </li>
-<li>Line 53:
+<li>Line 52:
 the last pattern should always be &ldquo;A&rdquo;;
 this pattern matches <i>anything</i> and so it will pick up
 everything that hasn&rsquo;t been matched by preceding patterns.
 </li>
-<li>Line 56:
+<li>Line 55:
 this loop scans though all patterns from top to bottom;
 it stops at the first pattern that matches.
-The &lsquo;sure match&rsquo; on line 53 ensures
+The &lsquo;sure match&rsquo; on line 52 ensures
 the loop will never pass the end of the array.
 </li>
-<li>Line 57:
+<li>Line 56:
 the function that belongs to the matching pattern is called.
 </li>
 </ul>
@@ -322,21 +282,18 @@ the function that belongs to the matching pattern is called.
 <p>
 The hardest part is the implementation of function <i>matchCommand</i>.
 But as you can see below, it can be done in less than 100 lines of code!
-The new parser makes functions <i>matchingObject</i> and <i>nounIsInTags</i>
-obsolete; we will discard them
-and start all over with a whole new version of <i>match.*</i>.
 </p>
 <table class="code"><tr>
 <th>match.h</th>
 </tr><tr>
 <td>
-#new 13 match.h
+#diff 13 match.h
 </td>
 </tr><tr>
 <th>match.c</th>
 </tr><tr>
 <td>
-#new 13 match.c
+#diff 13 match.c
 </td>
 </tr></table>
 <div class="explanation">
@@ -344,7 +301,7 @@ and start all over with a whole new version of <i>match.*</i>.
 Explanation:
 </p>
 <ul>
-<li>Line 17-20:
+<li>Line 16-19:
 function <i>matchSpaces</i> 
 tries to match a stretch of whitespace, either between two words,
 or (possibly zero-width) at the start or end of the input string.
@@ -357,51 +314,36 @@ this <i>may</i> be the NUL character denoting end-of-string),
 or NULL, meaning no match was found
 (in this case, if there was a non-whitespace character at the start position).
 </li>
-<li>Line 22-26:
+<li>Line 21-25:
 function <i>matchTerminal</i> matches a particular character,
 case-insensitively.
 If the required character (parameter <i>terminal</i>) is a space,
 the match is a stretch of (whitespace) characters, as explained above.
 </li>
-<li>Line 28-32:
+<li>Line 27-34:
 function <i>matchTag</i> matches a particular word, case-insensitively.
-If parameter <i>atEnd</i> is true (i.e. any non-zero value),
-matching only succeeds if the word is last in the input string.
+If parameter <i>atEnd</i> is true,
+then matching will only succeed if the word is last in the input string.
 </li>
-<li>Line 34-40:
-function <i>isBetterMatch</i> is used to make a choice between
-two different tags that both match the input string.
-A comparison is made based on word length (longest takes precedence),
-followed by distance (nearest takes precedence).
-Return value is 1 (representing <i>true</i>)
-if the combination of <i>tag</i> and <i>distance</i>
-makes a better match than a match made earlier
-(stored in the <i>struct PARAM</i> pointed to by <i>par</i>);
-return value is 0 (false) if <i>tag</i> and <i>distance</i>
-are worse than or equivalent to the earlier match.
-If case of a tie, attribute <i>count</i> of the struct is incremented
-(indicating that the match satisfies multiple objects).
-</li>
-<li>Line 42-66:
+<li>Line 36-54:
 function <i>matchParam</i> matches and captures a nonterminal.
-All tags of all objects will be scanned to find the best matching tag (if any).
-The <i>struct PARAM</i> pointed to by <i>par</i>
-will be filled with information about the match.
+All tags of all objects will be scanned to find the longest matching tag.
+The array element pointed to by <i>par</i>
+will be filled with a pointer to the matching tag (if any).
 Set parameter <i>loose</i> to match a &lsquo;loose&rsquo; nonterminal;
 this will always consume the entire input string
 (i.e. return a pointer to the end-of-string character),
 regardless of whether there is a tag to satisfy this match.
 </li>
-<li>Line 68-85:
+<li>Line 56-70:
 function <i>matchCommand</i> matches an entire pattern,
-capturing nonterminals into <i>params</i>,
-the global array of <i>struct PARAM</i>.
+capturing nonterminals into array <i>params</i>.
 </li>
 </ul>
 </div>
 <p>
 We adjust the implementations of the various commands
-to make use of the new <i>struct PARAM</i>.
+to make use of the new array <i>params</i>.
 </p>
 <table class="demo">
 <tr><th>Sample output</th></tr>
@@ -423,26 +365,9 @@ to make use of the new <i>struct PARAM</i>.
 </td>
 </tr></table>
 <p>
-We immediately grab the opportunity to make a check on ambiguous nouns
-(see lines 85-88 below).
-</p>
-<table class="code"><tr>
-<th>move.h</th>
-</tr><tr>
-<td>
-#diff 13 move.h
-</td>
-</tr><tr>
-<th>move.c</th>
-</tr><tr>
-<td>
-#diff 13 move.c
-</td>
-</tr></table>
-<p>
 In <i>location.c</i>, the command <i>look around</i> is given its own function,
 separate from the <i>look</i> command to inspect specific objects
-(see lines 6-11).
+(see lines 7-12).
 </p>
 <table class="code"><tr>
 <th>location.h</th>

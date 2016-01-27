@@ -114,6 +114,7 @@ extern OBJECT objs[];
      description "a backroom"
      tags        "backroom"
      details     "The room is dusty and messy.\n"
+     capacity    9999
 
 - wallBackroom
      description "solid rock all around"
@@ -127,7 +128,7 @@ extern OBJECT objs[];
      tags        "south", "door", "doorway"
      destination backroom
      details     "The door is open.\n"
-     textGo      "You walk through the door into the backroom.\n"
+     textGo      "You walk through the door into a backroom.\n"
      open        isAlreadyOpen
      close       toggleBackdoor
 

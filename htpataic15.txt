@@ -1,4 +1,4 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<!DOCTYPE html>
 <html>
 <head>
 <title>15. Light and dark</title>
@@ -18,10 +18,114 @@ Without it, you cannot make it through the dark caverns that lie ahead.
 <p>
 The effect of being in the dark differs from game to game.
 Typically, it makes the command &lsquo;look&rsquo; ineffective.
-In some games, you can still make progress without a light source,
-provided you have drawn a detailed map of the dark area.
-In others (e.g. <a href="https://en.wikipedia.org/wiki/Zork">Zork</a>),
+In some games (e.g. <a href="https://en.wikipedia.org/wiki/Zork">Zork</a>),
 darkness is deadly.
+In others, you can still make progress without a light source,
+provided you have drawn a detailed map of the dark area.
+</p>
+<p>
+Our game will stay in between;
+being in the dark will not get you killed,
+but you will not be able to follow any passages either.
+An exception will be made for passages that lead back into the light;
+it seemed unfair to me to allow the player to run into a dark area,
+without an opportunity to get back to where he came from.
+</p>
+<p>
+Alright; so first of all, in darkness you cannot see your surroundings.
+</p>
+<table class="code"><tr>
+<th>location.c</th>
+</tr><tr>
+<td>
+#diff 15 location.c
+</td>
+</tr></table>
+<p>
+Above, we used a function <i>isInLight</i>.
+It is defined (and used some more) in <i>misc.c</i>.
+</p>
+<table class="code"><tr>
+<th>misc.h</th>
+</tr><tr>
+<td>
+#diff 15 misc.h
+</td>
+</tr><tr>
+<th>misc.c</th>
+</tr><tr>
+<td>
+#diff 15 misc.c
+</td>
+</tr></table>
+<p>
+We will add a lamp the player can carry to get through the dark locations.
+</p>
+<table class="code"><tr>
+<th>object.txt</th>
+</tr><tr>
+<td>
+#diff 15 object.txt
+</td>
+</tr></table>
+<p>
+We will add some commands we can use to turn the lamp on and off.
+</p>
+<table class="code"><tr>
+<th>parsexec.c</th>
+</tr><tr>
+<td>
+#diff 15 parsexec.c
+</td>
+</tr></table>
+<p>
+Below is the implementation of these commands.
+</p>
+<table class="code"><tr>
+<th>execute.h</th>
+</tr><tr>
+<td>
+#diff 15 execute.h
+</td>
+</tr><tr>
+<th>execute.c</th>
+</tr><tr>
+<td>
+#diff 15 execute.c
+</td>
+</tr></table>
+<p>
+To turn the lamp on and off,
+we will use the same trick we used to open and close the door and the box
+(see chapter 12).
+</p>
+<table class="code"><tr>
+<th>toggle.h</th>
+</tr><tr>
+<td>
+#diff 15 toggle.h
+</td>
+</tr><tr>
+<th>toggle.c</th>
+</tr><tr>
+<td>
+#diff 15 toggle.c
+</td>
+</tr></table>
+<img class="genmap" src="code15/map.png" />
+<p>
+Finally, we will mark the dark locations in our generated map.
+</p>
+<table class="code"><tr>
+<th>map.awk</th>
+</tr><tr>
+<td>
+#diff 15 map.awk
+</td>
+</tr></table>
+<p>
+Do be careful not to turn off the lamp after dropping it;
+in the dark, you will never be able to find it back!
 </p>
 <hr />
 <p>

@@ -1,4 +1,4 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<!DOCTYPE html>
 <html>
 <head>
 <title>10. More attributes</title>
@@ -20,7 +20,7 @@
 <div><a href="htpataic11.html">11. Conditions</a></div>
 <div><a href="htpataic12.html">12. Open and close</a></div>
 <div><a href="htpataic13.html">13. The parser</a></div>
-<div><a href="htpataic14.html">14. Multiple arguments</a></div>
+<div><a href="htpataic14.html">14. Multiple nouns</a></div>
 <div><a href="htpataic15.html">15. Light and dark</a></div>
 <div><a href="htpataic16.html">16. Savegame</a></div>
 <div><a href="htpataic17.html">17. Test automation</a></div>
@@ -48,7 +48,7 @@ Here are a few examples.
 <ol type="1">
 <li>The command <i>look around</i>
 gives a global description of the player&rsquo;s location,
-including a list of items, persons and other objects present there.
+including a list of items, actors and other objects present there.
 Many adventures require the player to examine these objects,
 either to reveal certain clues that are needed to make progress in the game,
 or simply to enhance the game&rsquo;s atmosphere.
@@ -89,18 +89,18 @@ so we will have <i>object.awk</i> generate an appropriate default;
 <i>prospect</i> only needs to be specified in <i>object.txt</i>
 when it differs from <i>destination</i>.
 </li>
-<li>In many adventures, the player, as well as other persons in the game,
+<li>In many adventures, the player, as well as other actors in the game,
 are limited in how much they can carry.
 Give each item a <b>weight</b>;
-the combined weight of all items in a person&rsquo;s inventory
-should not exceed that person&rsquo;s <b>capacity</b>.
+the combined weight of all items in an actor&rsquo;s inventory
+should not exceed that actor&rsquo;s <b>capacity</b>.
 Give an object a very high weight to make it immovable
 (a tree, a house, a mountain).
 </li>
 <li><a href="http://en.wikipedia.org/wiki/Role-playing_video_game">RPG</a>-style
-adventure games will need a whole range of attributes for persons
+adventure games will need a whole range of attributes for actors
 (both player and non-player), for example <b>health</b>.
-Objects with zero health are either dead, or they are not a person at all.
+Objects with zero health are either dead, or they are not an actor at all.
 </li>
 </ol>
 <p>
@@ -214,28 +214,28 @@ Explanation:
 <li>Lines 9-15:
 the seven new attributes.
 </li>
-<li>Lines 35 and 42:
+<li>Lines 37 and 44:
 the silver and gold coin have the same weight;
 in case you find this unrealistic,
 feel free to apply a more accurate unit of weight for your objects.
 </li>
-<li>Lines 50-51 and 59-60:
+<li>Lines 52-53 and 61-62:
 both the player and the non-player characters
 are alive (they have <i>health</i>),
 and they have a limited ability to carry objects
 (here: the equivalent of 20 coins).
 </li>
-<li>Line 66:
+<li>Line 68:
 I am using the cave entrance
 to demonstrate the effect of attribute <i>prospect</i>.
 Normally, <i>prospect</i> takes on the value of <i>destination</i>
-(see <i>object.awk</i> below, specifically line 70).
+(see <i>object.awk</i> below, specifically line 62).
 By specifying <i>prospect</i> instead of <i>destination</i>
 (consequently leaving the latter <i>NULL</i>),
 we effectively &lsquo;block&rsquo; the cave entrance
 without making it disappear.
 </li>
-<li>Lines 83 and 90:
+<li>Lines 85 and 92:
 <i>textGo</i> is useful not only for passages,
 but for non-passage objects as well
 (in this case the two &lsquo;walls&rsquo; we introduced in chapter 8).
@@ -352,14 +352,14 @@ The guard is a really big fellow.<br />
 That is way too heavy.<br />
 <br />
 --&gt; get coin<br />
-OK.<br />
+You pick up a silver coin.<br />
 <br />
 --&gt; inventory<br />
 You have:<br />
 a silver coin<br />
 <br />
 --&gt; give coin<br />
-OK.<br />
+You give a silver coin to a burly guard.<br />
 <br />
 --&gt; look guard<br />
 The guard is a really big fellow.<br />
@@ -386,7 +386,7 @@ Bye!<br />
 <li class="old">#include &lt;string.h&gt;</li>
 <li class="old">#include "object.h"</li>
 <li class="old">#include "misc.h"</li>
-<li class="old">#include "match.h"</li>
+<li class="old">#include "noun.h"</li>
 <li class="old"></li>
 <li class="old">void executeLook(const char *noun)</li>
 <li class="old">{</li>
@@ -397,26 +397,22 @@ Bye!<br />
 <li class="old">   }</li>
 <li class="old">   else</li>
 <li class="old">   {</li>
-<li class="new"><span class="old">      </span>OBJECT *obj = matchingObject(noun);</li>
-<li class="new">      DISTANCE distance = distanceTo(obj);</li>
-<li class="new">      if (distance &gt;= distUnknownObject)</li>
+<li class="new"><span class="old">      </span>OBJECT *obj = getVisible("what<span class="old"> you want to </span>look at", noun);</li>
+<li class="new">      switch (getDistance(player, obj))</li>
 <li class="new">      {</li>
-<li class="old">         printf("I don't understand what you want to see.\n");</li>
-<li class="old">      }</li>
-<li class="new"><span class="old">      </span>else if (distance == distNotHere)</li>
-<li class="new">      {</li>
-<li class="new">         printf("You don't see any %s here.\n", noun);</li>
-<li class="new">      }</li>
-<li class="new">      else if (distance == distOverthere)</li>
-<li class="new">      {</li>
-<li class="new">         printf("Too far away, move closer please.\n");</li>
-<li class="new">      }</li>
-<li class="new">      else if (distance == distHereContained)</li>
-<li class="new">      {</li>
+<li class="new">      case distHereContained:</li>
 <li class="new">         printf("Hard to see, try to get it first.\n");</li>
-<li class="new">      }</li>
-<li class="new">      else</li>
-<li class="new">      {</li>
+<li class="new">         break;</li>
+<li class="new">      case distOverthere:</li>
+<li class="new">         printf("Too far away, move closer please.\n");</li>
+<li class="new">         break;</li>
+<li class="new">      case distNotHere:</li>
+<li class="new">         printf("You don't see any %s here.\n", noun);</li>
+<li class="new">         break;</li>
+<li class="new">      case distUnknownObject:</li>
+<li class="new">         // already handled by getVisible</li>
+<li class="new">         break;</li>
+<li class="new">      default:</li>
 <li class="new">         printf("%s", obj-&gt;details);</li>
 <li class="new">         listObjectsAtLocation(obj);</li>
 <li class="new">      }</li>
@@ -431,32 +427,25 @@ Bye!<br />
 <li class="new">      player-&gt;location = passage-&gt;destination;</li>
 <li class="new">      printf("\n");</li>
 <li class="new">      executeLook("around");</li>
-<li class="new">   }</li>
+<li class="old">   }</li>
 <li class="old">}</li>
 <li class="old"></li>
 <li class="old">void executeGo(const char *noun)</li>
 <li class="old">{</li>
-<li class="old">   OBJECT *obj = matchingObject(noun);</li>
-<li class="old">   DISTANCE distance = distanceTo(obj);</li>
-<li class="old">   if (distance &gt;= distUnknownObject)</li>
+<li class="old">   OBJECT *obj = getVisible("where you want to go", noun);</li>
+<li class="old">   switch (getDistance(player, obj))</li>
 <li class="old">   {</li>
-<li class="old">      printf("I don't understand where you want to go.\n");</li>
-<li class="old">   }</li>
-<li class="old">   else if (distance == distOverthere)</li>
-<li class="old">   {</li>
-<li class="new"><span class="old">      </span>movePlayer(getPassageTo(obj));</li>
-<li class="old">   }</li>
-<li class="new"><span class="old">   else if (distance == </span>distHere)</li>
-<li class="old">   {</li>
-<li class="new"><span class="old">      </span>movePlayer(obj);</li>
-<li class="old">   }</li>
-<li class="old">   else if (distance &lt; distNotHere)</li>
-<li class="old">   {</li>
-<li class="old">      printf("You can't get much closer than this.\n");</li>
-<li class="old">   }</li>
-<li class="old">   else</li>
-<li class="old">   {</li>
+<li class="old">   case distOverthere:</li>
+<li class="new"><span class="old">      </span>movePlayer(getPassage(player-&gt;location, obj));</li>
+<li class="old">      break;</li>
+<li class="old">   case distNotHere:</li>
 <li class="old">      printf("You don't see any %s here.\n", noun);</li>
+<li class="old">      break;</li>
+<li class="old">   case distUnknownObject:</li>
+<li class="old">      // already handled by getVisible</li>
+<li class="old">      break;</li>
+<li class="old">   default:</li>
+<li class="new"><span class="old">      </span>movePlayer(obj);</li>
 <li class="old">   }</li>
 <li class="old">}</li>
 </ol>
@@ -465,6 +454,7 @@ Bye!<br />
 <p>
 Attributes <b>weight</b> and <b>capacity</b> together become
 a possible reason for not being able to move certain objects around.
+And a <b>health</b> check replaces the hard-coded whitelist of actors.
 </p>
 <table class="code"><tr>
 <th>move.c</th>
@@ -473,67 +463,48 @@ a possible reason for not being able to move certain objects around.
 <ol>
 <li class="old">#include &lt;stdio.h&gt;</li>
 <li class="old">#include "object.h"</li>
-<li class="old">#include "misc.h"</li>
-<li class="old">#include "match.h"</li>
+<li class="new">#include "misc.h"</li>
 <li class="old"></li>
-<li class="old">void moveObject(const char *noun, OBJECT *from, OBJECT *to)</li>
+<li class="old">void moveObject(OBJECT *obj, OBJECT *to)</li>
 <li class="old">{</li>
-<li class="old">   OBJECT *obj = matchingObject(noun);</li>
 <li class="old">   if (obj == NULL)</li>
 <li class="old">   {</li>
-<li class="old">      printf("I don't understand what item you mean.\n");</li>
-<li class="old">   }</li>
-<li class="old">   else if (from == NULL)</li>
-<li class="old">   {</li>
-<li class="old">      printf("I don't understand who you want to ask.\n");</li>
-<li class="old">   }</li>
-<li class="old">   else if (from != obj-&gt;location)</li>
-<li class="old">   {</li>
-<li class="old">      switch (distanceTo(obj))</li>
-<li class="old">      {</li>
-<li class="old">      case distPlayer:</li>
-<li class="old">         printf("You should not be doing that to yourself.\n");</li>
-<li class="old">         break;</li>
-<li class="old">      case distHeld:</li>
-<li class="old">         printf("You already have %s.\n", obj-&gt;description);</li>
-<li class="old">         break;</li>
-<li class="old">      case distLocation:</li>
-<li class="old">      case distOverthere:</li>
-<li class="old">         printf("That's not an item.\n");</li>
-<li class="old">         break;</li>
-<li class="old">      case distHere:</li>
-<li class="old">         if (from == player)</li>
-<li class="old">         {</li>
-<li class="old">            printf("You have no %s.\n", noun);</li>
-<li class="old">         }</li>
-<li class="old">         else</li>
-<li class="old">         {</li>
-<li class="old">            printf("Sorry, %s has no %s.\n", from-&gt;description, noun);</li>
-<li class="old">         }</li>
-<li class="old">         break;</li>
-<li class="old">      case distHereContained:</li>
-<li class="old">         printf("Sorry, %s is holding it.\n", obj-&gt;location-&gt;description);</li>
-<li class="old">         break;</li>
-<li class="old">      default:</li>
-<li class="old">         printf("You don't see any %s here.\n", noun);</li>
-<li class="old">      }</li>
+<li class="old">      // already handled by getVisible or getPossession</li>
 <li class="old">   }</li>
 <li class="old">   else if (to == NULL)</li>
 <li class="old">   {</li>
 <li class="old">      printf("There is nobody here to give that to.\n");</li>
 <li class="old">   }</li>
-<li class="new">   else if (obj-&gt;weight &gt; to-&gt;capacity)</li>
-<li class="new">   {</li>
-<li class="new">      printf("That is way too heavy.\n");</li>
-<li class="new">   }</li>
-<li class="new">   else if (obj-&gt;weight + weightOfContents(to) &gt; to-&gt;capacity)</li>
+<li class="new"><span class="old">   else if </span>(obj-&gt;weight &gt; to-&gt;capacity)</li>
+<li class="old">   {</li>
+<li class="old">      printf("That is way too heavy.\n");</li>
+<li class="old">   }</li>
+<li class="new"><span class="old">   else </span>if (obj-&gt;weight + weightOfContents(to) &gt; to-&gt;capacity)</li>
 <li class="new">   {</li>
 <li class="new">      printf("That would become too heavy.\n");</li>
 <li class="new">   }</li>
-<li class="old">   else</li>
+<li class="new">   else</li>
 <li class="old">   {</li>
+<li class="old">      if (to == player-&gt;location)</li>
+<li class="old">      {</li>
+<li class="old">         printf("You drop %s.\n", obj-&gt;description);</li>
+<li class="old">      }</li>
+<li class="old">      else if (to != player)</li>
+<li class="old">      {</li>
+<li class="new"><span class="old">         </span>printf(to-&gt;health &gt; 0<span class="old"> ? "You give %s to %s.\n"</span></li>
+<li class="old">                               : "You put %s in %s.\n",</li>
+<li class="old">                obj-&gt;description, to-&gt;description);</li>
+<li class="old">      }</li>
+<li class="old">      else if (obj-&gt;location == player-&gt;location)</li>
+<li class="old">      {</li>
+<li class="old">         printf("You pick up %s.\n", obj-&gt;description);</li>
+<li class="old">      }</li>
+<li class="old">      else</li>
+<li class="old">      {</li>
+<li class="old">         printf("You get %s from %s.\n", obj-&gt;description,</li>
+<li class="old">                                         obj-&gt;location-&gt;description);</li>
+<li class="old">      }</li>
 <li class="old">      obj-&gt;location = to;</li>
-<li class="old">      printf("OK.\n");</li>
 <li class="old">   }</li>
 <li class="old">}</li>
 </ol>
@@ -547,9 +518,7 @@ we also make modifications to some of the existing functions,
 to support the last few attributes.
 </p>
 <p>
-Attribute <b>health</b> will be used
-to tell persons apart from &lsquo;dead&rsquo; objects.
-And <b>contents</b> replaces the fixed text <i>&ldquo;You see&rdquo;</i>.
+Attribute <b>contents</b> replaces the fixed text <i>&ldquo;You see&rdquo;</i>.
 The original text was already a bit odd
 when listing the player&rsquo;s inventory,
 but now that function <i>listObjectsAtLocation</i> is used to display
@@ -558,7 +527,7 @@ we really need something more flexible.
 </p>
 <p>
 By replacing attribute <i>destination</i> by <b>prospect</b>
-in function <i>getPassageTo</i>,
+in function <i>getPassage</i>,
 we are improving responses to <i>all</i> commands
 (not just <i>go</i> and <i>look</i>)
 applied to a location that is seen lying on the other end of
@@ -570,7 +539,7 @@ a &lsquo;passage with a twist.&rsquo;
 <td>
 <ol>
 <li class="old">typedef enum {</li>
-<li class="old">   distPlayer,</li>
+<li class="old">   distSelf,</li>
 <li class="old">   distHeld,</li>
 <li class="old">   distHeldContained,</li>
 <li class="old">   distLocation,</li>
@@ -578,12 +547,11 @@ a &lsquo;passage with a twist.&rsquo;
 <li class="old">   distHereContained,</li>
 <li class="old">   distOverthere,</li>
 <li class="old">   distNotHere,</li>
-<li class="old">   distUnknownObject,</li>
-<li class="old">   distNoObjectSpecified</li>
+<li class="old">   distUnknownObject</li>
 <li class="old">} DISTANCE;</li>
 <li class="old"></li>
-<li class="old">extern OBJECT *getPassageTo(OBJECT *targetLocation);</li>
-<li class="old">extern DISTANCE distanceTo(OBJECT *obj);</li>
+<li class="old">extern OBJECT *getPassage(OBJECT *from, OBJECT *to);</li>
+<li class="old">extern DISTANCE getDistance(OBJECT *from, OBJECT *to);</li>
 <li class="old">extern OBJECT *actorHere(void);</li>
 <li class="old">extern int listObjectsAtLocation(OBJECT *location);</li>
 <li class="new">extern int weightOfContents(OBJECT *container);</li>
@@ -598,13 +566,12 @@ a &lsquo;passage with a twist.&rsquo;
 <li class="old">#include "object.h"</li>
 <li class="old">#include "misc.h"</li>
 <li class="old"></li>
-<li class="old">OBJECT *getPassageTo(OBJECT *targetLocation)</li>
+<li class="old">OBJECT *getPassage(OBJECT *from, OBJECT *to)</li>
 <li class="old">{</li>
 <li class="old">   OBJECT *obj;</li>
 <li class="old">   for (obj = objs; obj &lt; endOfObjs; obj++)</li>
 <li class="old">   {</li>
-<li class="old">      if (obj-&gt;location == player-&gt;location &amp;&amp;</li>
-<li class="new"><span class="old">          </span>obj-&gt;prospect<span class="old"> == targetLocation)</span></li>
+<li class="new"><span class="old">      if (obj-&gt;location == from &amp;&amp; </span>obj-&gt;prospect<span class="old"> == to)</span></li>
 <li class="old">      {</li>
 <li class="old">         return obj;</li>
 <li class="old">      }</li>
@@ -612,18 +579,18 @@ a &lsquo;passage with a twist.&rsquo;
 <li class="old">   return NULL;</li>
 <li class="old">}</li>
 <li class="old"></li>
-<li class="old">DISTANCE distanceTo(OBJECT *obj)</li>
+<li class="old">DISTANCE getDistance(OBJECT *from, OBJECT *to)</li>
 <li class="old">{</li>
-<li class="old">   return obj == NULL                                 ? distUnknownObject :</li>
-<li class="old">          obj == player                               ? distPlayer :</li>
-<li class="old">          obj-&gt;location == player                     ? distHeld :</li>
-<li class="old">          obj == player-&gt;location                     ? distLocation :</li>
-<li class="old">          obj-&gt;location == player-&gt;location           ? distHere :</li>
-<li class="old">          getPassageTo(obj) != NULL                   ? distOverthere :</li>
-<li class="old">          obj-&gt;location == NULL                       ? distNotHere :</li>
-<li class="old">          obj-&gt;location-&gt;location == player           ? distHeldContained :</li>
-<li class="old">          obj-&gt;location-&gt;location == player-&gt;location ? distHereContained :</li>
-<li class="old">                                                        distNotHere;</li>
+<li class="old">   return to == NULL                               ? distUnknownObject :</li>
+<li class="old">          to == from                               ? distSelf :</li>
+<li class="old">          to-&gt;location == from                     ? distHeld :</li>
+<li class="old">          to == from-&gt;location                     ? distLocation :</li>
+<li class="old">          to-&gt;location == from-&gt;location           ? distHere :</li>
+<li class="old">          getPassage(from-&gt;location, to) != NULL   ? distOverthere :</li>
+<li class="old">          to-&gt;location == NULL                     ? distNotHere :</li>
+<li class="old">          to-&gt;location-&gt;location == from           ? distHeldContained :</li>
+<li class="old">          to-&gt;location-&gt;location == from-&gt;location ? distHereContained :</li>
+<li class="old">                                                     distNotHere;</li>
 <li class="old">}</li>
 <li class="old"></li>
 <li class="old">OBJECT *actorHere(void)</li>
@@ -631,7 +598,7 @@ a &lsquo;passage with a twist.&rsquo;
 <li class="old">   OBJECT *obj;</li>
 <li class="old">   for (obj = objs; obj &lt; endOfObjs; obj++)</li>
 <li class="old">   {</li>
-<li class="new"><span class="old">      if (distanceTo(obj) == distHere &amp;&amp; </span>obj-&gt;health &gt; 0)</li>
+<li class="new"><span class="old">      if (getDistance(player, obj) == distHere &amp;&amp; </span>obj-&gt;health &gt; 0)</li>
 <li class="old">      {</li>
 <li class="old">         return obj;</li>
 <li class="old">      }</li>
@@ -712,8 +679,8 @@ you either have to go for evasive answers
 (<i>&ldquo;You see nothing special&rdquo;</i> &ndash;
 quite disappointing, really),
 or add an &lsquo;ornamental&rsquo; <i>eagle</i> object.
-You can use the <i>location</i> attribute to attach the eagle to the coin;
-this ensures the eagle will follow wherever the coin goes.
+You can use the <i>location</i> attribute to attach the eagle to the coin,
+so that the eagle will follow wherever the coin goes.
 </li>
 <li>Try not to worry too much about the memory space
 wasted on attributes that are only used in certain types of objects

@@ -1,4 +1,4 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<!DOCTYPE html>
 <html>
 <head>
 <title>6. Passages</title>
@@ -64,11 +64,22 @@ can be stored in the <i>struct object</i> as a new attribute.
 Notes:
 <ul>
 <li>Obviously, <i>destination</i> is unused in most other objects
-(items, actors), but I consider this to be a minor waste of space.</li>
-<li>A passage runs in one direction only;
-bi-directional passages are implemented by
-defining two separate uni-directional passages.
-Again, let&rsquo;s not bother now about the apparent waste of space.</li>
+(items, actors), but I consider this to be a minor waste of space.
+</li>
+<li>A passage always runs in one direction;
+to connect two locations bi-directionally,
+we always have to create two separate passages.
+This may seem clumsy at first, but it does give us great flexibility
+in refining the behavior of command &lsquo;go&rsquo;;
+see chapter 10 and 11.
+</li>
+<li>On a large map, you may find it tedious to create all passages by hand.
+Then I strongly advise you to
+<i>generate</i> the more repetitive parts of your map using custom tooling.
+This will not be covered here,
+but you may find some inspiration in chapter 9,
+where we discuss code generation.
+</li>
 </ul>
 </p>
 <p>
@@ -94,45 +105,8 @@ So we expand the array of objects:
 </td>
 </tr></table>
 <p>
-Next, we have to make some changes to function <i>executeGo</i>.
-</p>
-<table class="code"><tr>
-<th>location.h</th>
-</tr><tr>
-<td>
-#diff 6 location.h
-</td>
-</tr><tr>
-<th>location.c</th>
-</tr><tr>
-<td>
-#diff 6 location.c
-</td>
-</tr></table>
-<div class="explanation">
-<p>
-Explanation:
-</p>
-<ul>
-<li>Line 31:
-we no longer allow the player to jump freely from one location to another:
-there must be a passage connecting the two.
-We use a separate function <i>getPassageTo</i> (defined below) to check this.
-</li>
-<li>Line 37-42:
-besides <i>go &lt;location&gt;</i> (lines 31-36),
-we now offer an alternative way for the player to move:
-<i>go &lt;passage&gt;</i>.
-For example, when in the field,
-<i>go cave</i> and <i>go entrance</i> will have the same effect.
-</li>
-</ul>
-</div>
-<p>
-Function <i>executeGo</i> uses a separate function
-to check if two locations are connected by a passage.
-Because such a function will prove to be useful in the next chapter as well,
-I made it a general function <i>getPassageTo</i> as part of <i>misc.c</i>.
+We will add a little helper function to <i>misc.c</i>
+to determine whether a passage exists between two given locations.
 </p>
 <table class="code"><tr>
 <th>misc.h</th>
@@ -152,36 +126,108 @@ I made it a general function <i>getPassageTo</i> as part of <i>misc.c</i>.
 Explanation:
 </p>
 <ul>
-<li>Line 8-11:
+<li>Lines 7 and 9:
 we scan through all objects until we encounter a passage running
-from <i>player-&gt;location</i> (the player&rsquo;s current location)
-to <i>targetLocation</i> (the function&rsquo;s parameter).
+from location &lsquo;from&rsquo; to location &lsquo;to&rsquo;.
 </li>
-<li>Line 13:
+<li>Line 11:
 if a matching passage is found, we return a pointer to the passage object.
 </li>
-<li>Line 16:
+<li>Line 14:
 if no such passage exists, we return NULL.
 </li>
 </ul>
 </div>
 <p>
+We will use the new function <i>getPassage</i>
+in the implementation of command &lsquo;go&rsquo;
+to determine whether or not a passage exists
+that can take the player to the desired location.
+</p>
+<table class="code"><tr>
+<th>location.h</th>
+</tr><tr>
+<td>
+#diff 6 location.h
+</td>
+</tr><tr>
+<th>location.c</th>
+</tr><tr>
+<td>
+#ldiff 6 location.c
+</td>
+</tr></table>
+<div class="explanation">
+<p>
+Explanation:
+</p>
+<ul>
+<li>Line 27:
+as of now, command <i>go &lt;location&gt;</i> will only be accepted
+if a passage exists to take us there.
+</li>
+<li>Line 37-42:
+besides <i>go &lt;location&gt;</i> (lines 27-32),
+we now offer an alternative way for the player to move:
+<i>go &lt;passage&gt;</i>.
+For example, when in the field,
+<i>go cave</i> and <i>go entrance</i> will have the same effect.
+</li>
+</ul>
+</div>
+<p>
+We will also use the new function <i>getPassage</i> to determine whether
+a certain location is visible from where the player is standing.
+Locations that are not connected to the current location by a passage,
+are not considered visible.
+</p>
+<table class="code"><tr>
+<th>noun.h</th>
+</tr><tr>
+<td>
+#diff 6 noun.h
+</td>
+</tr><tr>
+<th>noun.c</th>
+</tr><tr>
+<td>
+#diff 6 noun.c
+</td>
+</tr></table>
+<div class="explanation">
+<p>
+Explanation:
+</p>
+<ul>
+<li>Line 36:
+originally, every location was visible from every location.
+We will now use function <i>getPassage</i>
+to check whether or not two locations are adjacent.
+This also prevents other objects from being mistaken for locations.
+Originally, every object without a location, was considered to be a location.
+This could have caused trouble in chapter 12,
+where we will introduce some non-location objects 
+that (temporarily) do not have a location.
+</li>
+<li>Line 37:
+the adjustment in line 36 does not relieve us from
+a NULL check on <i>obj-&gt;location</i>.
+Without this check, &lsquo;go cave&rsquo; could cause
+the last two rules (lines 38 and 39) to give a segmentation fault.
+</li>
+</ul>
+</div>
+<p>
 The other modules
-(<i>parsexec.c</i>, <i>execute.c</i>, <i>match.c</i>, <i>move.c</i>)
+(<i>main.c</i>, <i>parsexec.c</i>, <i>execute.c</i>, <i>move.c</i>)
 remain unchanged, you can see them in the previous chapters.
 </p>
 <p>
 Obviously, the map in this sample is trivial:
 there are only two locations, and they are connected in both directions.
-I will leave it up to the reader to draw a more complicated map
+A third location will be added in chapter 12.
+Homework assignment: draw a more elaborate map
 and turn it into a list of objects (locations and passages).
-</p>
-<p>
-Many responses in the game are still kind of dull.
-For example,
-&ldquo;go guard&rdquo; returns &ldquo;You can&rsquo;t go there.&rdquo;
-Exactly the kind of output I criticized in the previous chapter!
-This is something we will be working on in the next chapter.
 </p>
 <hr />
 <p>

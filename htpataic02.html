@@ -1,4 +1,4 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<!DOCTYPE html>
 <html>
 <head>
 <title>2. The main loop</title>
@@ -20,7 +20,7 @@
 <div><a href="htpataic11.html">11. Conditions</a></div>
 <div><a href="htpataic12.html">12. Open and close</a></div>
 <div><a href="htpataic13.html">13. The parser</a></div>
-<div><a href="htpataic14.html">14. Multiple arguments</a></div>
+<div><a href="htpataic14.html">14. Multiple nouns</a></div>
 <div><a href="htpataic15.html">15. Light and dark</a></div>
 <div><a href="htpataic16.html">16. Savegame</a></div>
 <div><a href="htpataic17.html">17. Test automation</a></div>
@@ -49,9 +49,9 @@ and executes the command.</li>
 The code sample below consists of three functions,
 one for each step:
 <ol type="1">
-<li>function <i>getInput</i>;</li>
-<li>function <i>parseAndExecute</i>;</li>
-<li>function <i>main</i>,
+<li>Function <i>getInput</i>.</li>
+<li>Function <i>parseAndExecute</i>.</li>
+<li>Function <i>main</i>,
 which takes care of calling the other two functions repeatedly.</li>
 </ol>
 </p>
@@ -127,8 +127,8 @@ because I want to execute a pre-determined command first
 </ul>
 </div>
 <p>
-I implemented function <i>parseAndExecute</i> in a separate module;
-it is the one function that is subject to change.
+I implemented function <i>parseAndExecute</i> in a separate module,
+as it is the function that is subject to change in chapters to come.
 </p>
 <table class="code"><tr>
 <th>parsexec.h</th>
@@ -160,7 +160,7 @@ it is the one function that is subject to change.
 <li class="new">      }</li>
 <li class="new">      else if (strcmp(verb, "look") == 0)</li>
 <li class="new">      {</li>
-<li class="new">         printf("It's very dark in here.\n");</li>
+<li class="new">         printf("It is very dark in here.\n");</li>
 <li class="new">      }</li>
 <li class="new">      else if (strcmp(verb, "go") == 0)</li>
 <li class="new">      {</li>
@@ -194,7 +194,7 @@ in just two lines of code.
 <li>Line 9:
 your C compiler may give a warning
 regarding the unused variable &lsquo;noun&rsquo; on this line.
-Please ignore this message; the issue will be gone in the next chapter.
+Please ignore this message; the issue will be resolved in the next chapter.
 </li>
 <li>Line 10:
 nothing to do if the player enters nothing (or just spaces).
@@ -225,13 +225,13 @@ with <tt>%s</tt> as placeholder for the additional parameter <i>verb</i>.
 <tr><th>Sample output</th></tr>
 <tr><td>
 Welcome to Little Cave Adventure.<br />
-It's very dark in here.<br />
+It is very dark in here.<br />
 <br />
 --&gt; go north<br />
 It's too dark to go anywhere.<br />
 <br />
 --&gt; look around<br />
-It's very dark in here.<br />
+It is very dark in here.<br />
 <br />
 --&gt; eat sandwich<br />
 I don't know how to 'eat'.<br />
@@ -286,7 +286,7 @@ with terminating the program without the player&rsquo;s consent: in a
 <a href="http://en.wikipedia.org/wiki/Windowing_system">windowing system</a>,
 it is not unlikely for a
 <a href="http://en.wikipedia.org/wiki/Text-based_(computing)">text-based</a>
-program to be running in an application window
+program to be running in a terminal window
 that immediately closes when the program ends,
 even before the player has had a chance to read the final message.
 We could delay this effect with &ldquo;press
@@ -300,7 +300,7 @@ whenever he is ready to leave the imaginary world behind.
 Naturally, all this is just an advice; you can take it or leave it.
 That&rsquo;s the great thing about writing a game in a
 <a href="http://en.wikipedia.org/wiki/General-purpose_programming_language">general-purpose language</a>:
-you can craft it to your likings.
+you can mould it any way you like.
 </p>
 <hr />
 <p>

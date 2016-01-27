@@ -1,6 +1,9 @@
+get coin
 go west
 go east
 go west
 go entrance
+drop coin
+get coin
 get gold coin
 quit

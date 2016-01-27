@@ -1,4 +1,4 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<!DOCTYPE html>
 <html>
 <head>
 <title>15. Light and dark</title>
@@ -20,7 +20,7 @@
 <div><a href="htpataic11.html">11. Conditions</a></div>
 <div><a href="htpataic12.html">12. Open and close</a></div>
 <div><a href="htpataic13.html">13. The parser</a></div>
-<div><a href="htpataic14.html">14. Multiple arguments</a></div>
+<div><a href="htpataic14.html">14. Multiple nouns</a></div>
 <div><b>15. Light and dark</b></div>
 <div><a href="htpataic16.html">16. Savegame</a></div>
 <div><a href="htpataic17.html">17. Test automation</a></div>
@@ -41,10 +41,844 @@ Without it, you cannot make it through the dark caverns that lie ahead.
 <p>
 The effect of being in the dark differs from game to game.
 Typically, it makes the command &lsquo;look&rsquo; ineffective.
-In some games, you can still make progress without a light source,
-provided you have drawn a detailed map of the dark area.
-In others (e.g. <a href="https://en.wikipedia.org/wiki/Zork">Zork</a>),
+In some games (e.g. <a href="https://en.wikipedia.org/wiki/Zork">Zork</a>),
 darkness is deadly.
+In others, you can still make progress without a light source,
+provided you have drawn a detailed map of the dark area.
+</p>
+<p>
+Our game will stay in between;
+being in the dark will not get you killed,
+but you will not be able to follow any passages either.
+An exception will be made for passages that lead back into the light;
+it seemed unfair to me to allow the player to run into a dark area,
+without an opportunity to get back to where he came from.
+</p>
+<p>
+Alright; so first of all, in darkness you cannot see your surroundings.
+</p>
+<table class="code"><tr>
+<th>location.c</th>
+</tr><tr>
+<td>
+<ol>
+<li class="old">#include &lt;stdio.h&gt;</li>
+<li class="old">#include "object.h"</li>
+<li class="old">#include "misc.h"</li>
+<li class="old">#include "match.h"</li>
+<li class="old">#include "noun.h"</li>
+<li class="old"></li>
+<li class="old">bool executeLookAround(void)</li>
+<li class="old">{</li>
+<li class="new"><span class="old">   </span>if (isLit(player-&gt;location))</li>
+<li class="new">   {</li>
+<li class="old">      printf("You are in %s.\n", player-&gt;location-&gt;description);</li>
+<li class="new"><span class="old">   </span>}</li>
+<li class="new">   else</li>
+<li class="new">   {</li>
+<li class="new">      printf("It is very dark in here.\n");</li>
+<li class="new">   }</li>
+<li class="old">   listObjectsAtLocation(player-&gt;location);</li>
+<li class="old">   return true;</li>
+<li class="old">}</li>
+<li class="old"></li>
+<li class="old">bool executeLook(void)</li>
+<li class="old">{</li>
+<li class="old">   OBJECT *obj = getVisible("what you want to look at", params[0]);</li>
+<li class="old">   switch (getDistance(player, obj))</li>
+<li class="old">   {</li>
+<li class="old">   case distHereContained:</li>
+<li class="old">      printf("Hard to see, try to get it first.\n");</li>
+<li class="old">      break;</li>
+<li class="old">   case distOverthere:</li>
+<li class="old">      printf("Too far away, move closer please.\n");</li>
+<li class="old">      break;</li>
+<li class="old">   case distNotHere:</li>
+<li class="old">      printf("You don't see any %s here.\n", params[0]);</li>
+<li class="old">      break;</li>
+<li class="old">   case distUnknownObject:</li>
+<li class="old">      // already handled by getVisible</li>
+<li class="old">      break;</li>
+<li class="old">   default:</li>
+<li class="old">      printf("%s", obj-&gt;details);</li>
+<li class="old">      listObjectsAtLocation(obj);</li>
+<li class="old">   }</li>
+<li class="old">   return true;</li>
+<li class="old">}</li>
+<li class="old"></li>
+<li class="old">static void movePlayer(OBJECT *passage)</li>
+<li class="old">{</li>
+<li class="old">   printf("%s", passage-&gt;textGo);</li>
+<li class="old">   if (passage-&gt;destination != NULL)</li>
+<li class="old">   {</li>
+<li class="old">      player-&gt;location = passage-&gt;destination;</li>
+<li class="old">      printf("\n");</li>
+<li class="old">      executeLookAround();</li>
+<li class="old">   }</li>
+<li class="old">}</li>
+<li class="old"></li>
+<li class="old">bool executeGo(void)</li>
+<li class="old">{</li>
+<li class="old">   OBJECT *obj = getVisible("where you want to go", params[0]);</li>
+<li class="old">   switch (getDistance(player, obj))</li>
+<li class="old">   {</li>
+<li class="old">   case distOverthere:</li>
+<li class="old">      movePlayer(getPassage(player-&gt;location, obj));</li>
+<li class="old">      break;</li>
+<li class="old">   case distNotHere:</li>
+<li class="old">      printf("You don't see any %s here.\n", params[0]);</li>
+<li class="old">      break;</li>
+<li class="old">   case distUnknownObject:</li>
+<li class="old">      // already handled by getVisible</li>
+<li class="old">      break;</li>
+<li class="old">   default:</li>
+<li class="old">      movePlayer(obj);</li>
+<li class="old">   }</li>
+<li class="old">   return true;</li>
+<li class="old">}</li>
+</ol>
+</td>
+</tr></table>
+<p>
+Above, we used a function <i>isInLight</i>.
+It is defined (and used some more) in <i>misc.c</i>.
+</p>
+<table class="code"><tr>
+<th>misc.h</th>
+</tr><tr>
+<td>
+<ol>
+<li class="old">typedef enum {</li>
+<li class="old">   distSelf,</li>
+<li class="old">   distHeld,</li>
+<li class="old">   distHeldContained,</li>
+<li class="old">   distLocation,</li>
+<li class="old">   distHere,</li>
+<li class="old">   distHereContained,</li>
+<li class="old">   distOverthere,</li>
+<li class="old">   distNotHere,</li>
+<li class="old">   distUnknownObject</li>
+<li class="old">} DISTANCE;</li>
+<li class="old"></li>
+<li class="new">extern bool isLit(OBJECT *location);</li>
+<li class="old">extern OBJECT *getPassage(OBJECT *from, OBJECT *to);</li>
+<li class="old">extern DISTANCE getDistance(OBJECT *from, OBJECT *to);</li>
+<li class="old">extern OBJECT *actorHere(void);</li>
+<li class="old">extern int listObjectsAtLocation(OBJECT *location);</li>
+<li class="old">extern int weightOfContents(OBJECT *container);</li>
+</ol>
+</td>
+</tr><tr>
+<th>misc.c</th>
+</tr><tr>
+<td>
+<ol>
+<li class="old">#include &lt;stdio.h&gt;</li>
+<li class="old">#include "object.h"</li>
+<li class="old">#include "misc.h"</li>
+<li class="old"></li>
+<li class="new">static OBJECT *getLocation(OBJECT *obj)</li>
+<li class="new">{</li>
+<li class="new">   while (obj-&gt;location != NULL) obj = obj-&gt;location;</li>
+<li class="new">   return obj;</li>
+<li class="new">}</li>
+<li class="new"></li>
+<li class="new">bool isLit(OBJECT *location)</li>
+<li class="new">{</li>
+<li class="new">   return location == field || location == getLocation(lampOn);</li>
+<li class="new">}</li>
+<li class="old"></li>
+<li class="old">OBJECT *getPassage(OBJECT *from, OBJECT *to)</li>
+<li class="old">{</li>
+<li class="old">   OBJECT *obj;</li>
+<li class="old">   forEachObject(obj)</li>
+<li class="old">   {</li>
+<li class="new"><span class="old">      if </span>(from != NULL &amp;&amp; obj-&gt;location<span class="old"> == from &amp;&amp; obj-&gt;prospect == to)</span></li>
+<li class="old">      {</li>
+<li class="old">         return obj;</li>
+<li class="old">      }</li>
+<li class="old">   }</li>
+<li class="old">   return NULL;</li>
+<li class="old">}</li>
+<li class="old"></li>
+<li class="old">DISTANCE getDistance(OBJECT *from, OBJECT *to)</li>
+<li class="old">{</li>
+<li class="old">   return !validObject(to)                         ? distUnknownObject :</li>
+<li class="old">          to == from                               ? distSelf :</li>
+<li class="old">          to-&gt;location == from                     ? distHeld :</li>
+<li class="new"><span class="old">          </span>!isLit(from-&gt;location) &amp;&amp;</li>
+<li class="new">          !isLit(to) &amp;&amp; !isLit(to-&gt;prospect)       ? distNotHere :</li>
+<li class="old">          to == from-&gt;location                     ? distLocation :</li>
+<li class="old">          to-&gt;location == from-&gt;location           ? distHere :</li>
+<li class="old">          getPassage(from-&gt;location, to) != NULL   ? distOverthere :</li>
+<li class="old">          !validObject(to-&gt;location)               ? distNotHere :</li>
+<li class="old">          to-&gt;location-&gt;location == from           ? distHeldContained :</li>
+<li class="old">          to-&gt;location-&gt;location == from-&gt;location ? distHereContained :</li>
+<li class="old">                                                     distNotHere;</li>
+<li class="old">}</li>
+<li class="old"></li>
+<li class="old">OBJECT *actorHere(void)</li>
+<li class="old">{</li>
+<li class="old">   OBJECT *obj;</li>
+<li class="old">   forEachObject(obj)</li>
+<li class="old">   {</li>
+<li class="old">      if (getDistance(player, obj) == distHere &amp;&amp; obj-&gt;health &gt; 0)</li>
+<li class="old">      {</li>
+<li class="old">         return obj;</li>
+<li class="old">      }</li>
+<li class="old">   }</li>
+<li class="old">   return NULL;</li>
+<li class="old">}</li>
+<li class="old"></li>
+<li class="old">int listObjectsAtLocation(OBJECT *location)</li>
+<li class="old">{</li>
+<li class="old">   int count = 0;</li>
+<li class="old">   OBJECT *obj;</li>
+<li class="old">   forEachObject(obj)</li>
+<li class="old">   {</li>
+<li class="new"><span class="old">      if (obj != player &amp;&amp; obj-&gt;location == </span>location &amp;&amp;</li>
+<li class="new">          getDistance(player, obj) &lt; distNotHere)</li>
+<li class="old">      {</li>
+<li class="old">         if (count++ == 0)</li>
+<li class="old">         {</li>
+<li class="old">            printf("%s:\n", location-&gt;contents);</li>
+<li class="old">         }</li>
+<li class="old">         printf("%s\n", obj-&gt;description);</li>
+<li class="old">      }</li>
+<li class="old">   }</li>
+<li class="old">   return count;</li>
+<li class="old">}</li>
+<li class="old"></li>
+<li class="old">int weightOfContents(OBJECT *container)</li>
+<li class="old">{</li>
+<li class="old">   int sum = 0;</li>
+<li class="old">   OBJECT *obj;</li>
+<li class="old">   forEachObject(obj)</li>
+<li class="old">   {</li>
+<li class="old">      if (obj-&gt;location == container) sum += obj-&gt;weight;</li>
+<li class="old">   }</li>
+<li class="old">   return sum;</li>
+<li class="old">}</li>
+</ol>
+</td>
+</tr></table>
+<p>
+We will add a lamp the player can carry to get through the dark locations.
+</p>
+<table class="code"><tr>
+<th>object.txt</th>
+</tr><tr>
+<td>
+<ol>
+<li class="old">#include &lt;stdio.h&gt;</li>
+<li class="old">#include "object.h"</li>
+<li class="old">#include "toggle.h"</li>
+<li class="old"></li>
+<li class="old">typedef struct object {</li>
+<li class="old">   bool         (*condition)(void);</li>
+<li class="old">   const char    *description;</li>
+<li class="old">   const char   **tags;</li>
+<li class="old">   struct object *location;</li>
+<li class="old">   struct object *destination;</li>
+<li class="old">   struct object *prospect;</li>
+<li class="old">   const char    *details;</li>
+<li class="old">   const char    *contents;</li>
+<li class="old">   const char    *textGo;</li>
+<li class="old">   int            weight;</li>
+<li class="old">   int            capacity;</li>
+<li class="old">   int            health;</li>
+<li class="old">   const char  *(*open)(void);</li>
+<li class="old">   const char  *(*close)(void);</li>
+<li class="old">   const char  *(*lock)(void);</li>
+<li class="old">   const char  *(*unlock)(void);</li>
+<li class="old">} OBJECT;</li>
+<li class="old"></li>
+<li class="old">extern OBJECT objs[];</li>
+<li class="old"></li>
+<li class="old">- field</li>
+<li class="old">     description "an open field"</li>
+<li class="old">     tags        "field"</li>
+<li class="old">     details     "The field is a nice and quiet place under a clear blue sky.\n"</li>
+<li class="old">     capacity    9999</li>
+<li class="old"></li>
+<li class="old">- cave</li>
+<li class="old">     description "a little cave"</li>
+<li class="old">     tags        "cave"</li>
+<li class="old">     details     "The cave is just a cold, damp, rocky chamber.\n"</li>
+<li class="old">     capacity    9999</li>
+<li class="old"></li>
+<li class="old">- silver</li>
+<li class="old">     description "a silver coin"</li>
+<li class="old">     tags        "silver", "coin", "silver coin"</li>
+<li class="old">     location    field</li>
+<li class="old">     details     "The coin has an eagle on the obverse.\n"</li>
+<li class="old">     weight      1</li>
+<li class="old"></li>
+<li class="old">- gold</li>
+<li class="old">     description "a gold coin"</li>
+<li class="old">     tags        "gold", "coin", "gold coin"</li>
+<li class="old">     location    openBox</li>
+<li class="old">     details     "The shiny coin seems to be a rare and priceless artefact.\n"</li>
+<li class="old">     weight      1</li>
+<li class="old"></li>
+<li class="old">- guard</li>
+<li class="old">     description "a burly guard"</li>
+<li class="old">     tags        "guard", "burly guard"</li>
+<li class="old">     location    field</li>
+<li class="old">     details     "The guard is a really big fellow.\n"</li>
+<li class="old">     contents    "He has"</li>
+<li class="old">     health      100</li>
+<li class="old">     capacity    20</li>
+<li class="old"></li>
+<li class="old">- player</li>
+<li class="old">     description "yourself"</li>
+<li class="old">     tags        "yourself"</li>
+<li class="old">     location    field</li>
+<li class="old">     details     "You would need a mirror to look at yourself.\n"</li>
+<li class="old">     contents    "You have"</li>
+<li class="old">     health      100</li>
+<li class="old">     capacity    20</li>
+<li class="old"></li>
+<li class="old">- intoCave</li>
+<li class="old">     condition   { return guard-&gt;health == 0 || silver-&gt;location == guard; }</li>
+<li class="old">     description "a cave entrance to the east"</li>
+<li class="old">     tags        "east", "entrance"</li>
+<li class="old">     location    field</li>
+<li class="old">     destination cave</li>
+<li class="old">     details     "The entrance is just a narrow opening in a small outcrop.\n"</li>
+<li class="old">     textGo      "You walk into the cave.\n"</li>
+<li class="old">     open        isAlreadyOpen</li>
+<li class="old"></li>
+<li class="old">- intoCaveBlocked</li>
+<li class="old">     condition   { return guard-&gt;health &gt; 0 &amp;&amp; silver-&gt;location != guard; }</li>
+<li class="old">     description "a cave entrance to the east"</li>
+<li class="old">     tags        "east", "entrance"</li>
+<li class="old">     location    field</li>
+<li class="old">     prospect    cave</li>
+<li class="old">     details     "The entrance is just a narrow opening in a small outcrop.\n"</li>
+<li class="old">     textGo      "The guard stops you from walking into the cave.\n"</li>
+<li class="old">     open        isAlreadyOpen</li>
+<li class="old"></li>
+<li class="old">- exitCave</li>
+<li class="old">     description "a way out to the west"</li>
+<li class="old">     tags        "west", "out"</li>
+<li class="old">     location    cave</li>
+<li class="old">     destination field</li>
+<li class="old">     details     "Sunlight pours in through an opening in the cave's wall.\n"</li>
+<li class="old">     textGo      "You walk out of the cave.\n"</li>
+<li class="old">     open        isAlreadyOpen</li>
+<li class="old"></li>
+<li class="old">- wallField</li>
+<li class="old">     description "dense forest all around"</li>
+<li class="old">     tags        "west", "north", "south", "forest"</li>
+<li class="old">     location    field</li>
+<li class="old">     details     "The field is surrounded by trees and undergrowth.\n"</li>
+<li class="old">     textGo      "Dense forest is blocking the way.\n"</li>
+<li class="old"></li>
+<li class="old">- wallCave</li>
+<li class="old">     description "solid rock all around"</li>
+<li class="old">     tags        "east", "north", "rock"</li>
+<li class="old">     location    cave</li>
+<li class="old">     details     "Carved in stone is a secret password 'abccb'.\n"</li>
+<li class="old">     textGo      "Solid rock is blocking the way.\n"</li>
+<li class="old"></li>
+<li class="old">- backroom</li>
+<li class="old">     description "a backroom"</li>
+<li class="old">     tags        "backroom"</li>
+<li class="old">     details     "The room is dusty and messy.\n"</li>
+<li class="old">     capacity    9999</li>
+<li class="old"></li>
+<li class="old">- wallBackroom</li>
+<li class="old">     description "solid rock all around"</li>
+<li class="old">     tags        "east", "west", "south", "rock"</li>
+<li class="old">     location    backroom</li>
+<li class="old">     details     "Trendy wallpaper covers the rock walls.\n"</li>
+<li class="old">     textGo      "Solid rock is blocking the way.\n"</li>
+<li class="old"></li>
+<li class="old">- openDoorToBackroom</li>
+<li class="old">     description "an open door to the south"</li>
+<li class="old">     tags        "south", "door", "doorway"</li>
+<li class="old">     destination backroom</li>
+<li class="old">     details     "The door is open.\n"</li>
+<li class="old">     textGo      "You walk through the door into a backroom.\n"</li>
+<li class="old">     open        isAlreadyOpen</li>
+<li class="old">     close       toggleBackdoor</li>
+<li class="old"></li>
+<li class="old">- closedDoorToBackroom</li>
+<li class="old">     description "a closed door to the south"</li>
+<li class="old">     tags        "south", "door", "doorway"</li>
+<li class="old">     location    cave</li>
+<li class="old">     prospect    backroom</li>
+<li class="old">     details     "The door is closed.\n"</li>
+<li class="old">     textGo      "The door is closed.\n"</li>
+<li class="old">     open        toggleBackdoor</li>
+<li class="old">     close       isAlreadyClosed</li>
+<li class="old"></li>
+<li class="old">- openDoorToCave</li>
+<li class="old">     description "an open door to the north"</li>
+<li class="old">     tags        "north", "door", "doorway"</li>
+<li class="old">     destination cave</li>
+<li class="old">     details     "The door is open.\n"</li>
+<li class="old">     textGo      "You walk through the door into the cave.\n"</li>
+<li class="old">     open        isAlreadyOpen</li>
+<li class="old">     close       toggleBackdoor</li>
+<li class="old"></li>
+<li class="old">- closedDoorToCave</li>
+<li class="old">     description "a closed door to the north"</li>
+<li class="old">     tags        "north", "door", "doorway"</li>
+<li class="old">     location    backroom</li>
+<li class="old">     prospect    cave</li>
+<li class="old">     details     "The door is closed.\n"</li>
+<li class="old">     textGo      "The door is closed.\n"</li>
+<li class="old">     open        toggleBackdoor</li>
+<li class="old">     close       isAlreadyClosed</li>
+<li class="old"></li>
+<li class="old">- openBox</li>
+<li class="old">     description "a wooden box"</li>
+<li class="old">     tags        "box", "wooden box"</li>
+<li class="old">     details     "The box is open.\n"</li>
+<li class="old">     weight      5</li>
+<li class="old">     capacity    10</li>
+<li class="old">     open        isAlreadyOpen</li>
+<li class="old">     close       toggleBox</li>
+<li class="old">     lock        isStillOpen</li>
+<li class="old">     unlock      isAlreadyOpen</li>
+<li class="old"></li>
+<li class="old">- closedBox</li>
+<li class="old">     description "a wooden box"</li>
+<li class="old">     tags        "box", "wooden box"</li>
+<li class="old">     details     "The box is closed.\n"</li>
+<li class="old">     weight      5</li>
+<li class="old">     open        toggleBox</li>
+<li class="old">     close       isAlreadyClosed</li>
+<li class="old">     lock        toggleBoxLock</li>
+<li class="old">     unlock      isAlreadyUnlocked</li>
+<li class="old"></li>
+<li class="old">- lockedBox</li>
+<li class="old">     description "a wooden box"</li>
+<li class="old">     tags        "box", "wooden box"</li>
+<li class="old">     location    backroom</li>
+<li class="old">     details     "The box is closed.\n"</li>
+<li class="old">     weight      5</li>
+<li class="old">     open        isStillLocked</li>
+<li class="old">     close       isAlreadyClosed</li>
+<li class="old">     lock        isAlreadyLocked</li>
+<li class="old">     unlock      toggleBoxLock</li>
+<li class="old"></li>
+<li class="old">- keyForBox</li>
+<li class="old">     description "a tiny key"</li>
+<li class="old">     tags        "key", "tiny key"</li>
+<li class="old">     location    cave</li>
+<li class="old">     details     "The key is really small and shiny.\n"</li>
+<li class="old">     weight      1</li>
+<li class="new"></li>
+<li class="new">- lampOff</li>
+<li class="new">     description "a lamp"</li>
+<li class="new">     tags        "lamp"</li>
+<li class="new">     location    field</li>
+<li class="new">     details     "The lamp is off.\n"</li>
+<li class="new">     weight      5</li>
+<li class="new"></li>
+<li class="new">- lampOn</li>
+<li class="new">     description "a lamp"</li>
+<li class="new">     tags        "lamp"</li>
+<li class="new">     details     "The lamp is on.\n"</li>
+<li class="new">     weight      5</li>
+</ol>
+</td>
+</tr></table>
+<p>
+We will add some commands we can use to turn the lamp on and off.
+</p>
+<table class="code"><tr>
+<th>parsexec.c</th>
+</tr><tr>
+<td>
+<ol>
+<li class="old">#include &lt;ctype.h&gt;</li>
+<li class="old">#include &lt;stdio.h&gt;</li>
+<li class="old">#include "object.h"</li>
+<li class="old">#include "misc.h"</li>
+<li class="old">#include "match.h"</li>
+<li class="old">#include "location.h"</li>
+<li class="old">#include "execute.h"</li>
+<li class="old"></li>
+<li class="old">typedef struct</li>
+<li class="old">{</li>
+<li class="old">   bool (*function)(void);</li>
+<li class="old">   const char *pattern;</li>
+<li class="old">} COMMAND;</li>
+<li class="old"></li>
+<li class="old">static bool executeQuit(void)</li>
+<li class="old">{</li>
+<li class="old">   return false;</li>
+<li class="old">}</li>
+<li class="old"></li>
+<li class="old">static bool executeNoMatch(void)</li>
+<li class="old">{</li>
+<li class="old">   const char *src = *params;</li>
+<li class="old">   if (*src != '\0')</li>
+<li class="old">   {</li>
+<li class="old">      printf("I don't know how to '");</li>
+<li class="old">      while (*src != '\0' &amp;&amp; !isspace(*src)) putchar(*src++);</li>
+<li class="old">      printf("'.\n");</li>
+<li class="old">   }</li>
+<li class="old">   return true;</li>
+<li class="old">}</li>
+<li class="old"></li>
+<li class="old">bool parseAndExecute(const char *input)</li>
+<li class="old">{</li>
+<li class="old">   static const COMMAND commands[] =</li>
+<li class="old">   {</li>
+<li class="old">      {executeQuit      , "quit"},</li>
+<li class="old">      {executeLookAround, "look"},</li>
+<li class="old">      {executeLookAround, "look around"},</li>
+<li class="old">      {executeLook      , "look at A"},</li>
+<li class="old">      {executeLook      , "look A"},</li>
+<li class="old">      {executeGo        , "go to A"},</li>
+<li class="old">      {executeGo        , "go A"},</li>
+<li class="old">      {executeGetFrom   , "get A from B"},</li>
+<li class="old">      {executeGet       , "get A"},</li>
+<li class="old">      {executePutIn     , "put A in B"},</li>
+<li class="old">      {executePutIn     , "drop A in B"},</li>
+<li class="old">      {executeDrop      , "drop A"},</li>
+<li class="old">      {executeAskFrom   , "ask A from B"},</li>
+<li class="old">      {executeAsk       , "ask A"},</li>
+<li class="old">      {executeGiveTo    , "give A to B"},</li>
+<li class="old">      {executeGive      , "give A"},</li>
+<li class="old">      {executeInventory , "inventory"},</li>
+<li class="old">      {executeOpen      , "open A"},</li>
+<li class="old">      {executeClose     , "close A"},</li>
+<li class="old">      {executeLock      , "lock A"},</li>
+<li class="old">      {executeUnlock    , "unlock A"},</li>
+<li class="new">      {executeTurnOn    , "turn on A"},</li>
+<li class="new">      {executeTurnOff   , "turn off A"},</li>
+<li class="new">      {executeTurnOn    , "turn A on"},</li>
+<li class="new">      {executeTurnOff   , "turn A off"},</li>
+<li class="old">      {executeNoMatch   , "A"}</li>
+<li class="old">   };</li>
+<li class="old">   const COMMAND *cmd;</li>
+<li class="old">   for (cmd = commands; !matchCommand(input, cmd-&gt;pattern); cmd++);</li>
+<li class="old">   return (*cmd-&gt;function)();</li>
+<li class="old">}</li>
+</ol>
+</td>
+</tr></table>
+<p>
+Below is the implementation of these commands.
+</p>
+<table class="code"><tr>
+<th>execute.h</th>
+</tr><tr>
+<td>
+<ol>
+<li class="old">extern bool executeOpen(void);</li>
+<li class="old">extern bool executeClose(void);</li>
+<li class="old">extern bool executeLock(void);</li>
+<li class="old">extern bool executeUnlock(void);</li>
+<li class="old">extern bool executeGet(void);</li>
+<li class="old">extern bool executeDrop(void);</li>
+<li class="old">extern bool executeAsk(void);</li>
+<li class="old">extern bool executeGive(void);</li>
+<li class="old">extern bool executeGetFrom(void);</li>
+<li class="old">extern bool executePutIn(void);</li>
+<li class="old">extern bool executeAskFrom(void);</li>
+<li class="old">extern bool executeGiveTo(void);</li>
+<li class="old">extern bool executeInventory(void);</li>
+<li class="new">extern bool executeTurnOn(void);</li>
+<li class="new">extern bool executeTurnOff(void);</li>
+</ol>
+</td>
+</tr><tr>
+<th>execute.c</th>
+</tr><tr>
+<td>
+<ol>
+<li class="old">#include &lt;stdio.h&gt;</li>
+<li class="old">#include "object.h"</li>
+<li class="old">#include "misc.h"</li>
+<li class="old">#include "match.h"</li>
+<li class="old">#include "noun.h"</li>
+<li class="old">#include "move.h"</li>
+<li class="new">#include "toggle.h"</li>
+<li class="old"></li>
+<li class="old">bool executeOpen(void)</li>
+<li class="old">{</li>
+<li class="old">   OBJECT *obj = reachableObject("what you want to open", params[0]);</li>
+<li class="old">   if (obj != NULL) printf("%s", (*obj-&gt;open)());</li>
+<li class="old">   return true;</li>
+<li class="old">}</li>
+<li class="old"></li>
+<li class="old">bool executeClose(void)</li>
+<li class="old">{</li>
+<li class="old">   OBJECT *obj = reachableObject("what you want to close", params[0]);</li>
+<li class="old">   if (obj != NULL) printf("%s", (*obj-&gt;close)());</li>
+<li class="old">   return true;</li>
+<li class="old">}</li>
+<li class="old"></li>
+<li class="old">bool executeLock(void)</li>
+<li class="old">{</li>
+<li class="old">   OBJECT *obj = reachableObject("what you want to lock", params[0]);</li>
+<li class="old">   if (obj != NULL) printf("%s", (*obj-&gt;lock)());</li>
+<li class="old">   return true;</li>
+<li class="old">}</li>
+<li class="old"></li>
+<li class="old">bool executeUnlock(void)</li>
+<li class="old">{</li>
+<li class="old">   OBJECT *obj = reachableObject("what you want to unlock", params[0]);</li>
+<li class="old">   if (obj != NULL) printf("%s", (*obj-&gt;unlock)());</li>
+<li class="old">   return true;</li>
+<li class="old">}</li>
+<li class="old"></li>
+<li class="old">bool executeGet(void)</li>
+<li class="old">{</li>
+<li class="old">   OBJECT *obj = getVisible("what you want to get", params[0]);</li>
+<li class="old">   switch (getDistance(player, obj))</li>
+<li class="old">   {</li>
+<li class="old">   case distSelf:</li>
+<li class="old">      printf("You should not be doing that to %s.\n", obj-&gt;description);</li>
+<li class="old">      break;</li>
+<li class="old">   case distHeld:</li>
+<li class="old">      printf("You already have %s.\n", obj-&gt;description);</li>
+<li class="old">      break;</li>
+<li class="old">   case distOverthere:</li>
+<li class="old">      printf("Too far away, move closer please.\n");</li>
+<li class="old">      break;</li>
+<li class="old">   case distUnknownObject:</li>
+<li class="old">      // already handled by getVisible</li>
+<li class="old">      break;</li>
+<li class="old">   default:</li>
+<li class="old">      if (obj-&gt;location != NULL &amp;&amp; obj-&gt;location-&gt;health &gt; 0)</li>
+<li class="old">      {</li>
+<li class="old">         printf("You should ask %s nicely.\n", obj-&gt;location-&gt;description);</li>
+<li class="old">      }</li>
+<li class="old">      else</li>
+<li class="old">      {</li>
+<li class="old">         moveObject(obj, player);</li>
+<li class="old">      }</li>
+<li class="old">   }</li>
+<li class="old">   return true;</li>
+<li class="old">}</li>
+<li class="old"></li>
+<li class="old">bool executeDrop(void)</li>
+<li class="old">{</li>
+<li class="old">   moveObject(getPossession(player, "drop", params[0]), player-&gt;location);</li>
+<li class="old">   return true;</li>
+<li class="old">}</li>
+<li class="old"></li>
+<li class="old">bool executeAsk(void)</li>
+<li class="old">{</li>
+<li class="old">   moveObject(getPossession(actorHere(), "ask", params[0]), player);</li>
+<li class="old">   return true;</li>
+<li class="old">}</li>
+<li class="old"></li>
+<li class="old">bool executeGive(void)</li>
+<li class="old">{</li>
+<li class="old">   moveObject(getPossession(player, "give", params[0]), actorHere());</li>
+<li class="old">   return true;</li>
+<li class="old">}</li>
+<li class="old"></li>
+<li class="old">bool executeGetFrom(void)</li>
+<li class="old">{</li>
+<li class="old">   // TODO: getVisible not suitable because it checks dups</li>
+<li class="old">   // TODO: check not actor</li>
+<li class="old">   if (getVisible("what you want to get", params[0]) != NULL)</li>
+<li class="old">   {</li>
+<li class="old">      OBJECT *from = reachableObject("where to get that from", params[1]);</li>
+<li class="old">      moveObject(getPossession(from, "get", params[0]), player);</li>
+<li class="old">   }</li>
+<li class="old">   return true;</li>
+<li class="old">}</li>
+<li class="old"></li>
+<li class="old">bool executePutIn(void)</li>
+<li class="old">{</li>
+<li class="old">   // TODO: check not actor</li>
+<li class="old">   OBJECT *obj = getPossession(player, "put", params[0]);</li>
+<li class="old">   if (obj != NULL)</li>
+<li class="old">   {</li>
+<li class="old">      OBJECT *to = reachableObject("where to put that in", params[1]);</li>
+<li class="old">      moveObject(obj, to);</li>
+<li class="old">   }</li>
+<li class="old">   return true;</li>
+<li class="old">}</li>
+<li class="old"></li>
+<li class="old">bool executeAskFrom(void)</li>
+<li class="old">{</li>
+<li class="old">   // TODO: getVisible not suitable because it checks dups</li>
+<li class="old">   // TODO: check not actor</li>
+<li class="old">   if (getVisible("what you want to get", params[0]) != NULL)</li>
+<li class="old">   {</li>
+<li class="old">      OBJECT *from = reachableObject("where to get that from", params[1]);</li>
+<li class="old">      moveObject(getPossession(from, "get", params[0]), player);</li>
+<li class="old">   }</li>
+<li class="old">   return true;</li>
+<li class="old">}</li>
+<li class="old"></li>
+<li class="old">bool executeGiveTo(void)</li>
+<li class="old">{</li>
+<li class="old">   // TODO: check actor</li>
+<li class="old">   OBJECT *obj = getPossession(player, "put", params[0]);</li>
+<li class="old">   if (obj != NULL)</li>
+<li class="old">   {</li>
+<li class="old">      OBJECT *to = reachableObject("who to give that to", params[1]);</li>
+<li class="old">      moveObject(obj, to);</li>
+<li class="old">   }</li>
+<li class="old">   return true;</li>
+<li class="old">}</li>
+<li class="old"></li>
+<li class="old">bool executeInventory(void)</li>
+<li class="old">{</li>
+<li class="old">   if (listObjectsAtLocation(player) == 0)</li>
+<li class="old">   {</li>
+<li class="old">      printf("You are empty-handed.\n");</li>
+<li class="new">   }</li>
+<li class="new">   return true;</li>
+<li class="new">}</li>
+<li class="new"></li>
+<li class="new">bool executeTurnOn(void)</li>
+<li class="new">{</li>
+<li class="new">   OBJECT *obj = reachableObject("what you want to turn on", params[0]);</li>
+<li class="new">   if (obj != NULL)</li>
+<li class="new">   {</li>
+<li class="new">      printf("%s", obj == lampOff ? toggleLamp() :</li>
+<li class="new">                   obj == lampOn  ? "The lamp is already on.\n" :</li>
+<li class="new">                                    "You cannot turn that on.\n");</li>
+<li class="new">   }</li>
+<li class="new">   return true;</li>
+<li class="new">}</li>
+<li class="new"></li>
+<li class="new">bool executeTurnOff(void)</li>
+<li class="new">{</li>
+<li class="new">   OBJECT *obj = reachableObject("what you want to turn off", params[0]);</li>
+<li class="new">   if (obj != NULL)</li>
+<li class="new">   {</li>
+<li class="new">      printf("%s", obj == lampOn  ? toggleLamp() :</li>
+<li class="new">                   obj == lampOff ? "The lamp is already off.\n" :</li>
+<li class="new">                                    "You cannot turn that off.\n");</li>
+<li class="old">   }</li>
+<li class="old">   return true;</li>
+<li class="old">}</li>
+</ol>
+</td>
+</tr></table>
+<p>
+To turn the lamp on and off,
+we will use the same trick we used to open and close the door and the box
+(see chapter 12).
+</p>
+<table class="code"><tr>
+<th>toggle.h</th>
+</tr><tr>
+<td>
+<ol>
+<li class="old">extern const char *cannotBeOpened(void);</li>
+<li class="old">extern const char *cannotBeClosed(void);</li>
+<li class="old">extern const char *cannotBeLocked(void);</li>
+<li class="old">extern const char *cannotBeUnlocked(void);</li>
+<li class="old"></li>
+<li class="old">extern const char *isAlreadyOpen(void);</li>
+<li class="old">extern const char *isAlreadyClosed(void);</li>
+<li class="old">extern const char *isAlreadyLocked(void);</li>
+<li class="old">extern const char *isAlreadyUnlocked(void);</li>
+<li class="old"></li>
+<li class="old">extern const char *isStillOpen(void);</li>
+<li class="old">extern const char *isStillLocked(void);</li>
+<li class="old"></li>
+<li class="old">extern const char *toggleBackdoor(void);</li>
+<li class="old">extern const char *toggleBox(void);</li>
+<li class="old">extern const char *toggleBoxLock(void);</li>
+<li class="new">extern const char *toggleLamp(void);</li>
+</ol>
+</td>
+</tr><tr>
+<th>toggle.c</th>
+</tr><tr>
+<td>
+<ol>
+<li class="old">#include "object.h"</li>
+<li class="old"></li>
+<li class="old">static void swapLocations(OBJECT *obj1, OBJECT *obj2)</li>
+<li class="old">{</li>
+<li class="old">   OBJECT *tmp = obj1-&gt;location;</li>
+<li class="old">   obj1-&gt;location = obj2-&gt;location;</li>
+<li class="old">   obj2-&gt;location = tmp;</li>
+<li class="old">}</li>
+<li class="old"></li>
+<li class="old">const char *cannotBeOpened(void)    { return "That cannot be opened.\n";    }</li>
+<li class="old">const char *cannotBeClosed(void)    { return "That cannot be closed.\n";    }</li>
+<li class="old">const char *cannotBeLocked(void)    { return "That cannot be locked.\n";    }</li>
+<li class="old">const char *cannotBeUnlocked(void)  { return "That cannot be unlocked.\n";  }</li>
+<li class="old"></li>
+<li class="old">const char *isAlreadyOpen(void)     { return "That is already open.\n";     }</li>
+<li class="old">const char *isAlreadyClosed(void)   { return "That is already closed.\n";   }</li>
+<li class="old">const char *isAlreadyLocked(void)   { return "That is already locked.\n";   }</li>
+<li class="old">const char *isAlreadyUnlocked(void) { return "That is already unlocked.\n"; }</li>
+<li class="old"></li>
+<li class="old">const char *isStillOpen(void)       { return "That is still open.\n";       }</li>
+<li class="old">const char *isStillLocked(void)     { return "That is still locked.\n";     }</li>
+<li class="old"></li>
+<li class="old">const char *toggleBackdoor(void)</li>
+<li class="old">{</li>
+<li class="old">   swapLocations(openDoorToBackroom, closedDoorToBackroom);</li>
+<li class="old">   swapLocations(openDoorToCave, closedDoorToCave);</li>
+<li class="old">   return "OK.\n";</li>
+<li class="old">}</li>
+<li class="old"></li>
+<li class="old">const char *toggleBox(void)</li>
+<li class="old">{</li>
+<li class="old">   swapLocations(openBox, closedBox);</li>
+<li class="old">   return "OK.\n";</li>
+<li class="old">}</li>
+<li class="old"></li>
+<li class="old">const char *toggleBoxLock(void)</li>
+<li class="old">{</li>
+<li class="old">   if (keyForBox-&gt;location == player)</li>
+<li class="old">   {</li>
+<li class="old">      swapLocations(closedBox, lockedBox);</li>
+<li class="old">      return "OK.\n";</li>
+<li class="old">   }</li>
+<li class="old">   else</li>
+<li class="old">   {</li>
+<li class="old">      return "You don't have a key.\n";</li>
+<li class="old">   }</li>
+<li class="old">}</li>
+<li class="new"></li>
+<li class="new">const char *toggleLamp(void)</li>
+<li class="new">{</li>
+<li class="new">   swapLocations(lampOn, lampOff);</li>
+<li class="new">   return "OK.\n";</li>
+<li class="new">}</li>
+</ol>
+</td>
+</tr></table>
+<img class="genmap" src="code15/map.png" />
+<p>
+Finally, we will mark the dark locations in our generated map.
+</p>
+<table class="code"><tr>
+<th>map.awk</th>
+</tr><tr>
+<td>
+<ol>
+<li class="new"><span class="old">BEGIN               { print "digraph map </span>{\n\tnode [style=filled, fillcolor=grey]"; }</li>
+<li class="new">/^- field$/         { print "\t" $2 " [fillcolor=white]";<span class="old"> }</span></li>
+<li class="old">/^- /               { outputEdge(); location = destination = prospect = ""; }</li>
+<li class="old">$1 == "location"    { location = $2; }</li>
+<li class="old">$1 == "destination" { destination = $2; }</li>
+<li class="old">$1 == "prospect"    { prospect = $2; }</li>
+<li class="old">END                 { outputEdge(); print "}"; }</li>
+<li class="old"></li>
+<li class="old">function outputEdge()</li>
+<li class="old">{</li>
+<li class="old">   if (location &amp;&amp; destination) print "\t" location " -&gt; " destination;</li>
+<li class="old">   if (location &amp;&amp; prospect) print "\t" location " -&gt; " prospect " [style=dashed]";</li>
+<li class="old">}</li>
+</ol>
+</td>
+</tr></table>
+<p>
+Do be careful not to turn off the lamp after dropping it;
+in the dark, you will never be able to find it back!
 </p>
 <hr />
 <p>

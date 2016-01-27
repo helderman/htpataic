@@ -42,11 +42,10 @@ extern OBJECT objs[];
 #define closedBox	(objs + 18)
 #define lockedBox	(objs + 19)
 #define keyForBox	(objs + 20)
-#define daylight	(objs + 21)
-#define lampOff	(objs + 22)
-#define lampOn	(objs + 23)
+#define lampOff	(objs + 21)
+#define lampOn	(objs + 22)
 
-#define endOfObjs	(objs + 24)
+#define endOfObjs	(objs + 23)
 
 #define validObject(obj)	((obj) != NULL && (*(obj)->condition)())
 

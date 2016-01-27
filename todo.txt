@@ -1,12 +1,33 @@
-ch6: misc.c: getPassageTo parameterize player->location
-ch7: misc.c: distanceTo parameterize player->location
-ch7: misc.h: distPlayer --> distSelf
-ch7: move.c: investigate whether we can simplify that
+- ch13/14: too much repetition of explanation about order of patterns?
+- ch14+15 multi-noun; see below (originally move.txt) for ideas
 
-code07/move.c - case distHereContained:
-'get gold' should work because box's health == 0
+	go/look A	- any A visible to player
+	open/close A	- any A visible to player
+	light A		- any A visible to player
+	get A		- any A visible to player
+	get A from B	- A must be in B
+	ask A		- (special) any A visible to (or in?) actorHere
+	ask A from B	- (special) any A visible to (or in?) B
+	drop A		- A must be in player
+	put A in B	- A must be in player
+	give A		- A must be in player
+	give A to B	- A must be in player
 
-ch13: objectWithinReach heeft extra param; unused; under construction?
+- order of objects
+- ch15: "light lamp"
+- ch15: attribute 'light'?
+- ch15: you see no south
+
+- object.awk: default for tags should be "\" \""
+- ch12: reachableObject hoort thuis in noun.c, maar die gaat dan >100 lines...
+
+- ch3: use pointers instead of i, and introduce noun.c already
+- ch4: calculate endOfObjs
+
+- command 'ask': make a separate function isNiceActor
+
+- ch8: also up, down, north-east...
+- ch9: compass directions in the generated map
 
 new chapter 14: multiple arguments
 because there is more to it than just the parser:
@@ -21,8 +42,6 @@ change argument for introducing 2-param commands: put gold in box
 sort object.txt
 
 copyright/copyleft
-
-ch8: leg uit dat het nog niet perfect is (geen objDup)
 
 ch15: listObjectsAtLocation: make visible light exit in dark location
 ch15: cannot see cave exit; can "go <location>" between dark locations

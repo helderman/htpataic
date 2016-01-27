@@ -2,6 +2,7 @@
 # Typically, you should do 'make code' followed by 'make html'.
 # I haven't found a way to combine this into a single make
 # without forcing a rebuild of all .html files.
+# Besides, it would be annoying to have an error in code block documentation.
 .PHONY: html code code??
 
 # 'make html' will make every htpataic??.html

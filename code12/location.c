@@ -2,7 +2,7 @@
 #include <string.h>
 #include "object.h"
 #include "misc.h"
-#include "match.h"
+#include "noun.h"
 
 void executeLook(const char *noun)
 {
@@ -13,26 +13,22 @@ void executeLook(const char *noun)
    }
    else
    {
-      OBJECT *obj = matchingObject(noun);
-      DISTANCE distance = distanceTo(obj);
-      if (distance >= distUnknownObject)
+      OBJECT *obj = getVisible("what you want to look at", noun);
+      switch (getDistance(player, obj))
       {
-         printf("I don't understand what you want to see.\n");
-      }
-      else if (distance == distNotHere)
-      {
-         printf("You don't see any %s here.\n", noun);
-      }
-      else if (distance == distOverthere)
-      {
-         printf("Too far away, move closer please.\n");
-      }
-      else if (distance == distHereContained)
-      {
+      case distHereContained:
          printf("Hard to see, try to get it first.\n");
-      }
-      else
-      {
+         break;
+      case distOverthere:
+         printf("Too far away, move closer please.\n");
+         break;
+      case distNotHere:
+         printf("You don't see any %s here.\n", noun);
+         break;
+      case distUnknownObject:
+         // already handled by getVisible
+         break;
+      default:
          printf("%s", obj->details);
          listObjectsAtLocation(obj);
       }
@@ -52,26 +48,19 @@ static void movePlayer(OBJECT *passage)
 
 void executeGo(const char *noun)
 {
-   OBJECT *obj = matchingObject(noun);
-   DISTANCE distance = distanceTo(obj);
-   if (distance >= distUnknownObject)
+   OBJECT *obj = getVisible("where you want to go", noun);
+   switch (getDistance(player, obj))
    {
-      printf("I don't understand where you want to go.\n");
-   }
-   else if (distance == distOverthere)
-   {
-      movePlayer(getPassageTo(obj));
-   }
-   else if (distance == distHere)
-   {
-      movePlayer(obj);
-   }
-   else if (distance < distNotHere)
-   {
-      printf("You can't get much closer than this.\n");
-   }
-   else
-   {
+   case distOverthere:
+      movePlayer(getPassage(player->location, obj));
+      break;
+   case distNotHere:
       printf("You don't see any %s here.\n", noun);
+      break;
+   case distUnknownObject:
+      // already handled by getVisible
+      break;
+   default:
+      movePlayer(obj);
    }
 }

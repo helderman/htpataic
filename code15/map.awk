@@ -1,6 +1,7 @@
 BEGIN               { print "digraph map {\n\tnode [style=filled, fillcolor=grey]"; }
-/^- /               { obj = $2; outputEdge(); location = destination = prospect = ""; }
-$1 == "location"    { if ((location = $2) == "daylight") print "\t" obj " [fillcolor=white]"; }
+/^- field$/         { print "\t" $2 " [fillcolor=white]"; }
+/^- /               { outputEdge(); location = destination = prospect = ""; }
+$1 == "location"    { location = $2; }
 $1 == "destination" { destination = $2; }
 $1 == "prospect"    { prospect = $2; }
 END                 { outputEdge(); print "}"; }

@@ -1,4 +1,4 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<!DOCTYPE html>
 <html>
 <head>
 <title>10. More attributes</title>
@@ -25,7 +25,7 @@ Here are a few examples.
 <ol type="1">
 <li>The command <i>look around</i>
 gives a global description of the player&rsquo;s location,
-including a list of items, persons and other objects present there.
+including a list of items, actors and other objects present there.
 Many adventures require the player to examine these objects,
 either to reveal certain clues that are needed to make progress in the game,
 or simply to enhance the game&rsquo;s atmosphere.
@@ -66,18 +66,18 @@ so we will have <i>object.awk</i> generate an appropriate default;
 <i>prospect</i> only needs to be specified in <i>object.txt</i>
 when it differs from <i>destination</i>.
 </li>
-<li>In many adventures, the player, as well as other persons in the game,
+<li>In many adventures, the player, as well as other actors in the game,
 are limited in how much they can carry.
 Give each item a <b>weight</b>;
-the combined weight of all items in a person&rsquo;s inventory
-should not exceed that person&rsquo;s <b>capacity</b>.
+the combined weight of all items in an actor&rsquo;s inventory
+should not exceed that actor&rsquo;s <b>capacity</b>.
 Give an object a very high weight to make it immovable
 (a tree, a house, a mountain).
 </li>
 <li><a href="http://en.wikipedia.org/wiki/Role-playing_video_game">RPG</a>-style
-adventure games will need a whole range of attributes for persons
+adventure games will need a whole range of attributes for actors
 (both player and non-player), for example <b>health</b>.
-Objects with zero health are either dead, or they are not a person at all.
+Objects with zero health are either dead, or they are not an actor at all.
 </li>
 </ol>
 <p>
@@ -98,28 +98,28 @@ Explanation:
 <li>Lines 9-15:
 the seven new attributes.
 </li>
-<li>Lines 35 and 42:
+<li>Lines 37 and 44:
 the silver and gold coin have the same weight;
 in case you find this unrealistic,
 feel free to apply a more accurate unit of weight for your objects.
 </li>
-<li>Lines 50-51 and 59-60:
+<li>Lines 52-53 and 61-62:
 both the player and the non-player characters
 are alive (they have <i>health</i>),
 and they have a limited ability to carry objects
 (here: the equivalent of 20 coins).
 </li>
-<li>Line 66:
+<li>Line 68:
 I am using the cave entrance
 to demonstrate the effect of attribute <i>prospect</i>.
 Normally, <i>prospect</i> takes on the value of <i>destination</i>
-(see <i>object.awk</i> below, specifically line 70).
+(see <i>object.awk</i> below, specifically line 62).
 By specifying <i>prospect</i> instead of <i>destination</i>
 (consequently leaving the latter <i>NULL</i>),
 we effectively &lsquo;block&rsquo; the cave entrance
 without making it disappear.
 </li>
-<li>Lines 83 and 90:
+<li>Lines 85 and 92:
 <i>textGo</i> is useful not only for passages,
 but for non-passage objects as well
 (in this case the two &lsquo;walls&rsquo; we introduced in chapter 8).
@@ -159,6 +159,7 @@ in our implementation of command <i>go</i>.
 <p>
 Attributes <b>weight</b> and <b>capacity</b> together become
 a possible reason for not being able to move certain objects around.
+And a <b>health</b> check replaces the hard-coded whitelist of actors.
 </p>
 <table class="code"><tr>
 <th>move.c</th>
@@ -175,9 +176,7 @@ we also make modifications to some of the existing functions,
 to support the last few attributes.
 </p>
 <p>
-Attribute <b>health</b> will be used
-to tell persons apart from &lsquo;dead&rsquo; objects.
-And <b>contents</b> replaces the fixed text <i>&ldquo;You see&rdquo;</i>.
+Attribute <b>contents</b> replaces the fixed text <i>&ldquo;You see&rdquo;</i>.
 The original text was already a bit odd
 when listing the player&rsquo;s inventory,
 but now that function <i>listObjectsAtLocation</i> is used to display
@@ -186,7 +185,7 @@ we really need something more flexible.
 </p>
 <p>
 By replacing attribute <i>destination</i> by <b>prospect</b>
-in function <i>getPassageTo</i>,
+in function <i>getPassage</i>,
 we are improving responses to <i>all</i> commands
 (not just <i>go</i> and <i>look</i>)
 applied to a location that is seen lying on the other end of
@@ -234,8 +233,8 @@ you either have to go for evasive answers
 (<i>&ldquo;You see nothing special&rdquo;</i> &ndash;
 quite disappointing, really),
 or add an &lsquo;ornamental&rsquo; <i>eagle</i> object.
-You can use the <i>location</i> attribute to attach the eagle to the coin;
-this ensures the eagle will follow wherever the coin goes.
+You can use the <i>location</i> attribute to attach the eagle to the coin,
+so that the eagle will follow wherever the coin goes.
 </li>
 <li>Try not to worry too much about the memory space
 wasted on attributes that are only used in certain types of objects

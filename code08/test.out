@@ -6,6 +6,9 @@ a burly guard
 a cave entrance to the east
 dense forest all around
 
+--> get coin
+You pick up a silver coin.
+
 --> go west
 You can't get much closer than this.
 
@@ -21,7 +24,6 @@ solid rock all around
 OK.
 You are in an open field.
 You see:
-a silver coin
 a burly guard
 a cave entrance to the east
 dense forest all around
@@ -34,8 +36,14 @@ a gold coin
 a way out to the west
 solid rock all around
 
+--> drop coin
+You drop a silver coin.
+
+--> get coin
+Please be specific about which coin you mean.
+
 --> get gold coin
-OK.
+You pick up a gold coin.
 
 --> quit
 

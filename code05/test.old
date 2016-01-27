@@ -5,7 +5,7 @@ a silver coin
 a burly guard
 
 --> get silver
-OK.
+You pick up a silver coin.
 
 --> inventory
 You see:
@@ -17,13 +17,13 @@ You see:
 a burly guard
 
 --> give silver
-OK.
+You give a silver coin to a burly guard.
 
 --> inventory
 You are empty-handed.
 
 --> ask silver
-OK.
+You get a silver coin from a burly guard.
 
 --> inventory
 You see:
@@ -39,7 +39,7 @@ a gold coin
 There is nobody here to give that to.
 
 --> drop silver
-OK.
+You drop a silver coin.
 
 --> look around
 You are in a little cave.

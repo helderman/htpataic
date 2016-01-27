@@ -1,2 +1,2 @@
-extern bool moveObject(PARAM *par, OBJECT *from, OBJECT *to);
-extern bool objectWithinReach(const char *verb, PARAM *par);
+extern OBJECT *reachableObject(const char *intention, const char *noun);
+extern void moveObject(OBJECT *obj, OBJECT *to);

@@ -24,9 +24,8 @@ static const char *tags17[] = { "box", "wooden box", NULL};
 static const char *tags18[] = { "box", "wooden box", NULL};
 static const char *tags19[] = { "box", "wooden box", NULL};
 static const char *tags20[] = { "key", "tiny key", NULL};
-static const char *tags21[] = { "", NULL};
+static const char *tags21[] = { "lamp", NULL};
 static const char *tags22[] = { "lamp", NULL};
-static const char *tags23[] = { "lamp", NULL};
 
 static bool alwaysTrue(void) { return true; }
 
@@ -35,7 +34,7 @@ OBJECT objs[] = {
 		alwaysTrue,
 		 "an open field",
 		tags0,
-		 daylight,
+		NULL,
 		NULL,
 		NULL,
 		 "The field is a nice and quiet place under a clear blue sky.\n",
@@ -240,7 +239,7 @@ OBJECT objs[] = {
 		"You see",
 		"You can't get much closer than this.\n",
 		99,
-		0,
+		 9999,
 		0,
 		cannotBeOpened,
 		cannotBeClosed,
@@ -274,7 +273,7 @@ OBJECT objs[] = {
 		 backroom,
 		 "The door is open.\n",
 		"You see",
-		 "You walk through the door into the backroom.\n",
+		 "You walk through the door into a backroom.\n",
 		99,
 		0,
 		0,
@@ -409,28 +408,10 @@ OBJECT objs[] = {
 		cannotBeLocked,
 		cannotBeUnlocked
 	},
-	{	/* 21 = daylight */
-		alwaysTrue,
-		NULL,
-		tags21,
-		NULL,
-		NULL,
-		NULL,
-		"You see nothing special.\n",
-		"You see",
-		"You can't get much closer than this.\n",
-		99,
-		0,
-		0,
-		cannotBeOpened,
-		cannotBeClosed,
-		cannotBeLocked,
-		cannotBeUnlocked
-	},
-	{	/* 22 = lampOff */
+	{	/* 21 = lampOff */
 		alwaysTrue,
 		 "a lamp",
-		tags22,
+		tags21,
 		 field,
 		NULL,
 		NULL,
@@ -445,10 +426,10 @@ OBJECT objs[] = {
 		cannotBeLocked,
 		cannotBeUnlocked
 	},
-	{	/* 23 = lampOn */
+	{	/* 22 = lampOn */
 		alwaysTrue,
 		 "a lamp",
-		tags23,
+		tags22,
 		NULL,
 		NULL,
 		NULL,

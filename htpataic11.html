@@ -1,4 +1,4 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<!DOCTYPE html>
 <html>
 <head>
 <title>11. Conditions</title>
@@ -20,7 +20,7 @@
 <div><b>11. Conditions</b></div>
 <div><a href="htpataic12.html">12. Open and close</a></div>
 <div><a href="htpataic13.html">13. The parser</a></div>
-<div><a href="htpataic14.html">14. Multiple arguments</a></div>
+<div><a href="htpataic14.html">14. Multiple nouns</a></div>
 <div><a href="htpataic15.html">15. Light and dark</a></div>
 <div><a href="htpataic16.html">16. Savegame</a></div>
 <div><a href="htpataic17.html">17. Test automation</a></div>
@@ -145,10 +145,10 @@ dense forest all around<br />
 The guard stops you from walking into the cave.<br />
 <br />
 --&gt; get coin<br />
-OK.<br />
+You pick up a silver coin.<br />
 <br />
 --&gt; give coin<br />
-OK.<br />
+You give a silver coin to a burly guard.<br />
 <br />
 --&gt; go entrance<br />
 You walk into the cave.<br />
@@ -452,7 +452,7 @@ as explained earlier.
 </td>
 </tr></table>
 <p>
-To make the conditions work, we need to adjust function <i>distanceTo</i>,
+To make the conditions work, we need to adjust function <i>getDistance</i>,
 plus every loop that scans through objects.
 </p>
 <table class="code"><tr>
@@ -464,13 +464,12 @@ plus every loop that scans through objects.
 <li class="old">#include "object.h"</li>
 <li class="old">#include "misc.h"</li>
 <li class="old"></li>
-<li class="old">OBJECT *getPassageTo(OBJECT *targetLocation)</li>
+<li class="old">OBJECT *getPassage(OBJECT *from, OBJECT *to)</li>
 <li class="old">{</li>
 <li class="old">   OBJECT *obj;</li>
 <li class="new"><span class="old">   </span>forEachObject(obj)</li>
 <li class="old">   {</li>
-<li class="old">      if (obj-&gt;location == player-&gt;location &amp;&amp;</li>
-<li class="old">          obj-&gt;prospect == targetLocation)</li>
+<li class="old">      if (obj-&gt;location == from &amp;&amp; obj-&gt;prospect == to)</li>
 <li class="old">      {</li>
 <li class="old">         return obj;</li>
 <li class="old">      }</li>
@@ -478,18 +477,18 @@ plus every loop that scans through objects.
 <li class="old">   return NULL;</li>
 <li class="old">}</li>
 <li class="old"></li>
-<li class="old">DISTANCE distanceTo(OBJECT *obj)</li>
+<li class="old">DISTANCE getDistance(OBJECT *from, OBJECT *to)</li>
 <li class="old">{</li>
-<li class="new"><span class="old">   return </span>!validObject(obj)<span class="old">                           ? distUnknownObject :</span></li>
-<li class="old">          obj == player                               ? distPlayer :</li>
-<li class="old">          obj-&gt;location == player                     ? distHeld :</li>
-<li class="old">          obj == player-&gt;location                     ? distLocation :</li>
-<li class="old">          obj-&gt;location == player-&gt;location           ? distHere :</li>
-<li class="old">          getPassageTo(obj) != NULL                   ? distOverthere :</li>
-<li class="new"><span class="old">          </span>!validObject(obj-&gt;location)<span class="old">                 ? distNotHere :</span></li>
-<li class="old">          obj-&gt;location-&gt;location == player           ? distHeldContained :</li>
-<li class="old">          obj-&gt;location-&gt;location == player-&gt;location ? distHereContained :</li>
-<li class="old">                                                        distNotHere;</li>
+<li class="new"><span class="old">   return </span>!validObject(to)<span class="old">                         ? distUnknownObject :</span></li>
+<li class="old">          to == from                               ? distSelf :</li>
+<li class="old">          to-&gt;location == from                     ? distHeld :</li>
+<li class="old">          to == from-&gt;location                     ? distLocation :</li>
+<li class="old">          to-&gt;location == from-&gt;location           ? distHere :</li>
+<li class="old">          getPassage(from-&gt;location, to) != NULL   ? distOverthere :</li>
+<li class="new"><span class="old">          </span>!validObject(to-&gt;location)<span class="old">               ? distNotHere :</span></li>
+<li class="old">          to-&gt;location-&gt;location == from           ? distHeldContained :</li>
+<li class="old">          to-&gt;location-&gt;location == from-&gt;location ? distHereContained :</li>
+<li class="old">                                                     distNotHere;</li>
 <li class="old">}</li>
 <li class="old"></li>
 <li class="old">OBJECT *actorHere(void)</li>
@@ -497,7 +496,7 @@ plus every loop that scans through objects.
 <li class="old">   OBJECT *obj;</li>
 <li class="new"><span class="old">   </span>forEachObject(obj)</li>
 <li class="old">   {</li>
-<li class="old">      if (distanceTo(obj) == distHere &amp;&amp; obj-&gt;health &gt; 0)</li>
+<li class="old">      if (getDistance(player, obj) == distHere &amp;&amp; obj-&gt;health &gt; 0)</li>
 <li class="old">      {</li>
 <li class="old">         return obj;</li>
 <li class="old">      }</li>
@@ -537,38 +536,104 @@ plus every loop that scans through objects.
 </td>
 </tr></table>
 <p>
-There is one more object loop to be fixed, in <i>match.c</i>:
+There is one more object loop to be fixed, in <i>noun.c</i>:
 </p>
 <table class="code"><tr>
-<th>match.c</th>
+<th>noun.c</th>
 </tr><tr>
 <td>
 <ol>
+<li class="old">#include &lt;stdbool.h&gt;</li>
+<li class="old">#include &lt;stdio.h&gt;</li>
 <li class="old">#include &lt;string.h&gt;</li>
 <li class="old">#include "object.h"</li>
 <li class="old">#include "misc.h"</li>
 <li class="old"></li>
-<li class="old">static bool nounIsInTags(const char *noun, const char **tags)</li>
+<li class="old">static bool objectHasTag(OBJECT *obj, const char *noun)</li>
 <li class="old">{</li>
-<li class="old">   while (*tags != NULL)</li>
+<li class="old">   if (noun != NULL &amp;&amp; *noun != '\0')</li>
 <li class="old">   {</li>
-<li class="old">      if (strcmp(noun, *tags++) == 0) return true;</li>
+<li class="old">      const char **tag;</li>
+<li class="old">      for (tag = obj-&gt;tags; *tag != NULL; tag++)</li>
+<li class="old">      {</li>
+<li class="old">         if (strcmp(*tag, noun) == 0) return true;</li>
+<li class="old">      }</li>
 <li class="old">   }</li>
 <li class="old">   return false;</li>
 <li class="old">}</li>
 <li class="old"></li>
-<li class="old">OBJECT *matchingObject(const char *noun)</li>
+<li class="old">static OBJECT ambiguousNoun;</li>
+<li class="old"></li>
+<li class="old">static OBJECT *getObject(const char *noun, OBJECT *from, DISTANCE maxDistance)</li>
 <li class="old">{</li>
-<li class="old">   OBJECT *obj, *found = NULL;</li>
+<li class="old">   OBJECT *obj, *res = NULL;</li>
 <li class="new"><span class="old">   </span>forEachObject(obj)</li>
 <li class="old">   {</li>
-<li class="old">      if (noun != NULL &amp;&amp; nounIsInTags(noun, obj-&gt;tags) &amp;&amp;</li>
-<li class="old">          distanceTo(obj) &lt; distanceTo(found))</li>
+<li class="old">      if (objectHasTag(obj, noun) &amp;&amp; getDistance(from, obj) &lt;= maxDistance)</li>
 <li class="old">      {</li>
-<li class="old">         found = obj;</li>
+<li class="old">         res = res == NULL ? obj : &amp;ambiguousNoun;</li>
 <li class="old">      }</li>
 <li class="old">   }</li>
-<li class="old">   return found;</li>
+<li class="old">   return res;</li>
+<li class="old">}</li>
+<li class="old"></li>
+<li class="old">OBJECT *getVisible(const char *intention, const char *noun)</li>
+<li class="old">{</li>
+<li class="old">   OBJECT *obj = getObject(noun, player, distOverthere);</li>
+<li class="old">   if (obj == NULL)</li>
+<li class="old">   {</li>
+<li class="old">      if (getObject(noun, player, distNotHere) == NULL)</li>
+<li class="old">      {</li>
+<li class="old">         printf("I don't understand %s.\n", intention);</li>
+<li class="old">      }</li>
+<li class="old">      else</li>
+<li class="old">      {</li>
+<li class="old">         printf("You don't see any %s here.\n", noun);</li>
+<li class="old">      }</li>
+<li class="old">   }</li>
+<li class="old">   else if (obj == &amp;ambiguousNoun)</li>
+<li class="old">   {</li>
+<li class="old">      printf("Please be specific about which %s you mean.\n", noun);</li>
+<li class="old">      obj = NULL;</li>
+<li class="old">   }</li>
+<li class="old">   return obj;</li>
+<li class="old">}</li>
+<li class="old"></li>
+<li class="old">OBJECT *getPossession(OBJECT *from, const char *verb, const char *noun)</li>
+<li class="old">{</li>
+<li class="old">   OBJECT *obj = NULL;</li>
+<li class="old">   if (from == NULL)</li>
+<li class="old">   {</li>
+<li class="old">      printf("I don't understand who you want to %s.\n", verb);</li>
+<li class="old">   }</li>
+<li class="old">   else if ((obj = getObject(noun, from, distHeldContained)) == NULL)</li>
+<li class="old">   {</li>
+<li class="old">      if (getObject(noun, player, distNotHere) == NULL)</li>
+<li class="old">      {</li>
+<li class="old">         printf("I don't understand what you want to %s.\n", verb);</li>
+<li class="old">      }</li>
+<li class="old">      else if (from == player)</li>
+<li class="old">      {</li>
+<li class="old">         printf("You are not holding any %s.\n", noun);</li>
+<li class="old">      }</li>
+<li class="old">      else</li>
+<li class="old">      {</li>
+<li class="old">         printf("There appears to be no %s you can get from %s.\n",</li>
+<li class="old">                noun, from-&gt;description);</li>
+<li class="old">      }</li>
+<li class="old">   }</li>
+<li class="old">   else if (obj == &amp;ambiguousNoun)</li>
+<li class="old">   {</li>
+<li class="old">      printf("Please be specific about which %s you want to %s.\n",</li>
+<li class="old">             noun, verb);</li>
+<li class="old">      obj = NULL;</li>
+<li class="old">   }</li>
+<li class="old">   else if (obj == from)</li>
+<li class="old">   {</li>
+<li class="old">      printf("You should not be doing that to %s.\n", obj-&gt;description);</li>
+<li class="old">      obj = NULL;</li>
+<li class="old">   }</li>
+<li class="old">   return obj;</li>
 <li class="old">}</li>
 </ol>
 </td>
@@ -581,7 +646,7 @@ Notes:
 So you might say
 the &lsquo;health check&rsquo; in our condition functions is quite useless.
 Of course, this is easily fixed by adding a <i>kill</i> command;
-see chapter 18.
+see chapter 20.
 </li>
 <li>The two condition functions are complementary; they qualify as
 <a href="http://en.wikipedia.org/wiki/Duplicate_code">duplicate code</a>.

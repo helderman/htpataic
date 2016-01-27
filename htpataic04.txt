@@ -1,4 +1,4 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<!DOCTYPE html>
 <html>
 <head>
 <title>4. Objects</title>
@@ -273,20 +273,20 @@ Which is a shame, since that particular compiler might otherwise be used
 to port our 1980s-style game to a 1980s-style computer.
 </p>
 <p>
-For most commands (<i>go</i>, to begin with), the following function
-will help us find the object that matches the noun specified.
+For most commands (<i>go</i>, to begin with), the following module
+is going to help us find the object that matches the noun specified.
 </p>
 <table class="code"><tr>
-<th>match.h</th>
+<th>noun.h</th>
 </tr><tr>
 <td>
-#diff 4 match.h
+#diff 4 noun.h
 </td>
 </tr><tr>
-<th>match.c</th>
+<th>noun.c</th>
 </tr><tr>
 <td>
-#diff 4 match.c
+#diff 4 noun.c
 </td>
 </tr></table>
 <div class="explanation">
@@ -294,12 +294,47 @@ will help us find the object that matches the noun specified.
 Explanation:
 </p>
 <ul>
-<li>Line 4-15:
-function <i>matchingObject</i> returns
-a pointer to the object with the tag that matches the given <i>noun</i>.
+<li>Line 11-22:
+function <i>getObject</i> determines the object that belongs to a given noun.
+It returns a pointer to the object with the tag that matches that particular
+noun (i.e. for which function <i>objectHasTag</i> returns true).
 If no matching tag can be found,
 <a href="http://en.wikipedia.org/wiki/Null_pointer#Null_pointer">NULL</a>
 is returned.
+</li>
+<li>Line 24-43:
+function <i>getVisible</i> is a convenient wrapper around <i>getObject</i>.
+It will output a generic message if no object matches the given noun,
+or if the matching object is not visible from where the player is standing.
+In either case,
+<a href="http://en.wikipedia.org/wiki/Null_pointer#Null_pointer">NULL</a>
+is returned to inform the caller that no further action needs to be taken.
+</li>
+<li>Line 31-37:
+the condition that determines whether a specific object is visible
+from the player's point of view, consists of 7 rules.
+<ul>
+<li>Line 31: the player himself. Yes, that is a visible object too.</li>
+<li>Line 32: the player&rsquo;s current location.</li>
+<li>Line 33: objects the player is holding.</li>
+<li>Line 34: objects present at the player&rsquo;s current location.</li>
+<li>Line 35: any location the player can go to.
+Still pretty crude; will be refined in chapter 6.</li>
+<li>Line 36: objects inside another object held by player.</li>
+<li>Line 37: objects inside another object present at current location.</li>
+</ul>
+</li>
+<li>Line 39:
+I deliberately output <i>noun</i> here, not <i>obj-&gt;description</i>;
+the latter would give away too much of the game.
+For example,
+the player might make a lucky guess and type &ldquo;get gold&rdquo;
+without ever having visited the cave (where the gold coin is located).
+Replying with &ldquo;You don&rsquo;t see <b>a gold coin</b> here&rdquo;
+is like failing to hide the wires suspending the spaceships in a
+<a href="http://en.wikipedia.org/wiki/Science_fiction_film">sci-fi movie</a>.
+Instead, we just echo the noun entered by the player:
+&ldquo;You don&rsquo;t see any <b>gold</b> here.&rdquo;
 </li>
 </ul>
 </div>
@@ -327,15 +362,15 @@ and in the next chapter we will introduce another command that needs it.
 Explanation:
 </p>
 <ul>
-<li>Line 11:
+<li>Line 10:
 object <i>player</i> is excluded from the list;
 I don&rsquo;t think the player needs to hear he is present at his own location.
 </li>
-<li>Line 13-16:
+<li>Line 12-15:
 the list starts with a line &ldquo;You see:&rdquo;,
 but this is not printed until we know for sure at least one object is found.
 </li>
-<li>Line 20:
+<li>Line 19:
 the function returns the number of objects in the list.
 In this chapter we will not do anything with that return value,
 but in the next we will.
@@ -372,7 +407,7 @@ use function <i>listObjectsAtLocation</i> (from <i>misc.c</i>)
 to show a list of items and actors present at the current location.
 </li>
 <li>Line 22:
-by using function <i>matchingObject</i> (from <i>match.c</i>),
+by using function <i>getVisible</i> (from <i>noun.c</i>),
 we have eliminated the loop from function <i>executeGo</i>,
 making the code more readable.
 </li>
@@ -389,12 +424,10 @@ Do not forget to increase <i>endOfObjs</i> in <i>object.h</i> accordingly,
 or the additional objects will be ignored.
 </p>
 <p>
-Compared to the previous chapter,
-our freedom of movement has only gotten worse.
-It has now become possible to &lsquo;go&rsquo; to every object you like
-&ndash; even yourself!
-This will be fixed in chapter 6.
-But first, we will add some more commands.
+It is nice to have some items to enrich our virtual environment,
+but right now, there is not much we can do with them.
+Silver and gold is scattered across the floor, but we cannot even pick it up!
+Let&rsquo;s fix that in the next chapter.
 </p>
 <hr />
 <p>

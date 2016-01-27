@@ -1,1 +1,1 @@
-extern void moveObject(const char *noun, OBJECT *from, OBJECT *to);
+extern void moveObject(OBJECT *obj, OBJECT *to);

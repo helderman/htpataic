@@ -1,26 +1,47 @@
 #include <stdio.h>
 #include "object.h"
 #include "misc.h"
+#include "noun.h"
 #include "move.h"
 
 void executeGet(const char *noun)
 {
-   moveObject(noun, player->location, player);
+   OBJECT *obj = getVisible("what you want to get", noun);
+   if (obj == NULL)
+   {
+      // already handled by getVisible
+   }
+   else if (obj == player)
+   {
+      printf("You should not be doing that to %s.\n", obj->description);
+   }
+   else if (obj->location == player)
+   {
+      printf("You already have %s.\n", obj->description);
+   }
+   else if (obj->location == guard)
+   {
+      printf("You should ask %s nicely.\n", obj->location->description);
+   }
+   else
+   {
+      moveObject(obj, player);
+   }
 }
 
 void executeDrop(const char *noun)
 {
-   moveObject(noun, player, player->location);
+   moveObject(getPossession(player, "drop", noun), player->location);
 }
 
 void executeAsk(const char *noun)
 {
-   moveObject(noun, actorHere(), player);
+   moveObject(getPossession(actorHere(), "ask", noun), player);
 }
 
 void executeGive(const char *noun)
 {
-   moveObject(noun, player, actorHere());
+   moveObject(getPossession(player, "give", noun), actorHere());
 }
 
 void executeInventory(void)
