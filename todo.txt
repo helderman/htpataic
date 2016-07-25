@@ -1,3 +1,9 @@
+- ch17: more about gcov
+- ch17: emphasize that 100% code coverage does not imply data coverage
+- include makefile; see also ch17 test automation
+- ch17: expect is a good alternative
+- Q+A in stackoverflow: http://www.linuxquestions.org/questions/programming-9/running-gcov-when-executable-has-command-line-input-options-866269/
+
 - ch13/14: too much repetition of explanation about order of patterns?
 - ch14+15 multi-noun; see below (originally move.txt) for ideas
 
@@ -17,6 +23,7 @@
 - ch15: "light lamp"
 - ch15: attribute 'light'?
 - ch15: you see no south
+- ch15: also an example of a light switch
 
 - object.awk: default for tags should be "\" \""
 - ch12: reachableObject hoort thuis in noun.c, maar die gaat dan >100 lines...

@@ -1,0 +1,63 @@
+Welcome to Little Cave Adventure.
+You are in an open field.
+You see:
+a silver coin
+a burly guard
+a cave entrance to the east
+dense forest all around
+a lamp
+
+--> get lamp
+You pick up a lamp.
+
+--> get coin
+You pick up a silver coin.
+
+--> give coin
+You give a silver coin to a burly guard.
+
+--> go cave
+You walk into the cave.
+
+It is very dark in here.
+You see:
+a way out to the west
+
+--> get key
+You don't see any key here.
+
+--> open door
+You don't see any door here.
+
+--> go south
+You don't see any south here.
+
+--> turn lamp on
+OK.
+
+--> look around
+You are in a little cave.
+You see:
+a way out to the west
+solid rock all around
+a closed door to the south
+a tiny key
+
+--> get key
+You pick up a tiny key.
+
+--> open door
+OK.
+
+--> go south
+You walk through the door into a backroom.
+
+You are in a backroom.
+You see:
+solid rock all around
+an open door to the north
+a wooden box
+
+--> quit
+
+Bye!

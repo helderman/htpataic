@@ -66,12 +66,90 @@ But with today&rsquo;s hardware,
 this can hardly be considered a problem anymore.
 </p>
 <p>
-TODO: source code (main.c)
-</p>
-<p>
 Please note that this approach is not suitable for online multi-player games.
 For that, it is better to use a database.
 This will be discussed in chapter 21.
+</p>
+<table class="code"><tr>
+<th>main.c</th>
+</tr><tr>
+<td>
+#diff 16 main.c
+</td>
+</tr></table>
+<div class="explanation">
+<p>
+Explanation:
+</p>
+<ul>
+<li>Line 9:
+the static variable <i>fp</i> represents the source of input;
+it is either <i>stdin</i> (the program takes commands from the keyboard)
+or a file containing the list of commands entered in earlier sessions.
+</li>
+<li>Line 11-15:
+the first time <i>getInput</i> is called (<i>fp</i> is still NULL),
+<i>fp</i> will be set,
+either to a file or (if no filename was specified) to <i>stdin</i>.
+In case of a file, it will be opened now for reading.
+</li>
+<li>Line 16-24:
+when reading input from <i>stdin</i>,
+each new command entered by the user will be logged
+(if a filename was specified).
+Notes:
+<ul>
+<li>&lsquo;Old&rsquo; commands read from file
+do not need to be written to file again.
+</li>
+<li>The command logged here is the one entered by the user
+during the <i>previous</i> call to <i>getInput</i>.
+We deliberately do this
+so we will not log commands that cause the program to terminate
+(both &lsquo;quit&rsquo; and any commands that trigger a crash).
+</li>
+<li>The &lsquo;else&rsquo; at the start of line 16
+causes logging to be skipped during the first call of <i>getInput</i>.
+This prevents the initial &lsquo;look around&rsquo; (line 5)
+from being logged.
+</li>
+<li>We are writing to
+the same file that was opened earlier to read input from (line 13).
+But writing never starts until
+after the file was closed after having been read completely (line 35).
+So we need to open it again; this time for &lsquo;appending&rsquo;
+(i.e. writing at the end of the file).
+</li>
+<li>The file is closed each time we have written a command;
+no need to keep it open while the user is thinking about his next move.
+If you insist on keeping it open
+(to prevent other processes from messing with the file),
+then I suggest you flush after each command written.
+</li>
+</ul>
+</li>
+<li>Line 26:
+here we try to read a command, either from file or from keyboard.
+</li>
+<li>Line 29-32:
+after sucessfully reading a command from file,
+we echo the command to screen.
+That way, the user will get to see the full dialog of earlier sessions.
+</li>
+<li>Line 33-37:
+once the input file reaches EOF, we switch over to manual input.
+We close the file, set <i>fp</i> to <i>stdin</i>,
+and read again using the new file pointer.
+</li>
+<li>Lines 42 and 45:
+the name of the file must be passed as the first argument
+when calling the program.
+</li>
+</ul>
+</div>
+<p>
+This is the first time since chapter 2,
+that we actually made changes to <i>main.c</i>!
 </p>
 <hr />
 <p>

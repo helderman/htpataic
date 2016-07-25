@@ -437,6 +437,10 @@ But as you can see below, it can be done in less than 100 lines of code!
 <li class="new">         }</li>
 <li class="new">      }</li>
 <li class="new">   }</li>
+<li class="new">   if (**par == '\0')</li>
+<li class="new">   {</li>
+<li class="new">      *par = src;</li>
+<li class="new">   }</li>
 <li class="new">   return restOfSrc;</li>
 <li class="new">}</li>
 <li class="new"></li>
@@ -487,7 +491,7 @@ function <i>matchTag</i> matches a particular word, case-insensitively.
 If parameter <i>atEnd</i> is true,
 then matching will only succeed if the word is last in the input string.
 </li>
-<li>Line 36-54:
+<li>Line 36-58:
 function <i>matchParam</i> matches and captures a nonterminal.
 All tags of all objects will be scanned to find the longest matching tag.
 The array element pointed to by <i>par</i>
@@ -497,7 +501,12 @@ this will always consume the entire input string
 (i.e. return a pointer to the end-of-string character),
 regardless of whether there is a tag to satisfy this match.
 </li>
-<li>Line 56-70:
+<li>Line 53-56:
+if no matching tag is found, then the remaining input is captured.
+This can be used to included the non-matching input in an error message;
+we do this in function <i>executeNoMatch</i>, defined in <i>parsexec.c</i>.
+</li>
+<li>Line 60-74:
 function <i>matchCommand</i> matches an entire pattern,
 capturing nonterminals into array <i>params</i>.
 </li>

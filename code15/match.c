@@ -50,6 +50,10 @@ static const char *matchParam(const char *src, const char **par, bool loose)
          }
       }
    }
+   if (**par == '\0')
+   {
+      *par = src;
+   }
    return restOfSrc;
 }
 

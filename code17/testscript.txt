@@ -1,0 +1,13 @@
+get lamp
+get coin
+give coin
+go cave
+get key
+open door
+go south
+turn lamp on
+look around
+get key
+open door
+go south
+quit

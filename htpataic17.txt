@@ -12,7 +12,182 @@
 <h1>How to program a text adventure in C</h1>
 <h2>17. Test automation</h2>
 <p class="intro">
-TODO
+Testing is important in any software development project.
+Games are no exception.
+Dutch games developer
+<a href="https://en.wikipedia.org/wiki/John_Vanderaart">John Vanderaart</a>
+made it very clear in
+<a href="http://www.nostalgia8.org/download/commodore/interview/%5Binterview%5Djohn.html">an interview in 2007</a>:
+&ldquo;test, test, test.&rdquo;
+</p>
+<p>
+You could test everything
+<a href="https://en.wikipedia.org/wiki/Manual_testing">manually</a>;
+play your own game to see if everything still works.
+Over and over again.
+Every change you make, no matter how small, should be tested.
+This quickly becomes tiresome.
+</p>
+<p>
+Fortunately, text adventures are very suitable for
+<a href="https://en.wikipedia.org/wiki/Test_automation">test automation</a>.
+In its simplest form, this works a follows.
+</p>
+<ol type="1">
+<li>Test the game manually once,
+while letting the program <b>log every command</b> you enter.
+</li>
+<li>Run the game again, but this time, use the log file as input.
+<b>Capture the output</b> in a file.
+</li>
+<li>Whenever you want to test the program,
+just repeat step 2, and <b>compare the output</b> from both sessions.
+Any differences that cannot be justified, should be considered bugs.
+</li>
+</ol>
+<p>
+Step 1 is easy; we implemented this in the previous chapter.
+All we have to do is run the program with a filename as argument.
+</p>
+<table><tr>
+<td class="snippet">./lilcave testscript.txt
+</td>
+</tr></table>
+<p>
+Now start testing the game manually.
+Try as many scenarios as you can.
+Just a quick walk-through is not enough;
+you really need to test the dead ends and pitfalls.
+Try to get a good
+<a href="https://en.wikipedia.org/wiki/Code_coverage">code coverage</a>;
+use tooling like
+<a href="https://en.wikipedia.org/wiki/Gcov">gcov</a>
+where possible.
+When you are done, exit the program.
+</p>
+<p>
+Keep the resulting log file in a safe place; it is your
+<a href="https://en.wikipedia.org/wiki/Test_script">test script</a>.
+</p>
+<p>
+There is one more thing to do here:
+add the command &lsquo;quit&rsquo; to the end of the file.
+</p>
+<table><tr>
+<td class="snippet">echo quit &gt;&gt; testscript.txt
+</td>
+</tr></table>
+<p>
+We are a bit cheating here;
+normally a log file never contains the command &lsquo;quit&rsquo;,
+because that would make it impossible for the player to continue the game.
+But in an automated test, we really <i>want</i> the program to quit
+once the test script has been finished.
+</p>
+<table class="code"><tr>
+<th>testscript.txt</th>
+</tr><tr>
+<td>
+#new 17 test.in
+</td>
+</tr></table>
+<p>
+In step 2, we just call the program again, with the same filename as argument.
+Effectively, this repeats the entire session of step 1,
+without any user intervention.
+The difference is, this time we
+<a href="https://en.wikipedia.org/wiki/Redirection_%28computing%29">redirect</a>
+the output of the program to a file.
+</p>
+<table><tr>
+<td class="snippet">./lilcave testscript.txt > baseline.txt
+</td>
+</tr></table>
+<p>
+This file is a transcript of the entire test session.
+Keep it in a safe place as well; it is our
+<a href="https://en.wikipedia.org/wiki/Baseline_%28configuration_management%29">baseline</a>.
+</p>
+<table class="code"><tr>
+<th>baseline.txt</th>
+</tr><tr>
+<td>
+#new 17 test.out
+</td>
+</tr></table>
+<p>
+We now have two files, the <b>test script</b> and the <b>baseline</b>,
+that we will be using to test every change we make to the program.
+Testing is easy:
+</p>
+<table><tr>
+<td class="snippet">./lilcave testscript.txt > transcript.txt
+diff baseline.txt transcript.txt
+</td>
+</tr></table>
+<p>
+Above, I used <i>diff</i> to compare
+the actual output of the game (<i>transcript.txt</i>)
+with the output that was last considered correct (<i>baseline.txt</i>).
+Please feel free to use your favorite
+<a href="https://en.wikipedia.org/wiki/Diff_utility">diff utility</a>
+instead.
+</p>
+<p>
+Now there are three possible outcomes.
+</p>
+<ol type="1">
+<li>There are no differences.
+Apparently, your changes did not result in a
+<a href="https://en.wikipedia.org/wiki/Software_regression">regression</a>.
+</li>
+<li>All differences were intentional.
+For example, after fixing a typo,
+the game&rsquo;s output should only change for the better.
+</li>
+<li>There was an unintentional difference.
+This should be considered a
+<a href="https://en.wikipedia.org/wiki/Software_bug">bug</a>,
+and should be fixed.
+</li>
+</ol>
+<p>
+Please note that case 2 is a reason for your baseline to be updated;
+otherwise your intentional differences will keep piling up,
+making it increasingly hard to spot the unintentional differences.
+If there are no unintended changes,
+then updating the baseline is straightforward:
+</p>
+<table><tr>
+<td class="snippet">cp transcript.txt baseline.txt
+</td>
+</tr></table>
+<p>
+Obviously, changing your test script
+(e.g. because you introduced new code or new objects
+not covered by the original test script)
+will always break the test.
+This warrants a new manual test, resulting in a new baseline.
+Of course, you can use (part of) the existing test script as a starting point;
+rarely will it be necessary to start all over.
+</p>
+<p>
+Consider including test automation in your build process.
+Here is an example for
+<a href="https://en.wikipedia.org/wiki/Make_%28software%29">make</a>:
+</p>
+<table><tr>
+<td class="snippet">successful.txt: lilcave testscript.txt baseline.txt
+	./lilcave testscript.txt > transcript.txt
+	cmp baseline.txt transcript.txt
+	mv -f transcript.txt successful.txt
+</td>
+</tr></table>
+<p>
+Here, <i>make</i> will only execute the final move (<i>mv</i>)
+after a successful comparison (<i>cmp</i>).
+That way, an invalid transcript can never be mistaken for a successful update,
+and <i>make</i> will always re-run a test that failed earlier.
 </p>
 <p>
 TODO - also something about performance testing
