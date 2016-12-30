@@ -12,4 +12,4 @@ making it easy to follow the progress of the program with each chapter.
 
 Start reading here:
 
-https://helderman.github.io/htpataic/htpataic01.html
+[https://helderman.github.io/htpataic/htpataic01.html](https://helderman.github.io/htpataic/htpataic01.html)
