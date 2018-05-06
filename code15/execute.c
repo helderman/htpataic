@@ -84,8 +84,8 @@ bool executeGive(void)
 
 bool executeGetFrom(void)
 {
-   // TODO: getVisible not suitable because it checks dups
-   // TODO: check not actor
+   // TODO: need a getVisible that does not report ambiguous noun
+   // TODO: report if actor
    if (getVisible("what you want to get", params[0]) != NULL)
    {
       OBJECT *from = reachableObject("where to get that from", params[1]);
@@ -96,7 +96,7 @@ bool executeGetFrom(void)
 
 bool executePutIn(void)
 {
-   // TODO: check not actor
+   // TODO: report if actor
    OBJECT *obj = getPossession(player, "put", params[0]);
    if (obj != NULL)
    {
@@ -108,20 +108,20 @@ bool executePutIn(void)
 
 bool executeAskFrom(void)
 {
-   // TODO: getVisible not suitable because it checks dups
-   // TODO: check not actor
-   if (getVisible("what you want to get", params[0]) != NULL)
+   // TODO: need a getVisible that does not report ambiguous noun
+   // TODO: report if not actor
+   if (getVisible("what you want to ask", params[0]) != NULL)
    {
-      OBJECT *from = reachableObject("where to get that from", params[1]);
-      moveObject(getPossession(from, "get", params[0]), player);
+      OBJECT *from = reachableObject("who to ask that", params[1]);
+      moveObject(getPossession(from, "ask", params[0]), player);
    }
    return true;
 }
 
 bool executeGiveTo(void)
 {
-   // TODO: check actor
-   OBJECT *obj = getPossession(player, "put", params[0]);
+   // TODO: report if not actor (not really error; especially when dead actor)
+   OBJECT *obj = getPossession(player, "give", params[0]);
    if (obj != NULL)
    {
       OBJECT *to = reachableObject("who to give that to", params[1]);

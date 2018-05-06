@@ -140,7 +140,7 @@ Alright; so first of all, in darkness you cannot see your surroundings.
 </td>
 </tr></table>
 <p>
-Above, we used a function <i>isInLight</i>.
+Above, we used a function <i>isLit</i>.
 It is defined (and used some more) in <i>misc.c</i>.
 </p>
 <table class="code"><tr>
@@ -680,8 +680,8 @@ Below is the implementation of these commands.
 <li class="old"></li>
 <li class="old">bool executeGetFrom(void)</li>
 <li class="old">{</li>
-<li class="old">   // TODO: getVisible not suitable because it checks dups</li>
-<li class="old">   // TODO: check not actor</li>
+<li class="old">   // TODO: need a getVisible that does not report ambiguous noun</li>
+<li class="old">   // TODO: report if actor</li>
 <li class="old">   if (getVisible("what you want to get", params[0]) != NULL)</li>
 <li class="old">   {</li>
 <li class="old">      OBJECT *from = reachableObject("where to get that from", params[1]);</li>
@@ -692,7 +692,7 @@ Below is the implementation of these commands.
 <li class="old"></li>
 <li class="old">bool executePutIn(void)</li>
 <li class="old">{</li>
-<li class="old">   // TODO: check not actor</li>
+<li class="old">   // TODO: report if actor</li>
 <li class="old">   OBJECT *obj = getPossession(player, "put", params[0]);</li>
 <li class="old">   if (obj != NULL)</li>
 <li class="old">   {</li>
@@ -704,20 +704,20 @@ Below is the implementation of these commands.
 <li class="old"></li>
 <li class="old">bool executeAskFrom(void)</li>
 <li class="old">{</li>
-<li class="old">   // TODO: getVisible not suitable because it checks dups</li>
-<li class="old">   // TODO: check not actor</li>
-<li class="old">   if (getVisible("what you want to get", params[0]) != NULL)</li>
+<li class="old">   // TODO: need a getVisible that does not report ambiguous noun</li>
+<li class="old">   // TODO: report if not actor</li>
+<li class="old">   if (getVisible("what you want to ask", params[0]) != NULL)</li>
 <li class="old">   {</li>
-<li class="old">      OBJECT *from = reachableObject("where to get that from", params[1]);</li>
-<li class="old">      moveObject(getPossession(from, "get", params[0]), player);</li>
+<li class="old">      OBJECT *from = reachableObject("who to ask that", params[1]);</li>
+<li class="old">      moveObject(getPossession(from, "ask", params[0]), player);</li>
 <li class="old">   }</li>
 <li class="old">   return true;</li>
 <li class="old">}</li>
 <li class="old"></li>
 <li class="old">bool executeGiveTo(void)</li>
 <li class="old">{</li>
-<li class="old">   // TODO: check actor</li>
-<li class="old">   OBJECT *obj = getPossession(player, "put", params[0]);</li>
+<li class="old">   // TODO: report if not actor (not really error; especially when dead actor)</li>
+<li class="old">   OBJECT *obj = getPossession(player, "give", params[0]);</li>
 <li class="old">   if (obj != NULL)</li>
 <li class="old">   {</li>
 <li class="old">      OBJECT *to = reachableObject("who to give that to", params[1]);</li>

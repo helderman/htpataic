@@ -1,3 +1,9 @@
+- propagate changes in execute.c (ch14) & noun.c (ch15)
+- noun.c getPossession: getting/asking from actor or from dead object
+- move.c reachableObject: eliminate 'default:'
+
+- tag 'exit' instead of 'out' (also in descriptive text) to avoid 'look out'
+- ch15: look <any object in possession>, in dark, gives too much visible detail
 - ch17: more about gcov
 - ch17: emphasize that 100% code coverage does not imply data coverage
 - include makefile; see also ch17 test automation
