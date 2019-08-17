@@ -6,3 +6,6 @@ test.out: test.in lilcave
 
 lilcave: $(C) $(H)
 	gcc -Wall -Wextra $(C) -o $@
+
+clean:
+	$(RM) lilcave

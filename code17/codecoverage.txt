@@ -1,9 +1,9 @@
 File 'execute.c'
-Lines executed:24.68% of 77
+Lines executed:25.61% of 82
 Creating 'execute.c.gcov'
 
 File 'location.c'
-Lines executed:58.33% of 36
+Lines executed:53.33% of 45
 Creating 'location.c.gcov'
 
 File 'main.c'
@@ -19,7 +19,7 @@ Lines executed:97.50% of 40
 Creating 'misc.c.gcov'
 
 File 'move.c'
-Lines executed:58.06% of 31
+Lines executed:55.56% of 36
 Creating 'move.c.gcov'
 
 File 'noun.c'
@@ -38,4 +38,4 @@ File 'toggle.c'
 Lines executed:40.00% of 30
 Creating 'toggle.c.gcov'
 
-Lines executed:58.75% of 320
+Lines executed:57.52% of 339

@@ -1,3 +1,6 @@
+# Please build on Ubuntu, with the following packages installed.
+# sudo apt install expect graphviz wdiff
+
 # Phony targets (GNU Make).
 # Typically, you should do 'make code' followed by 'make html'.
 # I haven't found a way to combine this into a single make

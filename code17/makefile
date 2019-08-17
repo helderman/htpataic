@@ -27,3 +27,6 @@ map.png: map.gv
 
 map.gv: map.awk object.txt
 	awk -f map.awk object.txt > $@
+
+clean:
+	$(RM) object.c object.h lilcave map.gv map.png lilcave.testable *.gcda *.gcno *.gcov codecoverage.txt transcript.txt successful.txt

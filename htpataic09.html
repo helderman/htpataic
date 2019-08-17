@@ -427,7 +427,7 @@ for our adventure might look like this:
 <td>
 <ol>
 <li class="new">all: test.out map.png</li>
-<li class="new"></li>
+<li class="old"></li>
 <li class="old">C = object.c misc.c noun.c location.c move.c execute.c parsexec.c main.c</li>
 <li class="old">H = object.h misc.h noun.h location.h move.h execute.h parsexec.h</li>
 <li class="old"></li>
@@ -436,7 +436,7 @@ for our adventure might look like this:
 <li class="old"></li>
 <li class="old">lilcave: $(C) $(H)</li>
 <li class="old">	gcc -Wall -Wextra $(C) -o $@</li>
-<li class="new"></li>
+<li class="old"></li>
 <li class="new">object.h: object.awk object.txt</li>
 <li class="new">	awk -v pass=h -f object.awk object.txt &gt; $@</li>
 <li class="new"></li>
@@ -449,6 +449,9 @@ for our adventure might look like this:
 <li class="new"></li>
 <li class="new">map.gv: map.awk object.txt</li>
 <li class="new">	awk -f map.awk object.txt &gt; $@</li>
+<li class="old"></li>
+<li class="old">clean:</li>
+<li class="new"><span class="old">	$(RM) </span>object.c object.h<span class="old"> lilcave </span>map.gv map.png</li>
 </ol>
 </td>
 </tr></table>

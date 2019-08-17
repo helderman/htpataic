@@ -3,3 +3,6 @@ test.out: test.in lilcave
 
 lilcave: main.c
 	gcc -Wall -Wextra main.c -o $@
+
+clean:
+	$(RM) lilcave

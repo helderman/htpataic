@@ -2,7 +2,7 @@
 
 # mcmp.sh - multi-compare
 # Usage: mcmp.sh file1 file2 [file3 ...]
-# Example: mcmp.sh code??/makefile
+# Example: tools/mcmp.sh code??/makefile
 # Rationale: helps me propagate changes in sample code through all chapters
 
 version=1
