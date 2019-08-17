@@ -73,6 +73,12 @@ This makes certain common actions very easy to implement:
 <td class="comment">examine</td>
 <td class="snippet">listObjectsAtLocation(<span class="red">guard</span>);</td>
 </tr></table>
+<table class="demo">
+<tr><th>Sample output</th></tr>
+<tr><td>
+#test 5
+</td></tr>
+</table>
 <p>
 Commands <i>go</i> and <i>look</i> (the first two examples above)
 were already implemented in the previous chapter.
@@ -80,12 +86,6 @@ Now we will introduce some typical <b>inventory</b> actions
 for both the player and the non-player characters (commands
 <i>get</i>, <i>drop</i>, <i>give</i>, <i>ask</i> and <i>inventory</i>).
 </p>
-<table class="demo">
-<tr><th>Sample output</th></tr>
-<tr><td>
-#test 5
-</td></tr>
-</table>
 <table class="code"><tr>
 <th>parsexec.c</th>
 </tr><tr>

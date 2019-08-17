@@ -159,7 +159,7 @@ the trick is to recognize your mistakes in the C code,
 then find and fix the original source in <i>object.txt</i>.
 To make this task just a little bit easier, the least we can do is
 let the code generator add some comments in the generated C code
-(see <i>object.awk</i> line 52).
+(see <i>object.awk</i> line 50).
 The AWK script may also pass errors over to the C compiler, by outputting
 a <i>#error</i> directive as part of the generated code (see line 25).
 </p>
