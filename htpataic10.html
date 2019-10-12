@@ -511,6 +511,74 @@ And a <b>health</b> check replaces the hard-coded whitelist of actors.
 </td>
 </tr></table>
 <p>
+Here is one more module that can use <b>health</b> to identify actors.
+</p>
+<table class="code"><tr>
+<th>exec_move.c</th>
+</tr><tr>
+<td>
+<ol>
+<li class="old">#include &lt;stdio.h&gt;</li>
+<li class="old">#include "object.h"</li>
+<li class="old">#include "misc.h"</li>
+<li class="old">#include "noun.h"</li>
+<li class="old">#include "move.h"</li>
+<li class="old"></li>
+<li class="old">void executeGet(const char *noun)</li>
+<li class="old">{</li>
+<li class="old">   OBJECT *obj = getVisible("what you want to get", noun);</li>
+<li class="old">   switch (getDistance(player, obj))</li>
+<li class="old">   {</li>
+<li class="old">   case distSelf:</li>
+<li class="old">      printf("You should not be doing that to %s.\n", obj-&gt;description);</li>
+<li class="old">      break;</li>
+<li class="old">   case distHeld:</li>
+<li class="old">      printf("You already have %s.\n", obj-&gt;description);</li>
+<li class="old">      break;</li>
+<li class="old">   case distOverthere:</li>
+<li class="old">      printf("Too far away, move closer please.\n");</li>
+<li class="old">      break;</li>
+<li class="old">   case distUnknownObject:</li>
+<li class="old">      // already handled by getVisible</li>
+<li class="old">      break;</li>
+<li class="old">   default:</li>
+<li class="new"><span class="old">      if (obj-&gt;location </span>!= NULL &amp;&amp; obj-&gt;location-&gt;health &gt; 0)</li>
+<li class="old">      {</li>
+<li class="old">         printf("You should ask %s nicely.\n", obj-&gt;location-&gt;description);</li>
+<li class="old">      }</li>
+<li class="old">      else</li>
+<li class="old">      {</li>
+<li class="old">         moveObject(obj, player);</li>
+<li class="old">      }</li>
+<li class="old">   }</li>
+<li class="old">}</li>
+<li class="old"></li>
+<li class="old">void executeDrop(const char *noun)</li>
+<li class="old">{</li>
+<li class="old">   moveObject(getPossession(player, "drop", noun), player-&gt;location);</li>
+<li class="old">}</li>
+<li class="old"></li>
+<li class="old">void executeAsk(const char *noun)</li>
+<li class="old">{</li>
+<li class="old">   moveObject(getPossession(actorHere(), "ask", noun), player);</li>
+<li class="old">}</li>
+<li class="old"></li>
+<li class="old">void executeGive(const char *noun)</li>
+<li class="old">{</li>
+<li class="old">   moveObject(getPossession(player, "give", noun), actorHere());</li>
+<li class="old">}</li>
+<li class="old"></li>
+<li class="old">void executeInventory(void)</li>
+<li class="old">{</li>
+<li class="old">   if (listObjectsAtLocation(player) == 0)</li>
+<li class="old">   {</li>
+<li class="old">      printf("You are empty-handed.\n");</li>
+<li class="old">   }</li>
+<li class="old">}</li>
+</ol>
+</td>
+</tr></table>
+<p>
 The weight check makes use of a new function <i>weightOfContents</i>;
 it will be implemented in <i>misc.c</i>.
 In the same module,

@@ -1,6 +1,6 @@
-File 'execute.c'
+File 'exec_move.c'
 Lines executed:25.61% of 82
-Creating 'execute.c.gcov'
+Creating 'exec_move.c.gcov'
 
 File 'location.c'
 Lines executed:53.33% of 45

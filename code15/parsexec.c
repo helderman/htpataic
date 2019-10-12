@@ -4,7 +4,7 @@
 #include "misc.h"
 #include "match.h"
 #include "location.h"
-#include "execute.h"
+#include "exec_move.h"
 
 typedef struct
 {

@@ -82,16 +82,16 @@ We will add some commands we can use to turn the lamp on and off.
 Below is the implementation of these commands.
 </p>
 <table class="code"><tr>
-<th>execute.h</th>
+<th>exec_move.h</th>
 </tr><tr>
 <td>
-#diff 15 execute.h
+#diff 15 exec_move.h
 </td>
 </tr><tr>
-<th>execute.c</th>
+<th>exec_move.c</th>
 </tr><tr>
 <td>
-#diff 15 execute.c
+#diff 15 exec_move.c
 </td>
 </tr></table>
 <p>

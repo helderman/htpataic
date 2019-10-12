@@ -183,7 +183,7 @@ but it will do until we make ourselves a better parser in chapter 13.
 </td>
 </tr></table>
 <p>
-Modules <i>main.c</i>, <i>execute.c</i>, <i>location.c</i>, <i>move.c</i>
+Modules <i>main.c</i>, <i>exec_move.c</i>, <i>location.c</i>, <i>move.c</i>
 and <i>misc.c</i> remain unchanged,
 you can see them in the previous chapters.
 </p>

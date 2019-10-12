@@ -219,7 +219,7 @@ the last two rules (lines 38 and 39) to give a segmentation fault.
 </div>
 <p>
 The other modules
-(<i>main.c</i>, <i>parsexec.c</i>, <i>execute.c</i>, <i>move.c</i>)
+(<i>main.c</i>, <i>parsexec.c</i>, <i>exec_move.c</i>, <i>move.c</i>)
 remain unchanged, you can see them in the previous chapters.
 </p>
 <p>

@@ -24,7 +24,7 @@ instead of a spectator watching the virtual world from a safe distance.
 The advantage of this approach becomes most obvious in a game with multiple player characters
 (either <a href="http://en.wikipedia.org/wiki/MUD">MUD</a>-style
 or a single-player game where you can switch between different characters),
-but it is equally useful when there is only one character.
+but it is equally useful in a solo mission.
 Player attributes no longer have to be stored in separate variables;
 we can use the same data structure as used for any other object.
 So the player, being an object:
@@ -110,16 +110,16 @@ adding these 20 lines makes the game recognize five more commands.
 The new commands are implemented by the following module.
 </p>
 <table class="code"><tr>
-<th>execute.h</th>
+<th>exec_move.h</th>
 </tr><tr>
 <td>
-#diff 5 execute.h
+#diff 5 exec_move.h
 </td>
 </tr><tr>
-<th>execute.c</th>
+<th>exec_move.c</th>
 </tr><tr>
 <td>
-#diff 5 execute.c
+#diff 5 exec_move.c
 </td>
 </tr></table>
 <div class="explanation">

@@ -41,7 +41,7 @@ the story more credible, and the game more enjoyable.
 I already put quite some effort in
 having the game <b>explain why</b> certain commands are ineffective.
 Just take a look at the many <i>printf</i> calls in
-<i>noun.c</i>, <i>execute.c</i>, <i>location.c</i>, <i>move.c</i>.
+<i>noun.c</i>, <i>exec_move.c</i>, <i>location.c</i>, <i>move.c</i>.
 But as the game is getting increasingly complex,
 this is becoming quite a burden.
 I need a more structural way to detect and handle error conditions.
@@ -292,16 +292,16 @@ we can replace most of the <i>if</i> conditions by a check on distance.
 The same goes for function <i>executeGet</i>.
 </p>
 <table class="code"><tr>
-<th>execute.h</th>
+<th>exec_move.h</th>
 </tr><tr>
 <td>
-#diff 7 execute.h
+#diff 7 exec_move.h
 </td>
 </tr><tr>
-<th>execute.c</th>
+<th>exec_move.c</th>
 </tr><tr>
 <td>
-#diff 7 execute.c
+#diff 7 exec_move.c
 </td>
 </tr></table>
 <p>

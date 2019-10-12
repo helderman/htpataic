@@ -88,7 +88,7 @@ For now, we do not need patterns with more than two nonterminals.
 </td>
 </tr></table>
 <p>
-In <i>execute.c</i>,
+In <i>exec_move.c</i>,
 we add functions that implement the new multi-noun commands
 <i>get</i>, <i>drop/put</i>, <i>ask</i> and <i>give</i>
 (see lines 63-81 below).
@@ -101,16 +101,16 @@ Now we can finally put the gold coin back in the box!
 </td></tr>
 </table>
 <table class="code"><tr>
-<th>execute.h</th>
+<th>exec_move.h</th>
 </tr><tr>
 <td>
-#ldiff 14 execute.h
+#ldiff 14 exec_move.h
 </td>
 </tr><tr>
-<th>execute.c</th>
+<th>exec_move.c</th>
 </tr><tr>
 <td>
-#diff 14 execute.c
+#diff 14 exec_move.c
 </td>
 </tr></table>
 <hr />
