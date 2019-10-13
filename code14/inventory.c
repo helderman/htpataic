@@ -4,6 +4,7 @@
 #include "match.h"
 #include "noun.h"
 #include "move.h"
+#include "reach.h"
 
 bool executeOpen(void)
 {

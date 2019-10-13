@@ -273,16 +273,16 @@ More commands will be added in chapter 15;
 these will benefit from the same function.
 </p>
 <table class="code"><tr>
-<th>move.h</th>
+<th>reach.h</th>
 </tr><tr>
 <td>
-#diff 12 move.h
+#diff 12 reach.h
 </td>
 </tr><tr>
-<th>move.c</th>
+<th>reach.c</th>
 </tr><tr>
 <td>
-#diff 12 move.c
+#diff 12 reach.c
 </td>
 </tr></table>
 <p>

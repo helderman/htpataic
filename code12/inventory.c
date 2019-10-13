@@ -3,6 +3,7 @@
 #include "misc.h"
 #include "noun.h"
 #include "move.h"
+#include "reach.h"
 
 void executeOpen(const char *noun)
 {

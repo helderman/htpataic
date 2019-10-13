@@ -566,7 +566,8 @@ are totally generic.
 <li class="old">#include "misc.h"</li>
 <li class="old">#include "noun.h"</li>
 <li class="old">#include "move.h"</li>
-<li class="old"></li>
+<li class="new">#include "reach.h"</li>
+<li class="new"></li>
 <li class="new">void executeOpen(const char *noun)</li>
 <li class="new">{</li>
 <li class="new">   OBJECT *obj = reachableObject("what you want to open", noun);</li>
@@ -590,7 +591,7 @@ are totally generic.
 <li class="new">   OBJECT *obj = reachableObject("what you want to unlock", noun);</li>
 <li class="new">   if (obj != NULL) printf("%s", (*obj-&gt;unlock)());</li>
 <li class="new">}</li>
-<li class="new"></li>
+<li class="old"></li>
 <li class="old">void executeGet(const char *noun)</li>
 <li class="old">{</li>
 <li class="old">   OBJECT *obj = getVisible("what you want to get", noun);</li>
@@ -655,22 +656,21 @@ More commands will be added in chapter 15;
 these will benefit from the same function.
 </p>
 <table class="code"><tr>
-<th>move.h</th>
+<th>reach.h</th>
 </tr><tr>
 <td>
 <ol>
 <li class="new">extern OBJECT *reachableObject(const char *intention, const char *noun);</li>
-<li class="old">extern void moveObject(OBJECT *obj, OBJECT *to);</li>
 </ol>
 </td>
 </tr><tr>
-<th>move.c</th>
+<th>reach.c</th>
 </tr><tr>
 <td>
 <ol>
-<li class="old">#include &lt;stdio.h&gt;</li>
-<li class="old">#include "object.h"</li>
-<li class="old">#include "misc.h"</li>
+<li class="new">#include &lt;stdio.h&gt;</li>
+<li class="new">#include "object.h"</li>
+<li class="new">#include "misc.h"</li>
 <li class="new">#include "noun.h"</li>
 <li class="new"></li>
 <li class="new">OBJECT *reachableObject(const char *intention, const char *noun)</li>
@@ -698,49 +698,6 @@ these will benefit from the same function.
 <li class="new">   }</li>
 <li class="new">   return NULL;</li>
 <li class="new">}</li>
-<li class="old"></li>
-<li class="old">void moveObject(OBJECT *obj, OBJECT *to)</li>
-<li class="old">{</li>
-<li class="old">   if (obj == NULL)</li>
-<li class="old">   {</li>
-<li class="old">      // already handled by getVisible or getPossession</li>
-<li class="old">   }</li>
-<li class="old">   else if (to == NULL)</li>
-<li class="old">   {</li>
-<li class="old">      printf("There is nobody here to give that to.\n");</li>
-<li class="old">   }</li>
-<li class="old">   else if (obj-&gt;weight &gt; to-&gt;capacity)</li>
-<li class="old">   {</li>
-<li class="old">      printf("That is way too heavy.\n");</li>
-<li class="old">   }</li>
-<li class="old">   else if (obj-&gt;weight + weightOfContents(to) &gt; to-&gt;capacity)</li>
-<li class="old">   {</li>
-<li class="old">      printf("That would become too heavy.\n");</li>
-<li class="old">   }</li>
-<li class="old">   else</li>
-<li class="old">   {</li>
-<li class="old">      if (to == player-&gt;location)</li>
-<li class="old">      {</li>
-<li class="old">         printf("You drop %s.\n", obj-&gt;description);</li>
-<li class="old">      }</li>
-<li class="old">      else if (to != player)</li>
-<li class="old">      {</li>
-<li class="old">         printf(to-&gt;health &gt; 0 ? "You give %s to %s.\n"</li>
-<li class="old">                               : "You put %s in %s.\n",</li>
-<li class="old">                obj-&gt;description, to-&gt;description);</li>
-<li class="old">      }</li>
-<li class="old">      else if (obj-&gt;location == player-&gt;location)</li>
-<li class="old">      {</li>
-<li class="old">         printf("You pick up %s.\n", obj-&gt;description);</li>
-<li class="old">      }</li>
-<li class="old">      else</li>
-<li class="old">      {</li>
-<li class="old">         printf("You get %s from %s.\n", obj-&gt;description,</li>
-<li class="old">                                         obj-&gt;location-&gt;description);</li>
-<li class="old">      }</li>
-<li class="old">      obj-&gt;location = to;</li>
-<li class="old">   }</li>
-<li class="old">}</li>
 </ol>
 </td>
 </tr></table>

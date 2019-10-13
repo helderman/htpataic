@@ -1,7 +1,7 @@
 all: test.out map.png
 
-C = object.c misc.c noun.c toggle.c location.c move.c inventory.c parsexec.c main.c
-H = object.h misc.h noun.h toggle.h location.h move.h inventory.h parsexec.h
+C = object.c misc.c noun.c toggle.c location.c move.c reach.c inventory.c parsexec.c main.c
+H = object.h misc.h noun.h toggle.h location.h move.h reach.h inventory.h parsexec.h
 
 test.out: test.in lilcave
 	./test.sh

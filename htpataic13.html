@@ -62,7 +62,7 @@ char *noun = strtok(NULL, "\n");
 </tr></table>
 <p>
 Alright, plus the sequence of <i>strcmp</i> calls to map verbs to commands,
-and the functions in <i>noun.c</i> and <i>move.c</i> to map nouns to objects.
+and the functions in <i>noun.c</i> to map nouns to objects.
 But that&rsquo;s it.
 This system has served us well for the past 11 chapters,
 but it has its flaws.
@@ -607,6 +607,7 @@ Bye!<br />
 <li class="new"><span class="old">#include </span>"match.h"</li>
 <li class="new">#include<span class="old"> "noun.h"</span></li>
 <li class="old">#include "move.h"</li>
+<li class="old">#include "reach.h"</li>
 <li class="old"></li>
 <li class="new">bool executeOpen(void)</li>
 <li class="old">{</li>
