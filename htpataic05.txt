@@ -110,16 +110,16 @@ adding these 20 lines makes the game recognize five more commands.
 The new commands are implemented by the following module.
 </p>
 <table class="code"><tr>
-<th>exec_move.h</th>
+<th>inventory.h</th>
 </tr><tr>
 <td>
-#diff 5 exec_move.h
+#diff 5 inventory.h
 </td>
 </tr><tr>
-<th>exec_move.c</th>
+<th>inventory.c</th>
 </tr><tr>
 <td>
-#diff 5 exec_move.c
+#diff 5 inventory.c
 </td>
 </tr></table>
 <div class="explanation">

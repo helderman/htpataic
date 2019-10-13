@@ -357,16 +357,16 @@ to make use of the new array <i>params</i>.
 </td></tr>
 </table>
 <table class="code"><tr>
-<th>exec_move.h</th>
+<th>inventory.h</th>
 </tr><tr>
 <td>
-#ldiff 13 exec_move.h
+#ldiff 13 inventory.h
 </td>
 </tr><tr>
-<th>exec_move.c</th>
+<th>inventory.c</th>
 </tr><tr>
 <td>
-#diff 13 exec_move.c
+#diff 13 inventory.c
 </td>
 </tr></table>
 <p>

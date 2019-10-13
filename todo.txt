@@ -1,7 +1,8 @@
 - ch12: split move.c/h ---> reach.c/h
-- ch12: split exec_move.c/h ---> exec_toggle.c
-- ch14: split exec_move.c/h ---> exec_move2.c
+- ch12: split inventory.c/h ---> exec_toggle.* (or combine with toggle.*)
+- ch14: split inventory.c/h ---> inventory2.*
 - ch10: claims it will discuss optimization issues in ch19
+- ch16: argc becomes unused parameter
 
 - propagate changes in execute.c (ch14) & noun.c (ch15)
 - noun.c getPossession: getting/asking from actor or from dead object

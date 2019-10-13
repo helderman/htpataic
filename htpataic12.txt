@@ -251,16 +251,16 @@ As announced earlier, the implementations of the four commands
 are totally generic.
 </p>
 <table class="code"><tr>
-<th>exec_move.h</th>
+<th>inventory.h</th>
 </tr><tr>
 <td>
-#diff 12 exec_move.h
+#diff 12 inventory.h
 </td>
 </tr><tr>
-<th>exec_move.c</th>
+<th>inventory.c</th>
 </tr><tr>
 <td>
-#diff 12 exec_move.c
+#diff 12 inventory.c
 </td>
 </tr></table>
 <p>

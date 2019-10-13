@@ -2,7 +2,7 @@
 #include <stdbool.h>
 #include <string.h>
 #include "location.h"
-#include "exec_move.h"
+#include "inventory.h"
 
 bool parseAndExecute(char *input)
 {

@@ -172,7 +172,7 @@ for both the player and the non-player characters (commands
 <li class="old">#include &lt;stdbool.h&gt;</li>
 <li class="old">#include &lt;string.h&gt;</li>
 <li class="old">#include "location.h"</li>
-<li class="new">#include "exec_move.h"</li>
+<li class="new">#include "inventory.h"</li>
 <li class="old"></li>
 <li class="old">bool parseAndExecute(char *input)</li>
 <li class="old">{</li>
@@ -239,7 +239,7 @@ adding these 20 lines makes the game recognize five more commands.
 The new commands are implemented by the following module.
 </p>
 <table class="code"><tr>
-<th>exec_move.h</th>
+<th>inventory.h</th>
 </tr><tr>
 <td>
 <ol>
@@ -251,7 +251,7 @@ The new commands are implemented by the following module.
 </ol>
 </td>
 </tr><tr>
-<th>exec_move.c</th>
+<th>inventory.c</th>
 </tr><tr>
 <td>
 <ol>

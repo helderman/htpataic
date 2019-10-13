@@ -116,7 +116,7 @@ For now, we do not need patterns with more than two nonterminals.
 <li class="old">#include "misc.h"</li>
 <li class="old">#include "match.h"</li>
 <li class="old">#include "location.h"</li>
-<li class="old">#include "exec_move.h"</li>
+<li class="old">#include "inventory.h"</li>
 <li class="old"></li>
 <li class="old">typedef struct</li>
 <li class="old">{</li>
@@ -176,7 +176,7 @@ For now, we do not need patterns with more than two nonterminals.
 </td>
 </tr></table>
 <p>
-In <i>exec_move.c</i>,
+In <i>inventory.c</i>,
 we add functions that implement the new multi-noun commands
 <i>get</i>, <i>drop/put</i>, <i>ask</i> and <i>give</i>
 (see lines 63-81 below).
@@ -260,7 +260,7 @@ Bye!<br />
 </td></tr>
 </table>
 <table class="code"><tr>
-<th>exec_move.h</th>
+<th>inventory.h</th>
 </tr><tr>
 <td>
 <ol>
@@ -280,7 +280,7 @@ Bye!<br />
 </ol>
 </td>
 </tr><tr>
-<th>exec_move.c</th>
+<th>inventory.c</th>
 </tr><tr>
 <td>
 <ol>
