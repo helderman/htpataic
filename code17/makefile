@@ -1,13 +1,13 @@
-all: lilcave successful.txt map.png
+all: lilcave success.txt map.png
 
 C = object.c misc.c match.c noun.c toggle.c location.c move.c reach.c inventory.c parsexec.c main.c
 H = object.h misc.h match.h noun.h toggle.h location.h move.h reach.h inventory.h parsexec.h
 
-successful.txt: lilcave.testable testscript.txt baseline.txt
+success.txt: lilcave.testable testscript.txt baseline.txt
 	./lilcave.testable testscript.txt > transcript.txt
 	gcov *.gcda | tee codecoverage.txt | tail -n1
 	cmp baseline.txt transcript.txt
-	mv -f transcript.txt successful.txt
+	mv -f transcript.txt $@
 
 lilcave.testable: $(C) $(H)
 	gcc --coverage $(C) -o $@
@@ -29,4 +29,4 @@ map.gv: map.awk object.txt
 	awk -f map.awk object.txt > $@
 
 clean:
-	$(RM) object.c object.h lilcave map.gv map.png lilcave.testable *.gcda *.gcno *.gcov codecoverage.txt transcript.txt successful.txt
+	$(RM) object.c object.h lilcave map.gv map.png lilcave.testable *.gcda *.gcno *.gcov codecoverage.txt transcript.txt success.txt

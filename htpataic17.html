@@ -137,7 +137,7 @@ The difference is, this time we
 the output of the program to a file.
 </p>
 <table><tr>
-<td class="snippet">./lilcave testscript.txt > baseline.txt
+<td class="snippet">./lilcave testscript.txt &gt; baseline.txt
 </td>
 </tr></table>
 <p>
@@ -222,7 +222,7 @@ that we will be using to test every change we make to the program.
 Testing is easy:
 </p>
 <table><tr>
-<td class="snippet">./lilcave testscript.txt > transcript.txt
+<td class="snippet">./lilcave testscript.txt &gt; transcript.txt
 diff baseline.txt transcript.txt
 </td>
 </tr></table>
@@ -247,9 +247,9 @@ For example, after fixing a typo,
 the game&rsquo;s output should only change for the better.
 </li>
 <li>There was an unintentional difference.
-This should be considered a
-<a href="https://en.wikipedia.org/wiki/Software_bug">bug</a>,
-and should be fixed.
+This is a potential
+<a href="https://en.wikipedia.org/wiki/Software_bug">bug</a>;
+it should be analyzed and if necessary, fixed.
 </li>
 </ol>
 <p>
@@ -278,10 +278,10 @@ Here is an example for
 <a href="https://en.wikipedia.org/wiki/Make_%28software%29">make</a>:
 </p>
 <table><tr>
-<td class="snippet">successful.txt: lilcave testscript.txt baseline.txt
-	./lilcave testscript.txt > transcript.txt
+<td class="snippet">success.txt: lilcave testscript.txt baseline.txt
+	./lilcave testscript.txt &gt; transcript.txt
 	cmp baseline.txt transcript.txt
-	mv -f transcript.txt successful.txt
+	mv -f transcript.txt success.txt
 </td>
 </tr></table>
 <p>
@@ -290,8 +290,93 @@ after a successful comparison (<i>cmp</i>).
 That way, an invalid transcript can never be mistaken for a successful update,
 and <i>make</i> will always re-run a test that failed earlier.
 </p>
+<h3>Performance testing</h3>
 <p>
-TODO - also something about performance testing
+Performance is hardly ever an issue in text adventures,
+for a number of reasons.
+</p>
+<ul>
+<li>Most text adventures do not take place in real time.
+To win the game, the player needs to be clever rather than fast.
+Most of the time, the program will be waiting for a reply from the user,
+not the other way around.
+Even if combat is involved (see chapter 20), it will be turn-based.
+A response time of 100 milliseconds or more should be totally acceptable.
+</li>
+<li>Most text adventures are
+<a href="https://en.wikipedia.org/wiki/Single-player_video_game">single-player</a>
+games.
+There are no
+<a href="https://en.wikipedia.org/wiki/Scalability">scalability</a>
+issues to be solved.
+</li>
+<li>And considering the code we have been writing so far:
+C compiles to
+<a href="https://en.wikipedia.org/wiki/Machine_code">native code</a>,
+which is fast by nature.
+Especially when there are no performance bottlenecks like
+network traffic and complex
+<a href="https://en.wikipedia.org/wiki/Memory_management">memory management</a>
+(<a href="https://en.wikipedia.org/wiki/Garbage_collection_(computer_science)">garbage collections</a>).
+</li>
+</ul>
+<p>
+Still, it is always good to take performance seriously.
+Looking back at our code so far, you may have noticed some parts
+that are potentially suboptimal.
+</p>
+<ul>
+<li>Each time the player enters a command,
+the parser loops through all possible command patterns,
+trying to match each one to the user input.
+</li>
+<li>Most of these patterns contain 'nonterminals';
+blanks that need to be filled in by finding an object
+that matches the noun entered by the player.
+The parser will scan through the full set of objects,
+then for each object, scan through all its tags.
+That's a loop nested inside a loop.
+</li>
+<li>Commands like <i>look</i> and <i>inventory</i> use a similar loop
+to scan through the complete set of objects,
+in search of the ones relevant at the current location.
+</li>
+</ul>
+<p>
+In a big adventure, with many locations, items, actors,
+and with a comprehensive vocabulary,
+these loops will need to traverse through some pretty long arrays.
+Will that still perform well?
+</p>
+<p>
+Many programmers will not wait for the bomb to burst,
+and immediately start replacing the loops by more advanced techniques,
+for example
+<a href="https://en.wikipedia.org/wiki/Hash_table">hash tables</a>.
+This could make your code more efficient, but possibly also more complex.
+I strongly recommend every developer to take some time to study the
+<a href="http://wiki.c2.com/?RulesOfOptimization">rules of optimization</a>
+first:
+</p>
+<ul>
+<li>Rule #1: Don't.</li>
+<li>Rule #2: Don't... <i>yet</i>.</li>
+<li>Rule #3: Profile before optimizing.</li>
+</ul>
+<p>
+The simplest way to profile your code,
+is to run an automated test while keeping track of time.
+In most operating systems, you can use
+<a href="https://en.wikipedia.org/wiki/Time_(Unix)">time</a>
+for that.
+If you want a more detailed insight, then you can use
+<a href="https://en.wikipedia.org/wiki/Gprof">gprof</a>;
+it can tell you exactly what functions eat up the majority of CPU time.
+</p>
+<p>
+I leave it up to you to decide whether or not to make
+<a href="https://en.wikipedia.org/wiki/Software_performance_testing">performance testing</a>
+an integral part of your test automation.
 </p>
 <hr />
 <p>
