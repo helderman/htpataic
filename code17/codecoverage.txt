@@ -1,5 +1,5 @@
 File 'inventory.c'
-Lines executed:25.61% of 82
+Lines executed:25.76% of 66
 Creating 'inventory.c.gcov'
 
 File 'location.c'
@@ -29,6 +29,10 @@ Creating 'noun.c.gcov'
 File 'object.c'
 Lines executed:100.00% of 3
 Creating 'object.c.gcov'
+
+File 'openclose.c'
+Lines executed:25.00% of 16
+Creating 'openclose.c.gcov'
 
 File 'parsexec.c'
 Lines executed:41.67% of 12

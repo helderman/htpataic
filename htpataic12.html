@@ -541,7 +541,7 @@ As announced earlier, the implementations of the four commands
 are totally generic.
 </p>
 <table class="code"><tr>
-<th>inventory.h</th>
+<th>openclose.h</th>
 </tr><tr>
 <td>
 <ol>
@@ -549,23 +549,15 @@ are totally generic.
 <li class="new">extern void executeClose(const char *noun);</li>
 <li class="new">extern void executeLock(const char *noun);</li>
 <li class="new">extern void executeUnlock(const char *noun);</li>
-<li class="old">extern void executeGet(const char *noun);</li>
-<li class="old">extern void executeDrop(const char *noun);</li>
-<li class="old">extern void executeAsk(const char *noun);</li>
-<li class="old">extern void executeGive(const char *noun);</li>
-<li class="old">extern void executeInventory(void);</li>
 </ol>
 </td>
 </tr><tr>
-<th>inventory.c</th>
+<th>openclose.c</th>
 </tr><tr>
 <td>
 <ol>
-<li class="old">#include &lt;stdio.h&gt;</li>
-<li class="old">#include "object.h"</li>
-<li class="old">#include "misc.h"</li>
-<li class="old">#include "noun.h"</li>
-<li class="old">#include "move.h"</li>
+<li class="new">#include &lt;stdio.h&gt;</li>
+<li class="new">#include "object.h"</li>
 <li class="new">#include "reach.h"</li>
 <li class="new"></li>
 <li class="new">void executeOpen(const char *noun)</li>
@@ -591,58 +583,6 @@ are totally generic.
 <li class="new">   OBJECT *obj = reachableObject("what you want to unlock", noun);</li>
 <li class="new">   if (obj != NULL) printf("%s", (*obj-&gt;unlock)());</li>
 <li class="new">}</li>
-<li class="old"></li>
-<li class="old">void executeGet(const char *noun)</li>
-<li class="old">{</li>
-<li class="old">   OBJECT *obj = getVisible("what you want to get", noun);</li>
-<li class="old">   switch (getDistance(player, obj))</li>
-<li class="old">   {</li>
-<li class="old">   case distSelf:</li>
-<li class="old">      printf("You should not be doing that to %s.\n", obj-&gt;description);</li>
-<li class="old">      break;</li>
-<li class="old">   case distHeld:</li>
-<li class="old">      printf("You already have %s.\n", obj-&gt;description);</li>
-<li class="old">      break;</li>
-<li class="old">   case distOverthere:</li>
-<li class="old">      printf("Too far away, move closer please.\n");</li>
-<li class="old">      break;</li>
-<li class="old">   case distUnknownObject:</li>
-<li class="old">      // already handled by getVisible</li>
-<li class="old">      break;</li>
-<li class="old">   default:</li>
-<li class="old">      if (obj-&gt;location != NULL &amp;&amp; obj-&gt;location-&gt;health &gt; 0)</li>
-<li class="old">      {</li>
-<li class="old">         printf("You should ask %s nicely.\n", obj-&gt;location-&gt;description);</li>
-<li class="old">      }</li>
-<li class="old">      else</li>
-<li class="old">      {</li>
-<li class="old">         moveObject(obj, player);</li>
-<li class="old">      }</li>
-<li class="old">   }</li>
-<li class="old">}</li>
-<li class="old"></li>
-<li class="old">void executeDrop(const char *noun)</li>
-<li class="old">{</li>
-<li class="old">   moveObject(getPossession(player, "drop", noun), player-&gt;location);</li>
-<li class="old">}</li>
-<li class="old"></li>
-<li class="old">void executeAsk(const char *noun)</li>
-<li class="old">{</li>
-<li class="old">   moveObject(getPossession(actorHere(), "ask", noun), player);</li>
-<li class="old">}</li>
-<li class="old"></li>
-<li class="old">void executeGive(const char *noun)</li>
-<li class="old">{</li>
-<li class="old">   moveObject(getPossession(player, "give", noun), actorHere());</li>
-<li class="old">}</li>
-<li class="old"></li>
-<li class="old">void executeInventory(void)</li>
-<li class="old">{</li>
-<li class="old">   if (listObjectsAtLocation(player) == 0)</li>
-<li class="old">   {</li>
-<li class="old">      printf("You are empty-handed.\n");</li>
-<li class="old">   }</li>
-<li class="old">}</li>
 </ol>
 </td>
 </tr></table>
@@ -885,6 +825,7 @@ The additions to <i>parsexec.c</i> are equally straightforward.
 <li class="old">#include &lt;string.h&gt;</li>
 <li class="old">#include "location.h"</li>
 <li class="old">#include "inventory.h"</li>
+<li class="new">#include "openclose.h"</li>
 <li class="old"></li>
 <li class="old">bool parseAndExecute(char *input)</li>
 <li class="old">{</li>
@@ -923,7 +864,7 @@ The additions to <i>parsexec.c</i> are equally straightforward.
 <li class="old">      else if (strcmp(verb, "inventory") == 0)</li>
 <li class="old">      {</li>
 <li class="old">         executeInventory();</li>
-<li class="old">      }</li>
+<li class="new">      }</li>
 <li class="new">      else if (strcmp(verb, "open") == 0)</li>
 <li class="new">      {</li>
 <li class="new">         executeOpen(noun);</li>
@@ -939,7 +880,7 @@ The additions to <i>parsexec.c</i> are equally straightforward.
 <li class="new">      else if (strcmp(verb, "unlock") == 0)</li>
 <li class="new">      {</li>
 <li class="new">         executeUnlock(noun);</li>
-<li class="new">      }</li>
+<li class="old">      }</li>
 <li class="old">      else</li>
 <li class="old">      {</li>
 <li class="old">         printf("I don't know how to '%s'.\n", verb);</li>
@@ -953,7 +894,7 @@ The additions to <i>parsexec.c</i> are equally straightforward.
 <p>
 Notes:
 <ul>
-<li>You may have noticed that <i>object.awk</i> has almost doubled in size
+<li>You may have noticed that <i>object.txt</i> has almost doubled in size
 in this chapter.
 I can already promise you, this is only the beginning.
 <i>object.txt</i> is our main source of game data;

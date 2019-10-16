@@ -251,16 +251,16 @@ As announced earlier, the implementations of the four commands
 are totally generic.
 </p>
 <table class="code"><tr>
-<th>inventory.h</th>
+<th>openclose.h</th>
 </tr><tr>
 <td>
-#diff 12 inventory.h
+#diff 12 openclose.h
 </td>
 </tr><tr>
-<th>inventory.c</th>
+<th>openclose.c</th>
 </tr><tr>
 <td>
-#diff 12 inventory.c
+#diff 12 openclose.c
 </td>
 </tr></table>
 <p>
@@ -314,7 +314,7 @@ The additions to <i>parsexec.c</i> are equally straightforward.
 <p>
 Notes:
 <ul>
-<li>You may have noticed that <i>object.awk</i> has almost doubled in size
+<li>You may have noticed that <i>object.txt</i> has almost doubled in size
 in this chapter.
 I can already promise you, this is only the beginning.
 <i>object.txt</i> is our main source of game data;

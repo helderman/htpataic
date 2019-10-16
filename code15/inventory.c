@@ -7,34 +7,6 @@
 #include "reach.h"
 #include "toggle.h"
 
-bool executeOpen(void)
-{
-   OBJECT *obj = reachableObject("what you want to open", params[0]);
-   if (obj != NULL) printf("%s", (*obj->open)());
-   return true;
-}
-
-bool executeClose(void)
-{
-   OBJECT *obj = reachableObject("what you want to close", params[0]);
-   if (obj != NULL) printf("%s", (*obj->close)());
-   return true;
-}
-
-bool executeLock(void)
-{
-   OBJECT *obj = reachableObject("what you want to lock", params[0]);
-   if (obj != NULL) printf("%s", (*obj->lock)());
-   return true;
-}
-
-bool executeUnlock(void)
-{
-   OBJECT *obj = reachableObject("what you want to unlock", params[0]);
-   if (obj != NULL) printf("%s", (*obj->unlock)());
-   return true;
-}
-
 bool executeGet(void)
 {
    OBJECT *obj = getVisible("what you want to get", params[0]);

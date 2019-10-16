@@ -3,6 +3,7 @@
 #include <string.h>
 #include "location.h"
 #include "inventory.h"
+#include "openclose.h"
 
 bool parseAndExecute(char *input)
 {

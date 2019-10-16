@@ -264,6 +264,7 @@ Each pattern is tied to a function that executes the appropriate command.
 <li class="new">#include "match.h"</li>
 <li class="new">#include "location.h"</li>
 <li class="new">#include "inventory.h"</li>
+<li class="new">#include "openclose.h"</li>
 <li class="new"></li>
 <li class="new">typedef struct</li>
 <li class="new">{</li>
@@ -585,10 +586,6 @@ Bye!<br />
 </tr><tr>
 <td>
 <ol>
-<li class="new">extern bool executeOpen(void);</li>
-<li class="new">extern bool executeClose(void);</li>
-<li class="new">extern bool executeLock(void);</li>
-<li class="new">extern bool executeUnlock(void);</li>
 <li class="new">extern bool executeGet(void);</li>
 <li class="new">extern bool executeDrop(void);</li>
 <li class="new">extern bool executeAsk(void);</li>
@@ -607,35 +604,6 @@ Bye!<br />
 <li class="new"><span class="old">#include </span>"match.h"</li>
 <li class="new">#include<span class="old"> "noun.h"</span></li>
 <li class="old">#include "move.h"</li>
-<li class="old">#include "reach.h"</li>
-<li class="old"></li>
-<li class="new">bool executeOpen(void)</li>
-<li class="old">{</li>
-<li class="new"><span class="old">   OBJECT *obj = reachableObject("what you want to open", </span>params[0]);</li>
-<li class="old">   if (obj != NULL) printf("%s", (*obj-&gt;open)());</li>
-<li class="new"><span class="old">   </span>return true;</li>
-<li class="old">}</li>
-<li class="old"></li>
-<li class="new">bool executeClose(void)</li>
-<li class="old">{</li>
-<li class="new"><span class="old">   OBJECT *obj = reachableObject("what you want to close", </span>params[0]);</li>
-<li class="old">   if (obj != NULL) printf("%s", (*obj-&gt;close)());</li>
-<li class="new"><span class="old">   </span>return true;</li>
-<li class="old">}</li>
-<li class="old"></li>
-<li class="new">bool executeLock(void)</li>
-<li class="old">{</li>
-<li class="new"><span class="old">   OBJECT *obj = reachableObject("what you want to lock", </span>params[0]);</li>
-<li class="old">   if (obj != NULL) printf("%s", (*obj-&gt;lock)());</li>
-<li class="new"><span class="old">   </span>return true;</li>
-<li class="old">}</li>
-<li class="old"></li>
-<li class="new">bool executeUnlock(void)</li>
-<li class="old">{</li>
-<li class="new"><span class="old">   OBJECT *obj = reachableObject("what you want to unlock", </span>params[0]);</li>
-<li class="old">   if (obj != NULL) printf("%s", (*obj-&gt;unlock)());</li>
-<li class="new"><span class="old">   </span>return true;</li>
-<li class="old">}</li>
 <li class="old"></li>
 <li class="new">bool executeGet(void)</li>
 <li class="old">{</li>

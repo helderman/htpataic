@@ -1,7 +1,6 @@
 - ch12: split inventory.c/h ---> exec_toggle.* (or combine with toggle.*)
 - ch14: split inventory.c/h ---> inventory2.*
 - ch16: argc becomes unused parameter
-- ch17: TODO performance testing
 
 - propagate changes in execute.c (ch14) & noun.c (ch15)
 - noun.c getPossession: getting/asking from actor or from dead object

@@ -117,6 +117,7 @@ For now, we do not need patterns with more than two nonterminals.
 <li class="old">#include "match.h"</li>
 <li class="old">#include "location.h"</li>
 <li class="old">#include "inventory.h"</li>
+<li class="old">#include "openclose.h"</li>
 <li class="old"></li>
 <li class="old">typedef struct</li>
 <li class="old">{</li>
@@ -264,10 +265,6 @@ Bye!<br />
 </tr><tr>
 <td>
 <ol>
-<li class="old">extern bool executeOpen(void);</li>
-<li class="old">extern bool executeClose(void);</li>
-<li class="old">extern bool executeLock(void);</li>
-<li class="old">extern bool executeUnlock(void);</li>
 <li class="old">extern bool executeGet(void);</li>
 <li class="old">extern bool executeDrop(void);</li>
 <li class="old">extern bool executeAsk(void);</li>
@@ -290,35 +287,7 @@ Bye!<br />
 <li class="old">#include "match.h"</li>
 <li class="old">#include "noun.h"</li>
 <li class="old">#include "move.h"</li>
-<li class="old">#include "reach.h"</li>
-<li class="old"></li>
-<li class="old">bool executeOpen(void)</li>
-<li class="old">{</li>
-<li class="old">   OBJECT *obj = reachableObject("what you want to open", params[0]);</li>
-<li class="old">   if (obj != NULL) printf("%s", (*obj-&gt;open)());</li>
-<li class="old">   return true;</li>
-<li class="old">}</li>
-<li class="old"></li>
-<li class="old">bool executeClose(void)</li>
-<li class="old">{</li>
-<li class="old">   OBJECT *obj = reachableObject("what you want to close", params[0]);</li>
-<li class="old">   if (obj != NULL) printf("%s", (*obj-&gt;close)());</li>
-<li class="old">   return true;</li>
-<li class="old">}</li>
-<li class="old"></li>
-<li class="old">bool executeLock(void)</li>
-<li class="old">{</li>
-<li class="old">   OBJECT *obj = reachableObject("what you want to lock", params[0]);</li>
-<li class="old">   if (obj != NULL) printf("%s", (*obj-&gt;lock)());</li>
-<li class="old">   return true;</li>
-<li class="old">}</li>
-<li class="old"></li>
-<li class="old">bool executeUnlock(void)</li>
-<li class="old">{</li>
-<li class="old">   OBJECT *obj = reachableObject("what you want to unlock", params[0]);</li>
-<li class="old">   if (obj != NULL) printf("%s", (*obj-&gt;unlock)());</li>
-<li class="old">   return true;</li>
-<li class="old">}</li>
+<li class="new">#include "reach.h"</li>
 <li class="old"></li>
 <li class="old">bool executeGet(void)</li>
 <li class="old">{</li>
@@ -365,9 +334,9 @@ Bye!<br />
 <li class="old">bool executeGive(void)</li>
 <li class="old">{</li>
 <li class="old">   moveObject(getPossession(player, "give", params[0]), actorHere());</li>
-<li class="old">   return true;</li>
-<li class="old">}</li>
-<li class="old"></li>
+<li class="new">   return true;</li>
+<li class="new">}</li>
+<li class="new"></li>
 <li class="new">bool executeGetFrom(void)</li>
 <li class="new">{</li>
 <li class="new">   // TODO: need a getVisible that does not report ambiguous noun</li>
@@ -413,9 +382,9 @@ Bye!<br />
 <li class="new">      OBJECT *to = reachableObject("who to give that to", params[1]);</li>
 <li class="new">      moveObject(obj, to);</li>
 <li class="new">   }</li>
-<li class="new">   return true;</li>
-<li class="new">}</li>
-<li class="new"></li>
+<li class="old">   return true;</li>
+<li class="old">}</li>
+<li class="old"></li>
 <li class="old">bool executeInventory(void)</li>
 <li class="old">{</li>
 <li class="old">   if (listObjectsAtLocation(player) == 0)</li>
