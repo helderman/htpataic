@@ -6,7 +6,7 @@
 # I haven't found a way to combine this into a single make
 # without forcing a rebuild of all .html files.
 # Besides, it would be annoying to have an error in code block documentation.
-.PHONY: html code code??
+.PHONY: html code code?? clean
 
 # 'make html' will make every htpataic??.html
 # (following the existence of htpataic??.txt)
@@ -26,3 +26,7 @@ code: code??
 # To make sample code, we recursively call make within the subdirectory
 code??:
 	$(MAKE) -C $@
+
+# Delete targets from every source folder (code??)
+clean:
+	tools/clean.sh

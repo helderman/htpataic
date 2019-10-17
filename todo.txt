@@ -1,8 +1,6 @@
-- ch12: split inventory.c/h ---> exec_toggle.* (or combine with toggle.*)
-- ch14: split inventory.c/h ---> inventory2.*
+- ch15: noun.c has changed, should be in htpataic15.txt
 - ch16: argc becomes unused parameter
 
-- propagate changes in execute.c (ch14) & noun.c (ch15)
 - noun.c getPossession: getting/asking from actor or from dead object
 - move.c reachableObject: eliminate 'default:'
 

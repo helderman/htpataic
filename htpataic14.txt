@@ -74,6 +74,12 @@ including those that were meant to be caught by 1 and 2.
 <p>
 For now, we do not need patterns with more than two nonterminals.
 </p>
+<table class="demo">
+<tr><th>Sample output</th></tr>
+<tr><td>
+#test 14
+</td></tr>
+</table>
 <table class="code"><tr>
 <th>parsexec.h</th>
 </tr><tr>
@@ -88,29 +94,21 @@ For now, we do not need patterns with more than two nonterminals.
 </td>
 </tr></table>
 <p>
-In <i>inventory.c</i>,
-we add functions that implement the new multi-noun commands
-<i>get</i>, <i>drop/put</i>, <i>ask</i> and <i>give</i>
-(see lines 63-81 below).
+In a new module <i>inventory2.c</i>, we implement the new multi-noun commands
+<i>get</i>, <i>drop/put</i>, <i>ask</i> and <i>give</i>.
 Now we can finally put the gold coin back in the box!
 </p>
-<table class="demo">
-<tr><th>Sample output</th></tr>
-<tr><td>
-#test 14
-</td></tr>
-</table>
 <table class="code"><tr>
-<th>inventory.h</th>
+<th>inventory2.h</th>
 </tr><tr>
 <td>
-#ldiff 14 inventory.h
+#ldiff 14 inventory2.h
 </td>
 </tr><tr>
-<th>inventory.c</th>
+<th>inventory2.c</th>
 </tr><tr>
 <td>
-#diff 14 inventory.c
+#diff 14 inventory2.c
 </td>
 </tr></table>
 <hr />

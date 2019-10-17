@@ -1,6 +1,10 @@
 File 'inventory.c'
-Lines executed:25.76% of 66
+Lines executed:37.50% of 32
 Creating 'inventory.c.gcov'
+
+File 'inventory2.c'
+Lines executed:0.00% of 22
+Creating 'inventory2.c.gcov'
 
 File 'location.c'
 Lines executed:53.33% of 45
@@ -23,12 +27,16 @@ Lines executed:66.67% of 18
 Creating 'move.c.gcov'
 
 File 'noun.c'
-Lines executed:65.79% of 38
+Lines executed:65.00% of 40
 Creating 'noun.c.gcov'
 
 File 'object.c'
 Lines executed:100.00% of 3
 Creating 'object.c.gcov'
+
+File 'onoff.c'
+Lines executed:41.67% of 12
+Creating 'onoff.c.gcov'
 
 File 'openclose.c'
 Lines executed:25.00% of 16
@@ -46,4 +54,4 @@ File 'toggle.c'
 Lines executed:40.00% of 30
 Creating 'toggle.c.gcov'
 
-Lines executed:57.52% of 339
+Lines executed:57.48% of 341

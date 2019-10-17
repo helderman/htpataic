@@ -370,6 +370,22 @@ to make use of the new array <i>params</i>.
 </td>
 </tr></table>
 <p>
+Same thing for the module we added in the previous chapter.
+</p>
+<table class="code"><tr>
+<th>openclose.h</th>
+</tr><tr>
+<td>
+#ldiff 13 openclose.h
+</td>
+</tr><tr>
+<th>openclose.c</th>
+</tr><tr>
+<td>
+#diff 13 openclose.c
+</td>
+</tr></table>
+<p>
 In <i>location.c</i>, the command <i>look around</i> is given its own function,
 separate from the <i>look</i> command to inspect specific objects
 (see lines 7-12).

@@ -665,6 +665,60 @@ Bye!<br />
 </td>
 </tr></table>
 <p>
+Same thing for the module we added in the previous chapter.
+</p>
+<table class="code"><tr>
+<th>openclose.h</th>
+</tr><tr>
+<td>
+<ol>
+<li class="new">extern bool executeOpen(void);</li>
+<li class="new">extern bool executeClose(void);</li>
+<li class="new">extern bool executeLock(void);</li>
+<li class="new">extern bool executeUnlock(void);</li>
+</ol>
+</td>
+</tr><tr>
+<th>openclose.c</th>
+</tr><tr>
+<td>
+<ol>
+<li class="old">#include &lt;stdio.h&gt;</li>
+<li class="old">#include "object.h"</li>
+<li class="new"><span class="old">#include </span>"match.h"</li>
+<li class="new">#include<span class="old"> "reach.h"</span></li>
+<li class="old"></li>
+<li class="new">bool executeOpen(void)</li>
+<li class="old">{</li>
+<li class="new"><span class="old">   OBJECT *obj = reachableObject("what you want to open", </span>params[0]);</li>
+<li class="old">   if (obj != NULL) printf("%s", (*obj-&gt;open)());</li>
+<li class="new"><span class="old">   </span>return true;</li>
+<li class="old">}</li>
+<li class="old"></li>
+<li class="new">bool executeClose(void)</li>
+<li class="old">{</li>
+<li class="new"><span class="old">   OBJECT *obj = reachableObject("what you want to close", </span>params[0]);</li>
+<li class="old">   if (obj != NULL) printf("%s", (*obj-&gt;close)());</li>
+<li class="new"><span class="old">   </span>return true;</li>
+<li class="old">}</li>
+<li class="old"></li>
+<li class="new">bool executeLock(void)</li>
+<li class="old">{</li>
+<li class="new"><span class="old">   OBJECT *obj = reachableObject("what you want to lock", </span>params[0]);</li>
+<li class="old">   if (obj != NULL) printf("%s", (*obj-&gt;lock)());</li>
+<li class="new"><span class="old">   </span>return true;</li>
+<li class="old">}</li>
+<li class="old"></li>
+<li class="new">bool executeUnlock(void)</li>
+<li class="old">{</li>
+<li class="new"><span class="old">   OBJECT *obj = reachableObject("what you want to unlock", </span>params[0]);</li>
+<li class="old">   if (obj != NULL) printf("%s", (*obj-&gt;unlock)());</li>
+<li class="new"><span class="old">   </span>return true;</li>
+<li class="old">}</li>
+</ol>
+</td>
+</tr></table>
+<p>
 In <i>location.c</i>, the command <i>look around</i> is given its own function,
 separate from the <i>look</i> command to inspect specific objects
 (see lines 7-12).

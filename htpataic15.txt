@@ -81,17 +81,23 @@ We will add some commands we can use to turn the lamp on and off.
 <p>
 Below is the implementation of these commands.
 </p>
+<table class="demo">
+<tr><th>Sample output</th></tr>
+<tr><td>
+#test 15
+</td></tr>
+</table>
 <table class="code"><tr>
-<th>inventory.h</th>
+<th>onoff.h</th>
 </tr><tr>
 <td>
-#diff 15 inventory.h
+#diff 15 onoff.h
 </td>
 </tr><tr>
-<th>inventory.c</th>
+<th>onoff.c</th>
 </tr><tr>
 <td>
-#diff 15 inventory.c
+#diff 15 onoff.c
 </td>
 </tr></table>
 <p>

@@ -1,7 +1,7 @@
 all: lilcave success.txt map.png
 
-C = object.c misc.c match.c noun.c toggle.c location.c move.c reach.c inventory.c openclose.c parsexec.c main.c
-H = object.h misc.h match.h noun.h toggle.h location.h move.h reach.h inventory.h openclose.h parsexec.h
+C = object.c misc.c match.c noun.c toggle.c location.c move.c reach.c inventory.c inventory2.c openclose.c onoff.c parsexec.c main.c
+H = object.h misc.h match.h noun.h toggle.h location.h move.h reach.h inventory.h inventory2.h openclose.h onoff.h parsexec.h
 
 success.txt: lilcave.testable testscript.txt baseline.txt
 	./lilcave.testable testscript.txt > transcript.txt

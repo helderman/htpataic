@@ -5,6 +5,7 @@
 #include "match.h"
 #include "location.h"
 #include "inventory.h"
+#include "inventory2.h"
 #include "openclose.h"
 
 typedef struct

@@ -97,92 +97,6 @@ including those that were meant to be caught by 1 and 2.
 <p>
 For now, we do not need patterns with more than two nonterminals.
 </p>
-<table class="code"><tr>
-<th>parsexec.h</th>
-</tr><tr>
-<td>
-<ol>
-<li class="old">extern bool parseAndExecute(const char *input);</li>
-</ol>
-</td>
-</tr><tr>
-<th>parsexec.c</th>
-</tr><tr>
-<td>
-<ol>
-<li class="old">#include &lt;ctype.h&gt;</li>
-<li class="old">#include &lt;stdio.h&gt;</li>
-<li class="old">#include "object.h"</li>
-<li class="old">#include "misc.h"</li>
-<li class="old">#include "match.h"</li>
-<li class="old">#include "location.h"</li>
-<li class="old">#include "inventory.h"</li>
-<li class="old">#include "openclose.h"</li>
-<li class="old"></li>
-<li class="old">typedef struct</li>
-<li class="old">{</li>
-<li class="old">   bool (*function)(void);</li>
-<li class="old">   const char *pattern;</li>
-<li class="old">} COMMAND;</li>
-<li class="old"></li>
-<li class="old">static bool executeQuit(void)</li>
-<li class="old">{</li>
-<li class="old">   return false;</li>
-<li class="old">}</li>
-<li class="old"></li>
-<li class="old">static bool executeNoMatch(void)</li>
-<li class="old">{</li>
-<li class="old">   const char *src = *params;</li>
-<li class="old">   if (*src != '\0')</li>
-<li class="old">   {</li>
-<li class="old">      printf("I don't know how to '");</li>
-<li class="old">      while (*src != '\0' &amp;&amp; !isspace(*src)) putchar(*src++);</li>
-<li class="old">      printf("'.\n");</li>
-<li class="old">   }</li>
-<li class="old">   return true;</li>
-<li class="old">}</li>
-<li class="old"></li>
-<li class="old">bool parseAndExecute(const char *input)</li>
-<li class="old">{</li>
-<li class="old">   static const COMMAND commands[] =</li>
-<li class="old">   {</li>
-<li class="old">      {executeQuit      , "quit"},</li>
-<li class="old">      {executeLookAround, "look"},</li>
-<li class="old">      {executeLookAround, "look around"},</li>
-<li class="old">      {executeLook      , "look at A"},</li>
-<li class="old">      {executeLook      , "look A"},</li>
-<li class="old">      {executeGo        , "go to A"},</li>
-<li class="old">      {executeGo        , "go A"},</li>
-<li class="new">      {executeGetFrom   , "get A from B"},</li>
-<li class="old">      {executeGet       , "get A"},</li>
-<li class="new">      {executePutIn     , "put A in B"},</li>
-<li class="new">      {executePutIn     , "drop A in B"},</li>
-<li class="old">      {executeDrop      , "drop A"},</li>
-<li class="new">      {executeAskFrom   , "ask A from B"},</li>
-<li class="old">      {executeAsk       , "ask A"},</li>
-<li class="new">      {executeGiveTo    , "give A to B"},</li>
-<li class="old">      {executeGive      , "give A"},</li>
-<li class="old">      {executeInventory , "inventory"},</li>
-<li class="old">      {executeOpen      , "open A"},</li>
-<li class="old">      {executeClose     , "close A"},</li>
-<li class="old">      {executeLock      , "lock A"},</li>
-<li class="old">      {executeUnlock    , "unlock A"},</li>
-<li class="old">      {executeNoMatch   , "A"}</li>
-<li class="old">   };</li>
-<li class="old">   const COMMAND *cmd;</li>
-<li class="old">   for (cmd = commands; !matchCommand(input, cmd-&gt;pattern); cmd++);</li>
-<li class="old">   return (*cmd-&gt;function)();</li>
-<li class="old">}</li>
-</ol>
-</td>
-</tr></table>
-<p>
-In <i>inventory.c</i>,
-we add functions that implement the new multi-noun commands
-<i>get</i>, <i>drop/put</i>, <i>ask</i> and <i>give</i>
-(see lines 63-81 below).
-Now we can finally put the gold coin back in the box!
-</p>
 <table class="demo">
 <tr><th>Sample output</th></tr>
 <tr><td>
@@ -261,81 +175,112 @@ Bye!<br />
 </td></tr>
 </table>
 <table class="code"><tr>
-<th>inventory.h</th>
+<th>parsexec.h</th>
 </tr><tr>
 <td>
 <ol>
-<li class="old">extern bool executeGet(void);</li>
-<li class="old">extern bool executeDrop(void);</li>
-<li class="old">extern bool executeAsk(void);</li>
-<li class="old">extern bool executeGive(void);</li>
-<li class="new">extern bool executeGetFrom(void);</li>
-<li class="new">extern bool executePutIn(void);</li>
-<li class="new">extern bool executeAskFrom(void);</li>
-<li class="new">extern bool executeGiveTo(void);</li>
-<li class="old">extern bool executeInventory(void);</li>
+<li class="old">extern bool parseAndExecute(const char *input);</li>
 </ol>
 </td>
 </tr><tr>
-<th>inventory.c</th>
+<th>parsexec.c</th>
 </tr><tr>
 <td>
 <ol>
+<li class="old">#include &lt;ctype.h&gt;</li>
 <li class="old">#include &lt;stdio.h&gt;</li>
 <li class="old">#include "object.h"</li>
 <li class="old">#include "misc.h"</li>
 <li class="old">#include "match.h"</li>
-<li class="old">#include "noun.h"</li>
-<li class="old">#include "move.h"</li>
-<li class="new">#include "reach.h"</li>
+<li class="old">#include "location.h"</li>
+<li class="old">#include "inventory.h"</li>
+<li class="new">#include "inventory2.h"</li>
+<li class="old">#include "openclose.h"</li>
 <li class="old"></li>
-<li class="old">bool executeGet(void)</li>
+<li class="old">typedef struct</li>
 <li class="old">{</li>
-<li class="old">   OBJECT *obj = getVisible("what you want to get", params[0]);</li>
-<li class="old">   switch (getDistance(player, obj))</li>
+<li class="old">   bool (*function)(void);</li>
+<li class="old">   const char *pattern;</li>
+<li class="old">} COMMAND;</li>
+<li class="old"></li>
+<li class="old">static bool executeQuit(void)</li>
+<li class="old">{</li>
+<li class="old">   return false;</li>
+<li class="old">}</li>
+<li class="old"></li>
+<li class="old">static bool executeNoMatch(void)</li>
+<li class="old">{</li>
+<li class="old">   const char *src = *params;</li>
+<li class="old">   if (*src != '\0')</li>
 <li class="old">   {</li>
-<li class="old">   case distSelf:</li>
-<li class="old">      printf("You should not be doing that to %s.\n", obj-&gt;description);</li>
-<li class="old">      break;</li>
-<li class="old">   case distHeld:</li>
-<li class="old">      printf("You already have %s.\n", obj-&gt;description);</li>
-<li class="old">      break;</li>
-<li class="old">   case distOverthere:</li>
-<li class="old">      printf("Too far away, move closer please.\n");</li>
-<li class="old">      break;</li>
-<li class="old">   case distUnknownObject:</li>
-<li class="old">      // already handled by getVisible</li>
-<li class="old">      break;</li>
-<li class="old">   default:</li>
-<li class="old">      if (obj-&gt;location != NULL &amp;&amp; obj-&gt;location-&gt;health &gt; 0)</li>
-<li class="old">      {</li>
-<li class="old">         printf("You should ask %s nicely.\n", obj-&gt;location-&gt;description);</li>
-<li class="old">      }</li>
-<li class="old">      else</li>
-<li class="old">      {</li>
-<li class="old">         moveObject(obj, player);</li>
-<li class="old">      }</li>
+<li class="old">      printf("I don't know how to '");</li>
+<li class="old">      while (*src != '\0' &amp;&amp; !isspace(*src)) putchar(*src++);</li>
+<li class="old">      printf("'.\n");</li>
 <li class="old">   }</li>
 <li class="old">   return true;</li>
 <li class="old">}</li>
 <li class="old"></li>
-<li class="old">bool executeDrop(void)</li>
+<li class="old">bool parseAndExecute(const char *input)</li>
 <li class="old">{</li>
-<li class="old">   moveObject(getPossession(player, "drop", params[0]), player-&gt;location);</li>
-<li class="old">   return true;</li>
+<li class="old">   static const COMMAND commands[] =</li>
+<li class="old">   {</li>
+<li class="old">      {executeQuit      , "quit"},</li>
+<li class="old">      {executeLookAround, "look"},</li>
+<li class="old">      {executeLookAround, "look around"},</li>
+<li class="old">      {executeLook      , "look at A"},</li>
+<li class="old">      {executeLook      , "look A"},</li>
+<li class="old">      {executeGo        , "go to A"},</li>
+<li class="old">      {executeGo        , "go A"},</li>
+<li class="new">      {executeGetFrom   , "get A from B"},</li>
+<li class="old">      {executeGet       , "get A"},</li>
+<li class="new">      {executePutIn     , "put A in B"},</li>
+<li class="new">      {executePutIn     , "drop A in B"},</li>
+<li class="old">      {executeDrop      , "drop A"},</li>
+<li class="new">      {executeAskFrom   , "ask A from B"},</li>
+<li class="old">      {executeAsk       , "ask A"},</li>
+<li class="new">      {executeGiveTo    , "give A to B"},</li>
+<li class="old">      {executeGive      , "give A"},</li>
+<li class="old">      {executeInventory , "inventory"},</li>
+<li class="old">      {executeOpen      , "open A"},</li>
+<li class="old">      {executeClose     , "close A"},</li>
+<li class="old">      {executeLock      , "lock A"},</li>
+<li class="old">      {executeUnlock    , "unlock A"},</li>
+<li class="old">      {executeNoMatch   , "A"}</li>
+<li class="old">   };</li>
+<li class="old">   const COMMAND *cmd;</li>
+<li class="old">   for (cmd = commands; !matchCommand(input, cmd-&gt;pattern); cmd++);</li>
+<li class="old">   return (*cmd-&gt;function)();</li>
 <li class="old">}</li>
-<li class="old"></li>
-<li class="old">bool executeAsk(void)</li>
-<li class="old">{</li>
-<li class="old">   moveObject(getPossession(actorHere(), "ask", params[0]), player);</li>
-<li class="old">   return true;</li>
-<li class="old">}</li>
-<li class="old"></li>
-<li class="old">bool executeGive(void)</li>
-<li class="old">{</li>
-<li class="old">   moveObject(getPossession(player, "give", params[0]), actorHere());</li>
-<li class="new">   return true;</li>
-<li class="new">}</li>
+</ol>
+</td>
+</tr></table>
+<p>
+In a new module <i>inventory2.c</i>, we implement the new multi-noun commands
+<i>get</i>, <i>drop/put</i>, <i>ask</i> and <i>give</i>.
+Now we can finally put the gold coin back in the box!
+</p>
+<table class="code"><tr>
+<th>inventory2.h</th>
+</tr><tr>
+<td>
+<ol>
+<li class="new">extern bool executeGetFrom(void);</li>
+<li class="new">extern bool executePutIn(void);</li>
+<li class="new">extern bool executeAskFrom(void);</li>
+<li class="new">extern bool executeGiveTo(void);</li>
+</ol>
+</td>
+</tr><tr>
+<th>inventory2.c</th>
+</tr><tr>
+<td>
+<ol>
+<li class="new">#include &lt;stdio.h&gt;</li>
+<li class="new">#include "object.h"</li>
+<li class="new">#include "match.h"</li>
+<li class="new">#include "noun.h"</li>
+<li class="new">#include "move.h"</li>
+<li class="new">#include "reach.h"</li>
 <li class="new"></li>
 <li class="new">bool executeGetFrom(void)</li>
 <li class="new">{</li>
@@ -382,17 +327,8 @@ Bye!<br />
 <li class="new">      OBJECT *to = reachableObject("who to give that to", params[1]);</li>
 <li class="new">      moveObject(obj, to);</li>
 <li class="new">   }</li>
-<li class="old">   return true;</li>
-<li class="old">}</li>
-<li class="old"></li>
-<li class="old">bool executeInventory(void)</li>
-<li class="old">{</li>
-<li class="old">   if (listObjectsAtLocation(player) == 0)</li>
-<li class="old">   {</li>
-<li class="old">      printf("You are empty-handed.\n");</li>
-<li class="old">   }</li>
-<li class="old">   return true;</li>
-<li class="old">}</li>
+<li class="new">   return true;</li>
+<li class="new">}</li>
 </ol>
 </td>
 </tr></table>

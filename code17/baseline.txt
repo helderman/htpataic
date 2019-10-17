@@ -24,13 +24,13 @@ You see:
 a way out to the west
 
 --> get key
-You don't see any key here.
+It's too dark.
 
 --> open door
-You don't see any door here.
+It's too dark.
 
 --> go south
-You don't see any south here.
+It's too dark.
 
 --> turn lamp on
 OK.
