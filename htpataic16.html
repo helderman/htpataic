@@ -141,6 +141,7 @@ This will be discussed in chapter 21.
 <li class="old"></li>
 <li class="new"><span class="old">int </span>main(int argc, char *argv[])</li>
 <li class="old">{</li>
+<li class="new"><span class="old">   </span>(void)argc;</li>
 <li class="old">   printf("Welcome to Little Cave Adventure.\n");</li>
 <li class="new"><span class="old">   while (parseAndExecute(input) &amp;&amp; </span>getInput(argv[1]));</li>
 <li class="old">   printf("\nBye!\n");</li>
@@ -215,15 +216,20 @@ once the input file reaches EOF, we switch over to manual input.
 We close the file, set <i>fp</i> to <i>stdin</i>,
 and read again using the new file pointer.
 </li>
-<li>Lines 42 and 45:
+<li>Lines 42 and 46:
 the name of the file must be passed as the first argument
 when calling the program.
+</li>
+<li>Line 44:
+dummy statement
+to suppress a compiler warning on unused parameter <i>argc</i>.
 </li>
 </ul>
 </div>
 <p>
-This is the first time since chapter 2,
-that we actually made changes to <i>main.c</i>!
+And in case you hadn't noticed:
+this is the first time since chapter 2,
+that we are making changes to <i>main.c</i>!
 </p>
 <hr />
 <p>

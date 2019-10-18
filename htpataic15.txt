@@ -42,7 +42,17 @@ Alright; so first of all, in darkness you cannot see your surroundings.
 </td>
 </tr></table>
 <p>
-Above, we used a function <i>isLit</i>.
+Secondly, in darkness you cannot see or use nearby objects.
+</p>
+<table class="code"><tr>
+<th>noun.c</th>
+</tr><tr>
+<td>
+#diff 15 noun.c
+</td>
+</tr></table>
+<p>
+In both cases, we used a function <i>isLit</i>.
 It is defined (and used some more) in <i>misc.c</i>.
 </p>
 <table class="code"><tr>
@@ -58,6 +68,29 @@ It is defined (and used some more) in <i>misc.c</i>.
 #diff 15 misc.c
 </td>
 </tr></table>
+<div class="explanation">
+<p>
+Explanation:
+</p>
+<ul>
+<li>Line 13:
+we are using whitelists to identify
+the locations that are naturally lit (the field)
+and any objects that produce light (the lamp).
+In a big adventure with more locations
+(and maybe more lamps, torches, glowsticks),
+it would be wise to introduce an attribute for this;
+similar to how we replaced the whitelist of actors
+with a 'health' attribute in chapter 10.
+</li>
+<li>Lines 35 and 65:
+nearby objects that remain hidden in the dark,
+are being treated as 'not here'.
+This naturally prevents the game from leaking information
+about objects the player is not supposed to be aware of.
+</li>
+</ul>
+</div>
 <p>
 We will add a lamp the player can carry to get through the dark locations.
 </p>

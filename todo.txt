@@ -1,6 +1,4 @@
-- ch15: noun.c has changed, should be in htpataic15.txt
-- ch16: argc becomes unused parameter
-
+- ch17: improve test coverage; get rid of test.{in,old,out}
 - noun.c getPossession: getting/asking from actor or from dead object
 - move.c reachableObject: eliminate 'default:'
 

@@ -140,7 +140,114 @@ Alright; so first of all, in darkness you cannot see your surroundings.
 </td>
 </tr></table>
 <p>
-Above, we used a function <i>isLit</i>.
+Secondly, in darkness you cannot see or use nearby objects.
+</p>
+<table class="code"><tr>
+<th>noun.c</th>
+</tr><tr>
+<td>
+<ol>
+<li class="old">#include &lt;stdbool.h&gt;</li>
+<li class="old">#include &lt;stdio.h&gt;</li>
+<li class="old">#include &lt;string.h&gt;</li>
+<li class="old">#include "object.h"</li>
+<li class="old">#include "misc.h"</li>
+<li class="old"></li>
+<li class="old">static bool objectHasTag(OBJECT *obj, const char *noun)</li>
+<li class="old">{</li>
+<li class="old">   if (noun != NULL &amp;&amp; *noun != '\0')</li>
+<li class="old">   {</li>
+<li class="old">      const char **tag;</li>
+<li class="old">      for (tag = obj-&gt;tags; *tag != NULL; tag++)</li>
+<li class="old">      {</li>
+<li class="old">         if (strcmp(*tag, noun) == 0) return true;</li>
+<li class="old">      }</li>
+<li class="old">   }</li>
+<li class="old">   return false;</li>
+<li class="old">}</li>
+<li class="old"></li>
+<li class="old">static OBJECT ambiguousNoun;</li>
+<li class="old"></li>
+<li class="old">static OBJECT *getObject(const char *noun, OBJECT *from, DISTANCE maxDistance)</li>
+<li class="old">{</li>
+<li class="old">   OBJECT *obj, *res = NULL;</li>
+<li class="old">   forEachObject(obj)</li>
+<li class="old">   {</li>
+<li class="old">      if (objectHasTag(obj, noun) &amp;&amp; getDistance(from, obj) &lt;= maxDistance)</li>
+<li class="old">      {</li>
+<li class="old">         res = res == NULL ? obj : &amp;ambiguousNoun;</li>
+<li class="old">      }</li>
+<li class="old">   }</li>
+<li class="old">   return res;</li>
+<li class="old">}</li>
+<li class="old"></li>
+<li class="old">OBJECT *getVisible(const char *intention, const char *noun)</li>
+<li class="old">{</li>
+<li class="old">   OBJECT *obj = getObject(noun, player, distOverthere);</li>
+<li class="old">   if (obj == NULL)</li>
+<li class="old">   {</li>
+<li class="old">      if (getObject(noun, player, distNotHere) == NULL)</li>
+<li class="old">      {</li>
+<li class="old">         printf("I don't understand %s.\n", intention);</li>
+<li class="old">      }</li>
+<li class="new"><span class="old">      else </span>if (isLit(player-&gt;location))</li>
+<li class="old">      {</li>
+<li class="old">         printf("You don't see any %s here.\n", noun);</li>
+<li class="new"><span class="old">      </span>}</li>
+<li class="new">      else</li>
+<li class="new">      {</li>
+<li class="new">         printf("It's too dark.\n");</li>
+<li class="old">      }</li>
+<li class="old">   }</li>
+<li class="old">   else if (obj == &amp;ambiguousNoun)</li>
+<li class="old">   {</li>
+<li class="old">      printf("Please be specific about which %s you mean.\n", noun);</li>
+<li class="old">      obj = NULL;</li>
+<li class="old">   }</li>
+<li class="old">   return obj;</li>
+<li class="old">}</li>
+<li class="old"></li>
+<li class="old">OBJECT *getPossession(OBJECT *from, const char *verb, const char *noun)</li>
+<li class="old">{</li>
+<li class="old">   OBJECT *obj = NULL;</li>
+<li class="old">   if (from == NULL)</li>
+<li class="old">   {</li>
+<li class="old">      printf("I don't understand who you want to %s.\n", verb);</li>
+<li class="old">   }</li>
+<li class="old">   else if ((obj = getObject(noun, from, distHeldContained)) == NULL)</li>
+<li class="old">   {</li>
+<li class="old">      if (getObject(noun, player, distNotHere) == NULL)</li>
+<li class="old">      {</li>
+<li class="old">         printf("I don't understand what you want to %s.\n", verb);</li>
+<li class="old">      }</li>
+<li class="old">      else if (from == player)</li>
+<li class="old">      {</li>
+<li class="old">         printf("You are not holding any %s.\n", noun);</li>
+<li class="old">      }</li>
+<li class="old">      else</li>
+<li class="old">      {</li>
+<li class="old">         printf("There appears to be no %s you can get from %s.\n",</li>
+<li class="old">                noun, from-&gt;description);</li>
+<li class="old">      }</li>
+<li class="old">   }</li>
+<li class="old">   else if (obj == &amp;ambiguousNoun)</li>
+<li class="old">   {</li>
+<li class="old">      printf("Please be specific about which %s you want to %s.\n",</li>
+<li class="old">             noun, verb);</li>
+<li class="old">      obj = NULL;</li>
+<li class="old">   }</li>
+<li class="old">   else if (obj == from)</li>
+<li class="old">   {</li>
+<li class="old">      printf("You should not be doing that to %s.\n", obj-&gt;description);</li>
+<li class="old">      obj = NULL;</li>
+<li class="old">   }</li>
+<li class="old">   return obj;</li>
+<li class="old">}</li>
+</ol>
+</td>
+</tr></table>
+<p>
+In both cases, we used a function <i>isLit</i>.
 It is defined (and used some more) in <i>misc.c</i>.
 </p>
 <table class="code"><tr>
@@ -262,6 +369,29 @@ It is defined (and used some more) in <i>misc.c</i>.
 </ol>
 </td>
 </tr></table>
+<div class="explanation">
+<p>
+Explanation:
+</p>
+<ul>
+<li>Line 13:
+we are using whitelists to identify
+the locations that are naturally lit (the field)
+and any objects that produce light (the lamp).
+In a big adventure with more locations
+(and maybe more lamps, torches, glowsticks),
+it would be wise to introduce an attribute for this;
+similar to how we replaced the whitelist of actors
+with a 'health' attribute in chapter 10.
+</li>
+<li>Lines 35 and 65:
+nearby objects that remain hidden in the dark,
+are being treated as 'not here'.
+This naturally prevents the game from leaking information
+about objects the player is not supposed to be aware of.
+</li>
+</ul>
+</div>
 <p>
 We will add a lamp the player can carry to get through the dark locations.
 </p>

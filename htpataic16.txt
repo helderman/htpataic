@@ -143,15 +143,20 @@ once the input file reaches EOF, we switch over to manual input.
 We close the file, set <i>fp</i> to <i>stdin</i>,
 and read again using the new file pointer.
 </li>
-<li>Lines 42 and 45:
+<li>Lines 42 and 46:
 the name of the file must be passed as the first argument
 when calling the program.
+</li>
+<li>Line 44:
+dummy statement
+to suppress a compiler warning on unused parameter <i>argc</i>.
 </li>
 </ul>
 </div>
 <p>
-This is the first time since chapter 2,
-that we actually made changes to <i>main.c</i>!
+And in case you hadn't noticed:
+this is the first time since chapter 2,
+that we are making changes to <i>main.c</i>!
 </p>
 <hr />
 <p>
