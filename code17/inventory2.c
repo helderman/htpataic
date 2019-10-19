@@ -7,11 +7,10 @@
 
 bool executeGetFrom(void)
 {
-   // TODO: need a getVisible that does not report ambiguous noun
    // TODO: report if actor
-   if (getVisible("what you want to get", params[0]) != NULL)
+   OBJECT *from = reachableObject("where to get that from", params[1]);
+   if (from != NULL && getVisible("what you want to get", params[0]) != NULL)
    {
-      OBJECT *from = reachableObject("where to get that from", params[1]);
       moveObject(getPossession(from, "get", params[0]), player);
    }
    return true;
@@ -31,11 +30,10 @@ bool executePutIn(void)
 
 bool executeAskFrom(void)
 {
-   // TODO: need a getVisible that does not report ambiguous noun
    // TODO: report if not actor
-   if (getVisible("what you want to ask", params[0]) != NULL)
+   OBJECT *from = reachableObject("who to ask that", params[1]);
+   if (from != NULL && getVisible("what you want to ask", params[0]) != NULL)
    {
-      OBJECT *from = reachableObject("who to ask that", params[1]);
       moveObject(getPossession(from, "ask", params[0]), player);
    }
    return true;

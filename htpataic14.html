@@ -284,11 +284,10 @@ Now we can finally put the gold coin back in the box!
 <li class="new"></li>
 <li class="new">bool executeGetFrom(void)</li>
 <li class="new">{</li>
-<li class="new">   // TODO: need a getVisible that does not report ambiguous noun</li>
 <li class="new">   // TODO: report if actor</li>
-<li class="new">   if (getVisible("what you want to get", params[0]) != NULL)</li>
+<li class="new">   OBJECT *from = reachableObject("where to get that from", params[1]);</li>
+<li class="new">   if (from != NULL &amp;&amp; getVisible("what you want to get", params[0]) != NULL)</li>
 <li class="new">   {</li>
-<li class="new">      OBJECT *from = reachableObject("where to get that from", params[1]);</li>
 <li class="new">      moveObject(getPossession(from, "get", params[0]), player);</li>
 <li class="new">   }</li>
 <li class="new">   return true;</li>
@@ -308,11 +307,10 @@ Now we can finally put the gold coin back in the box!
 <li class="new"></li>
 <li class="new">bool executeAskFrom(void)</li>
 <li class="new">{</li>
-<li class="new">   // TODO: need a getVisible that does not report ambiguous noun</li>
 <li class="new">   // TODO: report if not actor</li>
-<li class="new">   if (getVisible("what you want to ask", params[0]) != NULL)</li>
+<li class="new">   OBJECT *from = reachableObject("who to ask that", params[1]);</li>
+<li class="new">   if (from != NULL &amp;&amp; getVisible("what you want to ask", params[0]) != NULL)</li>
 <li class="new">   {</li>
-<li class="new">      OBJECT *from = reachableObject("who to ask that", params[1]);</li>
 <li class="new">      moveObject(getPossession(from, "ask", params[0]), player);</li>
 <li class="new">   }</li>
 <li class="new">   return true;</li>
