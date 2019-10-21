@@ -3,7 +3,7 @@ Lines executed:37.50% of 32
 Creating 'inventory.c.gcov'
 
 File 'inventory2.c'
-Lines executed:0.00% of 24
+Lines executed:0.00% of 33
 Creating 'inventory2.c.gcov'
 
 File 'location.c'
@@ -54,4 +54,4 @@ File 'toggle.c'
 Lines executed:40.00% of 30
 Creating 'toggle.c.gcov'
 
-Lines executed:57.14% of 343
+Lines executed:55.68% of 352

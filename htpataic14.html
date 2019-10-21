@@ -284,25 +284,37 @@ Now we can finally put the gold coin back in the box!
 <li class="new"></li>
 <li class="new">bool executeGetFrom(void)</li>
 <li class="new">{</li>
-<li class="new">   // TODO: report if actor</li>
 <li class="new">   OBJECT *from = reachableObject("where to get that from", params[1]);</li>
 <li class="new">   if (from != NULL &amp;&amp; getVisible("what you want to get", params[0]) != NULL)</li>
 <li class="new">   {</li>
-<li class="new">      moveObject(getPossession(from, "get", params[0]), player);</li>
+<li class="new">      if (from-&gt;health &gt; 0)</li>
+<li class="new">      {</li>
+<li class="new">         printf("You should ask %s nicely.\n", from-&gt;description);</li>
+<li class="new">      }</li>
+<li class="new">      else</li>
+<li class="new">      {</li>
+<li class="new">         moveObject(getPossession(from, "get", params[0]), player);</li>
+<li class="new">      }</li>
 <li class="new">   }</li>
 <li class="new">   return true;</li>
 <li class="new">}</li>
 <li class="new"></li>
 <li class="new">bool executePutIn(void)</li>
 <li class="new">{</li>
-<li class="new">   // TODO: report if actor</li>
 <li class="new">   OBJECT *obj = getPossession(player, "put", params[0]);</li>
 <li class="new">   if (obj != NULL)</li>
 <li class="new">   {</li>
 <li class="new">      OBJECT *to = reachableObject("where to put that in", params[1]);</li>
 <li class="new">      if (to != NULL)</li>
 <li class="new">      {</li>
-<li class="new">         moveObject(obj, to);</li>
+<li class="new">         if (to-&gt;health &gt; 0)</li>
+<li class="new">         {</li>
+<li class="new">            printf("You should offer that nicely to %s.\n", to-&gt;description);</li>
+<li class="new">         }</li>
+<li class="new">         else</li>
+<li class="new">         {</li>
+<li class="new">            moveObject(obj, to);</li>
+<li class="new">         }</li>
 <li class="new">      }</li>
 <li class="new">   }</li>
 <li class="new">   return true;</li>
@@ -310,25 +322,40 @@ Now we can finally put the gold coin back in the box!
 <li class="new"></li>
 <li class="new">bool executeAskFrom(void)</li>
 <li class="new">{</li>
-<li class="new">   // TODO: report if not actor</li>
 <li class="new">   OBJECT *from = reachableObject("who to ask that", params[1]);</li>
-<li class="new">   if (from != NULL &amp;&amp; getVisible("what you want to ask", params[0]) != NULL)</li>
+<li class="new">   if (from != NULL)</li>
 <li class="new">   {</li>
-<li class="new">      moveObject(getPossession(from, "ask", params[0]), player);</li>
+<li class="new">      if (from-&gt;health &gt; 0)</li>
+<li class="new">      {</li>
+<li class="new">         if (getVisible("what you want to ask", params[0]) != NULL)</li>
+<li class="new">         {</li>
+<li class="new">            moveObject(getPossession(from, "ask", params[0]), player);</li>
+<li class="new">         }</li>
+<li class="new">      }</li>
+<li class="new">      else</li>
+<li class="new">      {</li>
+<li class="new">         printf("There is no response from %s.\n", from-&gt;description);</li>
+<li class="new">      }</li>
 <li class="new">   }</li>
 <li class="new">   return true;</li>
 <li class="new">}</li>
 <li class="new"></li>
 <li class="new">bool executeGiveTo(void)</li>
 <li class="new">{</li>
-<li class="new">   // TODO: report if not actor (not really error; especially when dead actor)</li>
 <li class="new">   OBJECT *obj = getPossession(player, "give", params[0]);</li>
 <li class="new">   if (obj != NULL)</li>
 <li class="new">   {</li>
 <li class="new">      OBJECT *to = reachableObject("who to give that to", params[1]);</li>
 <li class="new">      if (to != NULL)</li>
 <li class="new">      {</li>
-<li class="new">         moveObject(obj, to);</li>
+<li class="new">         if (to-&gt;health &gt; 0)</li>
+<li class="new">         {</li>
+<li class="new">            moveObject(obj, to);</li>
+<li class="new">         }</li>
+<li class="new">         else</li>
+<li class="new">         {</li>
+<li class="new">            printf("No eagerness is shown by %s.\n", to-&gt;description);</li>
+<li class="new">         }</li>
 <li class="new">      }</li>
 <li class="new">   }</li>
 <li class="new">   return true;</li>
