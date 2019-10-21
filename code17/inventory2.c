@@ -23,7 +23,10 @@ bool executePutIn(void)
    if (obj != NULL)
    {
       OBJECT *to = reachableObject("where to put that in", params[1]);
-      moveObject(obj, to);
+      if (to != NULL)
+      {
+         moveObject(obj, to);
+      }
    }
    return true;
 }
@@ -46,7 +49,10 @@ bool executeGiveTo(void)
    if (obj != NULL)
    {
       OBJECT *to = reachableObject("who to give that to", params[1]);
-      moveObject(obj, to);
+      if (to != NULL)
+      {
+         moveObject(obj, to);
+      }
    }
    return true;
 }

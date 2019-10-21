@@ -300,7 +300,10 @@ Now we can finally put the gold coin back in the box!
 <li class="new">   if (obj != NULL)</li>
 <li class="new">   {</li>
 <li class="new">      OBJECT *to = reachableObject("where to put that in", params[1]);</li>
-<li class="new">      moveObject(obj, to);</li>
+<li class="new">      if (to != NULL)</li>
+<li class="new">      {</li>
+<li class="new">         moveObject(obj, to);</li>
+<li class="new">      }</li>
 <li class="new">   }</li>
 <li class="new">   return true;</li>
 <li class="new">}</li>
@@ -323,7 +326,10 @@ Now we can finally put the gold coin back in the box!
 <li class="new">   if (obj != NULL)</li>
 <li class="new">   {</li>
 <li class="new">      OBJECT *to = reachableObject("who to give that to", params[1]);</li>
-<li class="new">      moveObject(obj, to);</li>
+<li class="new">      if (to != NULL)</li>
+<li class="new">      {</li>
+<li class="new">         moveObject(obj, to);</li>
+<li class="new">      }</li>
 <li class="new">   }</li>
 <li class="new">   return true;</li>
 <li class="new">}</li>
