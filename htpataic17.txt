@@ -88,7 +88,7 @@ once the test script has been finished.
 <th>testscript.txt</th>
 </tr><tr>
 <td>
-#new 17 test.in
+#new 17 testscript.txt
 </td>
 </tr></table>
 <p>
@@ -112,7 +112,7 @@ Keep it in a safe place as well; it is our
 <th>baseline.txt</th>
 </tr><tr>
 <td>
-#new 17 test.out
+#new 17 baseline.txt
 </td>
 </tr></table>
 <p>

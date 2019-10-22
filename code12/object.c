@@ -11,7 +11,7 @@ static bool condition6(void)  { return guard->health == 0 || silver->location ==
 static const char *tags6[] = { "east", "entrance", NULL};
 static bool condition7(void)  { return guard->health > 0 && silver->location != guard; }
 static const char *tags7[] = { "east", "entrance", NULL};
-static const char *tags8[] = { "west", "out", NULL};
+static const char *tags8[] = { "west", "exit", NULL};
 static const char *tags9[] = { "west", "north", "south", "forest", NULL};
 static const char *tags10[] = { "east", "north", "rock", NULL};
 static const char *tags11[] = { "backroom", NULL};
@@ -174,7 +174,7 @@ OBJECT objs[] = {
 	},
 	{	/* 8 = exitCave */
 		alwaysTrue,
-		 "a way out to the west",
+		 "an exit to the west",
 		tags8,
 		 cave,
 		 field,

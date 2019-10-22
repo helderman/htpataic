@@ -9,5 +9,5 @@ OBJECT objs[] = {
    {"a burly guard"  , "guard"   , field, NULL  },
    {"yourself"       , "yourself", field, NULL  },
    {"a cave entrance", "entrance", field, cave  },
-   {"a way out"      , "out"     , cave , field }
+   {"an exit"        , "exit"    , cave , field }
 };

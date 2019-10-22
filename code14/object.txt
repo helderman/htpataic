@@ -88,8 +88,8 @@ extern OBJECT objs[];
      open        isAlreadyOpen
 
 - exitCave
-     description "a way out to the west"
-     tags        "west", "out"
+     description "an exit to the west"
+     tags        "west", "exit"
      location    cave
      destination field
      details     "Sunlight pours in through an opening in the cave's wall.\n"

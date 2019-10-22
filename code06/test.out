@@ -10,9 +10,9 @@ OK.
 You are in a little cave.
 You see:
 a gold coin
-a way out
+an exit
 
---> go out
+--> go exit
 OK.
 You are in an open field.
 You see:
@@ -25,7 +25,7 @@ OK.
 You are in a little cave.
 You see:
 a gold coin
-a way out
+an exit
 
 --> quit
 

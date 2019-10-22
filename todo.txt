@@ -1,12 +1,12 @@
+- ch01-16: rename test.out to baseline.txt (also in every htpataic??.txt and in makefiles (even root) and in tools)
 - downloadable ZIP files
-- ch17: improve test coverage; get rid of test.{in,old,out}
 - noun.c getPossession: getting/asking from actor or from dead object
 - move.c reachableObject: eliminate 'default:'
 
-- ch06: tag 'exit' instead of 'out' (also in descriptive text) to avoid 'look out'
 - ch08: besides n/e/s/w, also up/down, nw, ne, sw, se
 - ch15: look <any object in possession>, in dark, gives too much visible detail
 - ch17: more about gcov
+- ch17: improve test coverage (testscript.txt)
 - ch17: emphasize that 100% code coverage does not imply data coverage
 - include makefile; see also ch17 test automation
 - ch17: expect is a good alternative

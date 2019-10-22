@@ -7,7 +7,7 @@ static const char *tags3[] = { "gold", "coin", "gold coin", NULL};
 static const char *tags4[] = { "guard", "burly guard", NULL};
 static const char *tags5[] = { "yourself", NULL};
 static const char *tags6[] = { "east", "entrance", NULL};
-static const char *tags7[] = { "west", "out", NULL};
+static const char *tags7[] = { "west", "exit", NULL};
 static const char *tags8[] = { "west", "north", "south", "forest", NULL};
 static const char *tags9[] = { "east", "north", "south", "rock", NULL};
 
@@ -55,7 +55,7 @@ OBJECT objs[] = {
 		 cave
 	},
 	{	/* 7 = exitCave */
-		 "a way out to the west",
+		 "an exit to the west",
 		tags7,
 		 cave,
 		 field
