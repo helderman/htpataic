@@ -5,7 +5,7 @@ test.out: test.in lilcave
 	./test.sh
 
 lilcave: $(C) $(H)
-	gcc -Wall -Wextra $(C) -o $@
+	gcc -Wall -Wextra -Wpedantic $(C) -o $@
 
 clean:
 	$(RM) lilcave

@@ -19,6 +19,8 @@ htpataic%.html: htpataic%.txt
 
 htpataic%.html: code%/test.out
 
+htpataic09.html: code09/makefile
+
 # Prevent error in case the sample code has not been built successfully yet
 .SECONDARY: code%/test.out
 

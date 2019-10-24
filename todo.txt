@@ -1,4 +1,6 @@
 - ch01-16: rename test.out to baseline.txt (also in every htpataic??.txt and in makefiles (even root) and in tools)
+- ch17: wikipedia links to cmp and mv; another suboptimal thing is the roll forward of ch16; refer to this from ch16
+- ch17: do a serious performance test!
 - downloadable ZIP files
 - noun.c getPossession: getting/asking from actor or from dead object
 - move.c reachableObject: eliminate 'default:'
