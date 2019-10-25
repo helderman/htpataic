@@ -271,16 +271,43 @@ for our adventure might look like this:
 #diff 9 makefile
 </td>
 </tr></table>
+<div class="explanation">
 <p>
-Now a single command <i>make</i> will do everything that is necessary
-to construct a new executable (named <i>lilcave</i> here)
-and a new map image.
-Notice I put not only <i>object.txt</i>, but also <i>object.awk</i>
-in the dependency rules (lines 12 and 15).
+Explanation:
+</p>
+<ul>
+<li>Lines 6-7:
+this rule performs an automated test.
+This is explained in chapter 17.
+</li>
+<li>Lines 9-10:
+this rule builds the executable <i>lilcave</i>.
+You may need to specify a different target name as dictated by your OS
+(e.g. <i>lilcave.exe</i> in Microsoft Windows).
+If your source files become so big (or your build machine is so slow)
+that full rebuilds become tedious,
+then feel free to split up the rule into separate build and link rules.
+</li>
+<li>Lines 12-17:
+these rules generate <i>object.c</i> and <i>object.h</i>.
+Notice I specified not only <i>object.txt</i>,
+but also <i>object.awk</i> as a prerequisite.
 Although technically,
 <i>object.awk</i> is more of a development tool than it is a source file,
 it is still subject to change;
 already so in the next three chapters.
+</li>
+<li>Lines 19-23:
+these rules generate the map image.
+</li>
+<li>Lines 25-26:
+it is customary to have a separate rule to delete all targets and intermediate files.
+</li>
+</ul>
+</div>
+<p>
+Now a single command <i>make</i> will do everything that is necessary
+to construct an executable and a map image.
 </p>
 <hr />
 <p>
