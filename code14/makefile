@@ -1,10 +1,11 @@
-all: test.out map.png
+all: success.txt map.png
 
 C = object.c misc.c match.c noun.c toggle.c location.c move.c reach.c inventory.c inventory2.c openclose.c parsexec.c main.c
 H = object.h misc.h match.h noun.h toggle.h location.h move.h reach.h inventory.h inventory2.h openclose.h parsexec.h
 
-test.out: test.in lilcave
+success.txt: lilcave testscript.txt baseline.txt
 	./test.sh
+	mv -f transcript.txt $@
 
 lilcave: $(C) $(H)
 	gcc -Wall -Wextra -Wpedantic -Werror $(C) -o $@
@@ -23,4 +24,4 @@ map.gv: map.awk object.txt
 	awk -f map.awk object.txt > $@
 
 clean:
-	$(RM) object.c object.h lilcave map.gv map.png
+	$(RM) object.c object.h lilcave map.gv map.png transcript.txt success.txt

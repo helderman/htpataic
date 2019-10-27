@@ -13,16 +13,14 @@
 html: $(patsubst %.txt,%.html,$(wildcard htpataic??.txt))
 
 # Each .html will be rebuilt upon modification of its .txt
-# and/or its sample code (based on build target code??/test.out)
-htpataic%.html: htpataic%.txt
+# and/or its sample code (based on build target code??/success.txt)
+htpataic%.html: htpataic%.txt code%/success.txt
 	tools/compile.sh $< > $@
-
-htpataic%.html: code%/test.out
 
 htpataic09.html: code09/makefile
 
 # Prevent error in case the sample code has not been built successfully yet
-.SECONDARY: code%/test.out
+.SECONDARY: code%/success.txt
 
 # 'make code' will make all sample code (i.e. every subdirectory code??)
 code: code??

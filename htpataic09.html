@@ -426,13 +426,14 @@ for our adventure might look like this:
 </tr><tr>
 <td>
 <ol>
-<li class="new">all: test.out map.png</li>
+<li class="new">all: success.txt map.png</li>
 <li class="old"></li>
 <li class="old">C = object.c misc.c noun.c location.c move.c inventory.c parsexec.c main.c</li>
 <li class="old">H = object.h misc.h noun.h location.h move.h inventory.h parsexec.h</li>
 <li class="old"></li>
-<li class="old">test.out: test.in lilcave</li>
+<li class="old">success.txt: lilcave testscript.txt baseline.txt</li>
 <li class="old">	./test.sh</li>
+<li class="old">	mv -f transcript.txt $@</li>
 <li class="old"></li>
 <li class="old">lilcave: $(C) $(H)</li>
 <li class="old">	gcc -Wall -Wextra -Wpedantic -Werror $(C) -o $@</li>
@@ -451,7 +452,7 @@ for our adventure might look like this:
 <li class="new">	awk -f map.awk object.txt &gt; $@</li>
 <li class="old"></li>
 <li class="old">clean:</li>
-<li class="new"><span class="old">	$(RM) </span>object.c object.h<span class="old"> lilcave </span>map.gv map.png</li>
+<li class="new"><span class="old">	$(RM) </span>object.c object.h<span class="old"> lilcave </span>map.gv map.png<span class="old"> transcript.txt success.txt</span></li>
 </ol>
 </td>
 </tr></table>
@@ -460,11 +461,11 @@ for our adventure might look like this:
 Explanation:
 </p>
 <ul>
-<li>Lines 6-7:
+<li>Lines 6-8:
 this rule performs an automated test.
 This is explained in chapter 17.
 </li>
-<li>Lines 9-10:
+<li>Lines 10-11:
 this rule builds the executable <i>lilcave</i>.
 You may need to specify a different target name as dictated by your OS
 (e.g. <i>lilcave.exe</i> in Microsoft Windows).
@@ -472,7 +473,7 @@ If your source files become so big (or your build machine is so slow)
 that full rebuilds become tedious,
 then feel free to split up the rule into separate build and link rules.
 </li>
-<li>Lines 12-17:
+<li>Lines 13-18:
 these rules generate <i>object.c</i> and <i>object.h</i>.
 Notice I specified not only <i>object.txt</i>,
 but also <i>object.awk</i> as a prerequisite.
@@ -481,10 +482,10 @@ Although technically,
 it is still subject to change;
 already so in the next three chapters.
 </li>
-<li>Lines 19-23:
+<li>Lines 20-24:
 these rules generate the map image.
 </li>
-<li>Lines 25-26:
+<li>Lines 26-27:
 it is customary to have a separate rule to delete all targets and intermediate files.
 </li>
 </ul>

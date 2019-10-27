@@ -1,8 +1,9 @@
-# Exclude gcc/gcov output in the code folders
+# Exclude gcc/gcov/test output in the code folders
 lilcave
 lilcave.testable
 *.gcda
 *.gcno
 *.gcov
 codecoverage.txt
+transcript.txt
 success.txt

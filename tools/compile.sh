@@ -13,7 +13,7 @@ do
 		"$DIR/codediff.sh" ${line#\#}
 		;;
 	(\#test\ *)
-		"$DIR/html.sh" "$(printf "code%02d/test.out" ${line#\#test })"
+		"$DIR/html.sh" "$(printf "code%02d/baseline.txt" ${line#\#test })"
 		;;
 	(*)
 		echo "$line"

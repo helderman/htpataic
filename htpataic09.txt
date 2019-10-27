@@ -276,11 +276,11 @@ for our adventure might look like this:
 Explanation:
 </p>
 <ul>
-<li>Lines 6-7:
+<li>Lines 6-8:
 this rule performs an automated test.
 This is explained in chapter 17.
 </li>
-<li>Lines 9-10:
+<li>Lines 10-11:
 this rule builds the executable <i>lilcave</i>.
 You may need to specify a different target name as dictated by your OS
 (e.g. <i>lilcave.exe</i> in Microsoft Windows).
@@ -288,7 +288,7 @@ If your source files become so big (or your build machine is so slow)
 that full rebuilds become tedious,
 then feel free to split up the rule into separate build and link rules.
 </li>
-<li>Lines 12-17:
+<li>Lines 13-18:
 these rules generate <i>object.c</i> and <i>object.h</i>.
 Notice I specified not only <i>object.txt</i>,
 but also <i>object.awk</i> as a prerequisite.
@@ -297,10 +297,10 @@ Although technically,
 it is still subject to change;
 already so in the next three chapters.
 </li>
-<li>Lines 19-23:
+<li>Lines 20-24:
 these rules generate the map image.
 </li>
-<li>Lines 25-26:
+<li>Lines 26-27:
 it is customary to have a separate rule to delete all targets and intermediate files.
 </li>
 </ul>

@@ -1,11 +1,12 @@
 C = parsexec.c main.c
 H = parsexec.h
 
-test.out: test.in lilcave
+success.txt: lilcave testscript.txt baseline.txt
 	./test.sh
+	mv -f transcript.txt $@
 
 lilcave: $(C) $(H)
 	gcc -Wall -Wextra -Wpedantic $(C) -o $@
 
 clean:
-	$(RM) lilcave
+	$(RM) lilcave transcript.txt success.txt
