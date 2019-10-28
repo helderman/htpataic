@@ -1,4 +1,6 @@
-- ch17: wikipedia links to cmp and mv; another suboptimal thing is the roll forward of ch16; refer to this from ch16
+- put key in box (when closed), put coin in forest ---> "that is way too heavy"
+- automatically look around when turning lamp on in cave
+
 - ch17: do a serious performance test!
 - downloadable ZIP files
 - noun.c getPossession: getting/asking from actor or from dead object
@@ -8,7 +10,6 @@
 - ch15: look <any object in possession>, in dark, gives too much visible detail
 - ch17: more about gcov
 - ch17: improve test coverage (testscript.txt)
-- ch17: emphasize that 100% code coverage does not imply data coverage
 - include makefile; see also ch17 test automation
 - ch17: expect is a good alternative
 - Q+A in stackoverflow: http://www.linuxquestions.org/questions/programming-9/running-gcov-when-executable-has-command-line-input-options-866269/
@@ -35,7 +36,6 @@
 - ch15: also an example of a light switch
 
 - object.awk: default for tags should be "\" \""
-- ch12: reachableObject hoort thuis in noun.c, maar die gaat dan >100 lines...
 
 - ch3: use pointers instead of i, and introduce noun.c already
 - ch4: calculate endOfObjs
@@ -97,6 +97,7 @@ http://en.wikipedia.org/wiki/Saved_game
 18. How simple it is to add commands (push/pull, move x to y) - refer to ch5
 - also: combat!
 - maybe rather focus on combat in ch18, plus discuss 'time' (turn-based vs real-time)
+- discuss random (like dice in RPG); explain problem with log (ch16); solve by logging seed
 19. Performance, space (refer to/from ch6)
 20. Database (sqlite)
 - replace function pointers (ch11) by enums; have object.awk generate a switch

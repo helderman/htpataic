@@ -1,13 +1,13 @@
 File 'inventory.c'
-Lines executed:37.50% of 32
+Lines executed:96.88% of 32
 Creating 'inventory.c.gcov'
 
 File 'inventory2.c'
-Lines executed:0.00% of 33
+Lines executed:90.91% of 33
 Creating 'inventory2.c.gcov'
 
 File 'location.c'
-Lines executed:53.33% of 45
+Lines executed:86.67% of 45
 Creating 'location.c.gcov'
 
 File 'main.c'
@@ -15,19 +15,19 @@ Lines executed:72.73% of 22
 Creating 'main.c.gcov'
 
 File 'match.c'
-Lines executed:96.77% of 31
+Lines executed:100.00% of 31
 Creating 'match.c.gcov'
 
 File 'misc.c'
-Lines executed:97.50% of 40
+Lines executed:100.00% of 40
 Creating 'misc.c.gcov'
 
 File 'move.c'
-Lines executed:66.67% of 18
+Lines executed:88.89% of 18
 Creating 'move.c.gcov'
 
 File 'noun.c'
-Lines executed:65.00% of 40
+Lines executed:82.50% of 40
 Creating 'noun.c.gcov'
 
 File 'object.c'
@@ -35,23 +35,23 @@ Lines executed:100.00% of 3
 Creating 'object.c.gcov'
 
 File 'onoff.c'
-Lines executed:41.67% of 12
+Lines executed:100.00% of 12
 Creating 'onoff.c.gcov'
 
 File 'openclose.c'
-Lines executed:25.00% of 16
+Lines executed:100.00% of 16
 Creating 'openclose.c.gcov'
 
 File 'parsexec.c'
-Lines executed:41.67% of 12
+Lines executed:100.00% of 12
 Creating 'parsexec.c.gcov'
 
 File 'reach.c'
-Lines executed:44.44% of 18
+Lines executed:100.00% of 18
 Creating 'reach.c.gcov'
 
 File 'toggle.c'
-Lines executed:40.00% of 30
+Lines executed:93.33% of 30
 Creating 'toggle.c.gcov'
 
-Lines executed:55.68% of 352
+Lines executed:92.33% of 352

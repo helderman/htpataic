@@ -92,6 +92,15 @@ once the test script has been finished.
 </td>
 </tr></table>
 <p>
+This test script is full of weird (combinations of) commands.
+I did my best to let the program give as many different responses as possible.
+The result is a code coverage of more than 90%, which is pretty good.
+Please note that this does <i>not</i> imply
+that we have tested 90% of all possible verb/noun combinations.
+Code coverage says little to nothing about the number of <i>objects</i>
+that we interacted with, due to the data-driven nature of our program.
+</p>
+<p>
 In step 2, we just call the program again, with the same filename as argument.
 Effectively, this repeats the entire session of step 1,
 without any user intervention.
@@ -184,8 +193,10 @@ Here is an example for
 </td>
 </tr></table>
 <p>
-Here, <i>make</i> will only execute the final move (<i>mv</i>)
-after a successful comparison (<i>cmp</i>).
+Here, <i>make</i> will only execute the final move
+(<a href="https://en.wikipedia.org/wiki/Mv">mv</a>)
+after a successful comparison
+(<a href="https://en.wikipedia.org/wiki/Cmp_(Unix)">cmp</a>).
 That way, an invalid transcript can never be mistaken for a successful update,
 and <i>make</i> will always re-run a test that failed earlier.
 </p>
@@ -244,8 +255,12 @@ in search of the ones relevant at the current location.
 <p>
 In a big adventure, with many locations, items, actors,
 and with a comprehensive vocabulary,
-these loops will need to traverse through some pretty long arrays.
-Will that still perform well?
+these loops will have to traverse some pretty long arrays.
+To make matters worse,
+the 'log and roll forward' technique proposed in the previous chapter
+means the player will have to wait for hundreds, maybe thousands of commands
+to be parsed and executed before being able to resume a game saved earlier.
+How long is that going to take?
 </p>
 <p>
 Many programmers will not wait for the bomb to burst,

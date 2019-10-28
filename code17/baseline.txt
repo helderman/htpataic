@@ -7,14 +7,80 @@ a cave entrance to the east
 dense forest all around
 a lamp
 
+--> mumble
+I don't know how to 'mumble'.
+
+--> inventory
+You are empty-handed.
+
+--> get whatever
+I don't understand what you want to get.
+
+--> get yourself
+You should not be doing that to yourself.
+
+--> get silver coin
+You pick up a silver coin.
+
+--> get coin
+You already have a silver coin.
+
+--> get guard
+That is way too heavy.
+
+--> get cave
+Too far away, move closer please.
+
+--> look cave
+Too far away, move closer please.
+
+--> inventory
+You have:
+a silver coin
+
+--> look at coin
+The coin has an eagle on the obverse.
+
 --> get lamp
 You pick up a lamp.
 
---> get coin
-You pick up a silver coin.
+--> inventory
+You have:
+a silver coin
+a lamp
+
+--> go east
+The guard stops you from walking into the cave.
+
+--> ask coin
+There appears to be no coin you can get from a burly guard.
+
+--> put coin in cave
+Too far away, move closer please.
 
 --> give coin
 You give a silver coin to a burly guard.
+
+--> give lamp to guard
+You give a lamp to a burly guard.
+
+--> look lamp
+Hard to see, try to get it first.
+
+--> get lamp from guard
+You should ask a burly guard nicely.
+
+--> ask lamp from guard
+You get a lamp from a burly guard.
+
+--> open yourself
+You should not be doing that to yourself.
+
+--> open coin
+You would have to get it from a burly guard first.
+
+--> open cave
+Too far away, move closer please.
 
 --> go cave
 You walk into the cave.
@@ -23,13 +89,7 @@ It is very dark in here.
 You see:
 an exit to the west
 
---> get key
-It's too dark.
-
---> open door
-It's too dark.
-
---> go south
+--> go east
 It's too dark.
 
 --> turn lamp on
@@ -43,8 +103,17 @@ solid rock all around
 a closed door to the south
 a tiny key
 
---> get key
+--> get key from cave
 You pick up a tiny key.
+
+--> ask coin
+I don't understand who you want to ask.
+
+--> give coin
+You are not holding any coin.
+
+--> go south
+The door is closed.
 
 --> open door
 OK.
@@ -57,6 +126,122 @@ You see:
 solid rock all around
 an open door to the north
 a wooden box
+
+--> open box
+That is still locked.
+
+--> put key in box
+That is way too heavy.
+
+--> unlock box
+OK.
+
+--> unlock box
+That is already unlocked.
+
+--> open box
+OK.
+
+--> look box
+The box is open.
+You see:
+a gold coin
+
+--> get coin from box
+You get a gold coin from a wooden box.
+
+--> put coin in box
+You put a gold coin in a wooden box.
+
+--> lock box
+That is still open.
+
+--> close box
+OK.
+
+--> lock box
+OK.
+
+--> lock box
+That is already locked.
+
+--> drop key
+You drop a tiny key.
+
+--> lock box
+That is already locked.
+
+--> unlock box
+You don't have a key.
+
+--> get key
+You pick up a tiny key.
+
+--> go north
+You walk through the door into the cave.
+
+You are in a little cave.
+You see:
+an exit to the west
+solid rock all around
+an open door to the south
+
+--> drop key
+You drop a tiny key.
+
+--> go west
+You walk out of the cave.
+
+You are in an open field.
+You see:
+a burly guard
+a cave entrance to the east
+dense forest all around
+
+--> turn lamp on
+The lamp is already on.
+
+--> turn lamp off
+OK.
+
+--> turn lamp off
+The lamp is already off.
+
+--> drop lamp
+You drop a lamp.
+
+--> ask coin
+You get a silver coin from a burly guard.
+
+--> turn coin on
+You cannot turn that on.
+
+--> turn coin off
+You cannot turn that off.
+
+--> open coin
+That cannot be opened.
+
+--> close coin
+That cannot be closed.
+
+--> lock coin
+That cannot be locked.
+
+--> unlock coin
+That cannot be unlocked.
+
+--> drop coin
+You drop a silver coin.
+
+--> drop coin
+You are not holding any coin.
+
+--> look backroom
+You don't see any backroom here.
+
+--> go backroom
+You don't see any backroom here.
 
 --> quit
 

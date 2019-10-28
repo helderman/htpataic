@@ -1,13 +1,69 @@
-get lamp
+mumble
+inventory
+get whatever
+get yourself
+get silver coin
 get coin
+get guard
+get cave
+look cave
+inventory
+look at coin
+get lamp
+inventory
+go east
+ask coin
+put coin in cave
 give coin
+give lamp to guard
+look lamp
+get lamp from guard
+ask lamp from guard
+open yourself
+open coin
+open cave
 go cave
-get key
-open door
-go south
+go east
 turn lamp on
 look around
-get key
+get key from cave
+ask coin
+give coin
+go south
 open door
 go south
+open box
+put key in box
+unlock box
+unlock box
+open box
+look box
+get coin from box
+put coin in box
+lock box
+close box
+lock box
+lock box
+drop key
+lock box
+unlock box
+get key
+go north
+drop key
+go west
+turn lamp on
+turn lamp off
+turn lamp off
+drop lamp
+ask coin
+turn coin on
+turn coin off
+open coin
+close coin
+lock coin
+unlock coin
+drop coin
+drop coin
+look backroom
+go backroom
 quit

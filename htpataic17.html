@@ -112,22 +112,87 @@ once the test script has been finished.
 </tr><tr>
 <td>
 <ol>
-<li class="new">get lamp</li>
+<li class="new">mumble</li>
+<li class="new">inventory</li>
+<li class="new">get whatever</li>
+<li class="new">get yourself</li>
+<li class="new">get silver coin</li>
 <li class="new">get coin</li>
+<li class="new">get guard</li>
+<li class="new">get cave</li>
+<li class="new">look cave</li>
+<li class="new">inventory</li>
+<li class="new">look at coin</li>
+<li class="new">get lamp</li>
+<li class="new">inventory</li>
+<li class="new">go east</li>
+<li class="new">ask coin</li>
+<li class="new">put coin in cave</li>
 <li class="new">give coin</li>
+<li class="new">give lamp to guard</li>
+<li class="new">look lamp</li>
+<li class="new">get lamp from guard</li>
+<li class="new">ask lamp from guard</li>
+<li class="new">open yourself</li>
+<li class="new">open coin</li>
+<li class="new">open cave</li>
 <li class="new">go cave</li>
-<li class="new">get key</li>
-<li class="new">open door</li>
-<li class="new">go south</li>
+<li class="new">go east</li>
 <li class="new">turn lamp on</li>
 <li class="new">look around</li>
-<li class="new">get key</li>
+<li class="new">get key from cave</li>
+<li class="new">ask coin</li>
+<li class="new">give coin</li>
+<li class="new">go south</li>
 <li class="new">open door</li>
 <li class="new">go south</li>
+<li class="new">open box</li>
+<li class="new">put key in box</li>
+<li class="new">unlock box</li>
+<li class="new">unlock box</li>
+<li class="new">open box</li>
+<li class="new">look box</li>
+<li class="new">get coin from box</li>
+<li class="new">put coin in box</li>
+<li class="new">lock box</li>
+<li class="new">close box</li>
+<li class="new">lock box</li>
+<li class="new">lock box</li>
+<li class="new">drop key</li>
+<li class="new">lock box</li>
+<li class="new">unlock box</li>
+<li class="new">get key</li>
+<li class="new">go north</li>
+<li class="new">drop key</li>
+<li class="new">go west</li>
+<li class="new">turn lamp on</li>
+<li class="new">turn lamp off</li>
+<li class="new">turn lamp off</li>
+<li class="new">drop lamp</li>
+<li class="new">ask coin</li>
+<li class="new">turn coin on</li>
+<li class="new">turn coin off</li>
+<li class="new">open coin</li>
+<li class="new">close coin</li>
+<li class="new">lock coin</li>
+<li class="new">unlock coin</li>
+<li class="new">drop coin</li>
+<li class="new">drop coin</li>
+<li class="new">look backroom</li>
+<li class="new">go backroom</li>
 <li class="new">quit</li>
 </ol>
 </td>
 </tr></table>
+<p>
+This test script is full of weird (combinations of) commands.
+I did my best to let the program give as many different responses as possible.
+The result is a code coverage of more than 90%, which is pretty good.
+Please note that this does <i>not</i> imply
+that we have tested 90% of all possible verb/noun combinations.
+Code coverage says little to nothing about the number of <i>objects</i>
+that we interacted with, due to the data-driven nature of our program.
+</p>
 <p>
 In step 2, we just call the program again, with the same filename as argument.
 Effectively, this repeats the entire session of step 1,
@@ -159,14 +224,80 @@ Keep it in a safe place as well; it is our
 <li class="new">dense forest all around</li>
 <li class="new">a lamp</li>
 <li class="new"></li>
+<li class="new">--&gt; mumble</li>
+<li class="new">I don't know how to 'mumble'.</li>
+<li class="new"></li>
+<li class="new">--&gt; inventory</li>
+<li class="new">You are empty-handed.</li>
+<li class="new"></li>
+<li class="new">--&gt; get whatever</li>
+<li class="new">I don't understand what you want to get.</li>
+<li class="new"></li>
+<li class="new">--&gt; get yourself</li>
+<li class="new">You should not be doing that to yourself.</li>
+<li class="new"></li>
+<li class="new">--&gt; get silver coin</li>
+<li class="new">You pick up a silver coin.</li>
+<li class="new"></li>
+<li class="new">--&gt; get coin</li>
+<li class="new">You already have a silver coin.</li>
+<li class="new"></li>
+<li class="new">--&gt; get guard</li>
+<li class="new">That is way too heavy.</li>
+<li class="new"></li>
+<li class="new">--&gt; get cave</li>
+<li class="new">Too far away, move closer please.</li>
+<li class="new"></li>
+<li class="new">--&gt; look cave</li>
+<li class="new">Too far away, move closer please.</li>
+<li class="new"></li>
+<li class="new">--&gt; inventory</li>
+<li class="new">You have:</li>
+<li class="new">a silver coin</li>
+<li class="new"></li>
+<li class="new">--&gt; look at coin</li>
+<li class="new">The coin has an eagle on the obverse.</li>
+<li class="new"></li>
 <li class="new">--&gt; get lamp</li>
 <li class="new">You pick up a lamp.</li>
 <li class="new"></li>
-<li class="new">--&gt; get coin</li>
-<li class="new">You pick up a silver coin.</li>
+<li class="new">--&gt; inventory</li>
+<li class="new">You have:</li>
+<li class="new">a silver coin</li>
+<li class="new">a lamp</li>
+<li class="new"></li>
+<li class="new">--&gt; go east</li>
+<li class="new">The guard stops you from walking into the cave.</li>
+<li class="new"></li>
+<li class="new">--&gt; ask coin</li>
+<li class="new">There appears to be no coin you can get from a burly guard.</li>
+<li class="new"></li>
+<li class="new">--&gt; put coin in cave</li>
+<li class="new">Too far away, move closer please.</li>
 <li class="new"></li>
 <li class="new">--&gt; give coin</li>
 <li class="new">You give a silver coin to a burly guard.</li>
+<li class="new"></li>
+<li class="new">--&gt; give lamp to guard</li>
+<li class="new">You give a lamp to a burly guard.</li>
+<li class="new"></li>
+<li class="new">--&gt; look lamp</li>
+<li class="new">Hard to see, try to get it first.</li>
+<li class="new"></li>
+<li class="new">--&gt; get lamp from guard</li>
+<li class="new">You should ask a burly guard nicely.</li>
+<li class="new"></li>
+<li class="new">--&gt; ask lamp from guard</li>
+<li class="new">You get a lamp from a burly guard.</li>
+<li class="new"></li>
+<li class="new">--&gt; open yourself</li>
+<li class="new">You should not be doing that to yourself.</li>
+<li class="new"></li>
+<li class="new">--&gt; open coin</li>
+<li class="new">You would have to get it from a burly guard first.</li>
+<li class="new"></li>
+<li class="new">--&gt; open cave</li>
+<li class="new">Too far away, move closer please.</li>
 <li class="new"></li>
 <li class="new">--&gt; go cave</li>
 <li class="new">You walk into the cave.</li>
@@ -175,13 +306,7 @@ Keep it in a safe place as well; it is our
 <li class="new">You see:</li>
 <li class="new">an exit to the west</li>
 <li class="new"></li>
-<li class="new">--&gt; get key</li>
-<li class="new">It's too dark.</li>
-<li class="new"></li>
-<li class="new">--&gt; open door</li>
-<li class="new">It's too dark.</li>
-<li class="new"></li>
-<li class="new">--&gt; go south</li>
+<li class="new">--&gt; go east</li>
 <li class="new">It's too dark.</li>
 <li class="new"></li>
 <li class="new">--&gt; turn lamp on</li>
@@ -195,8 +320,17 @@ Keep it in a safe place as well; it is our
 <li class="new">a closed door to the south</li>
 <li class="new">a tiny key</li>
 <li class="new"></li>
-<li class="new">--&gt; get key</li>
+<li class="new">--&gt; get key from cave</li>
 <li class="new">You pick up a tiny key.</li>
+<li class="new"></li>
+<li class="new">--&gt; ask coin</li>
+<li class="new">I don't understand who you want to ask.</li>
+<li class="new"></li>
+<li class="new">--&gt; give coin</li>
+<li class="new">You are not holding any coin.</li>
+<li class="new"></li>
+<li class="new">--&gt; go south</li>
+<li class="new">The door is closed.</li>
 <li class="new"></li>
 <li class="new">--&gt; open door</li>
 <li class="new">OK.</li>
@@ -209,6 +343,122 @@ Keep it in a safe place as well; it is our
 <li class="new">solid rock all around</li>
 <li class="new">an open door to the north</li>
 <li class="new">a wooden box</li>
+<li class="new"></li>
+<li class="new">--&gt; open box</li>
+<li class="new">That is still locked.</li>
+<li class="new"></li>
+<li class="new">--&gt; put key in box</li>
+<li class="new">That is way too heavy.</li>
+<li class="new"></li>
+<li class="new">--&gt; unlock box</li>
+<li class="new">OK.</li>
+<li class="new"></li>
+<li class="new">--&gt; unlock box</li>
+<li class="new">That is already unlocked.</li>
+<li class="new"></li>
+<li class="new">--&gt; open box</li>
+<li class="new">OK.</li>
+<li class="new"></li>
+<li class="new">--&gt; look box</li>
+<li class="new">The box is open.</li>
+<li class="new">You see:</li>
+<li class="new">a gold coin</li>
+<li class="new"></li>
+<li class="new">--&gt; get coin from box</li>
+<li class="new">You get a gold coin from a wooden box.</li>
+<li class="new"></li>
+<li class="new">--&gt; put coin in box</li>
+<li class="new">You put a gold coin in a wooden box.</li>
+<li class="new"></li>
+<li class="new">--&gt; lock box</li>
+<li class="new">That is still open.</li>
+<li class="new"></li>
+<li class="new">--&gt; close box</li>
+<li class="new">OK.</li>
+<li class="new"></li>
+<li class="new">--&gt; lock box</li>
+<li class="new">OK.</li>
+<li class="new"></li>
+<li class="new">--&gt; lock box</li>
+<li class="new">That is already locked.</li>
+<li class="new"></li>
+<li class="new">--&gt; drop key</li>
+<li class="new">You drop a tiny key.</li>
+<li class="new"></li>
+<li class="new">--&gt; lock box</li>
+<li class="new">That is already locked.</li>
+<li class="new"></li>
+<li class="new">--&gt; unlock box</li>
+<li class="new">You don't have a key.</li>
+<li class="new"></li>
+<li class="new">--&gt; get key</li>
+<li class="new">You pick up a tiny key.</li>
+<li class="new"></li>
+<li class="new">--&gt; go north</li>
+<li class="new">You walk through the door into the cave.</li>
+<li class="new"></li>
+<li class="new">You are in a little cave.</li>
+<li class="new">You see:</li>
+<li class="new">an exit to the west</li>
+<li class="new">solid rock all around</li>
+<li class="new">an open door to the south</li>
+<li class="new"></li>
+<li class="new">--&gt; drop key</li>
+<li class="new">You drop a tiny key.</li>
+<li class="new"></li>
+<li class="new">--&gt; go west</li>
+<li class="new">You walk out of the cave.</li>
+<li class="new"></li>
+<li class="new">You are in an open field.</li>
+<li class="new">You see:</li>
+<li class="new">a burly guard</li>
+<li class="new">a cave entrance to the east</li>
+<li class="new">dense forest all around</li>
+<li class="new"></li>
+<li class="new">--&gt; turn lamp on</li>
+<li class="new">The lamp is already on.</li>
+<li class="new"></li>
+<li class="new">--&gt; turn lamp off</li>
+<li class="new">OK.</li>
+<li class="new"></li>
+<li class="new">--&gt; turn lamp off</li>
+<li class="new">The lamp is already off.</li>
+<li class="new"></li>
+<li class="new">--&gt; drop lamp</li>
+<li class="new">You drop a lamp.</li>
+<li class="new"></li>
+<li class="new">--&gt; ask coin</li>
+<li class="new">You get a silver coin from a burly guard.</li>
+<li class="new"></li>
+<li class="new">--&gt; turn coin on</li>
+<li class="new">You cannot turn that on.</li>
+<li class="new"></li>
+<li class="new">--&gt; turn coin off</li>
+<li class="new">You cannot turn that off.</li>
+<li class="new"></li>
+<li class="new">--&gt; open coin</li>
+<li class="new">That cannot be opened.</li>
+<li class="new"></li>
+<li class="new">--&gt; close coin</li>
+<li class="new">That cannot be closed.</li>
+<li class="new"></li>
+<li class="new">--&gt; lock coin</li>
+<li class="new">That cannot be locked.</li>
+<li class="new"></li>
+<li class="new">--&gt; unlock coin</li>
+<li class="new">That cannot be unlocked.</li>
+<li class="new"></li>
+<li class="new">--&gt; drop coin</li>
+<li class="new">You drop a silver coin.</li>
+<li class="new"></li>
+<li class="new">--&gt; drop coin</li>
+<li class="new">You are not holding any coin.</li>
+<li class="new"></li>
+<li class="new">--&gt; look backroom</li>
+<li class="new">You don't see any backroom here.</li>
+<li class="new"></li>
+<li class="new">--&gt; go backroom</li>
+<li class="new">You don't see any backroom here.</li>
 <li class="new"></li>
 <li class="new">--&gt; quit</li>
 <li class="new"></li>
@@ -285,8 +535,10 @@ Here is an example for
 </td>
 </tr></table>
 <p>
-Here, <i>make</i> will only execute the final move (<i>mv</i>)
-after a successful comparison (<i>cmp</i>).
+Here, <i>make</i> will only execute the final move
+(<a href="https://en.wikipedia.org/wiki/Mv">mv</a>)
+after a successful comparison
+(<a href="https://en.wikipedia.org/wiki/Cmp_(Unix)">cmp</a>).
 That way, an invalid transcript can never be mistaken for a successful update,
 and <i>make</i> will always re-run a test that failed earlier.
 </p>
@@ -345,8 +597,12 @@ in search of the ones relevant at the current location.
 <p>
 In a big adventure, with many locations, items, actors,
 and with a comprehensive vocabulary,
-these loops will need to traverse through some pretty long arrays.
-Will that still perform well?
+these loops will have to traverse some pretty long arrays.
+To make matters worse,
+the 'log and roll forward' technique proposed in the previous chapter
+means the player will have to wait for hundreds, maybe thousands of commands
+to be parsed and executed before being able to resume a game saved earlier.
+How long is that going to take?
 </p>
 <p>
 Many programmers will not wait for the bomb to burst,

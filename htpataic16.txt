@@ -60,16 +60,23 @@ This is explained in the next chapter.
 </li>
 </ul>
 <p>
-As the game progresses,
-the log file will grow, and the time it takes to resume the game will increase.
-But with today&rsquo;s hardware,
-this can hardly be considered a problem anymore.
+Of course, this technique also comes with some challenges:
 </p>
-<p>
-Please note that this approach is not suitable for online multi-player games.
+<ul>
+<li>As the player spends more time playing the game,
+the log file will grow, and the time it takes to resume the game will increase.
+This is discussed in chapter 17.
+</li>
+<li>Games that use a random generator to bring in an element of surprise,
+may go in a totally different direction when resuming a game saved earlier.
+This is discussed in chapter 20.
+</li>
+<li>
+This technique is not suitable for online multi-player games.
 For those, it is better to use a database.
 This will be discussed in chapter 21.
-</p>
+</li>
+</ul>
 <table class="code"><tr>
 <th>main.c</th>
 </tr><tr>
@@ -146,6 +153,7 @@ and read again using the new file pointer.
 <li>Lines 42 and 46:
 the name of the file must be passed as the first argument
 when calling the program.
+If no name is given, then argv[1] will be NULL.
 </li>
 <li>Line 44:
 dummy statement
