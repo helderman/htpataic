@@ -1,4 +1,3 @@
-- put key in box (when closed), put coin in forest ---> "that is way too heavy"
 - automatically look around when turning lamp on in cave
 
 - ch17: do a serious performance test!

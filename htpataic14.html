@@ -363,6 +363,84 @@ Now we can finally put the gold coin back in the box!
 </ol>
 </td>
 </tr></table>
+<p>
+You may notice that commands like &lsquo;put coin in forest&rsquo;
+and &lsquo;put coin in box&rsquo; (when the box is closed)
+get the following strange reply:
+&ldquo;That is way too heavy.&rdquo;
+That is because most objects
+(including the closed box, and scenary like the forest)
+have zero capacity to hold other objects.
+Rightfully so, but the message is quite inappropriate.
+To avoid that, we will introduce a separate message
+for objects that have zero capacity:
+&ldquo;It doesn&rsquo;t seem to fit in.&rdquo;
+</p>
+<p>
+However, that particular message is totally misleading
+when it comes as a response to &lsquo;put key in box&rsquo;.
+So we will make a special exception for that particular combination of objects.
+</p>
+<table class="code"><tr>
+<th>move.c</th>
+</tr><tr>
+<td>
+<ol>
+<li class="old">#include &lt;stdio.h&gt;</li>
+<li class="old">#include "object.h"</li>
+<li class="old">#include "misc.h"</li>
+<li class="old"></li>
+<li class="old">void moveObject(OBJECT *obj, OBJECT *to)</li>
+<li class="old">{</li>
+<li class="old">   if (obj == NULL)</li>
+<li class="old">   {</li>
+<li class="old">      // already handled by getVisible or getPossession</li>
+<li class="old">   }</li>
+<li class="old">   else if (to == NULL)</li>
+<li class="old">   {</li>
+<li class="old">      printf("There is nobody here to give that to.\n");</li>
+<li class="old">   }</li>
+<li class="new">   else if (to-&gt;capacity == 0)</li>
+<li class="new">   {</li>
+<li class="new">      printf(obj == keyForBox &amp;&amp; (to == closedBox || to == lockedBox) ?</li>
+<li class="new">                "The key seems to fit the lock.\n" :</li>
+<li class="new">                "It doesn't seem to fit in.\n");</li>
+<li class="new">   }</li>
+<li class="old">   else if (obj-&gt;weight &gt; to-&gt;capacity)</li>
+<li class="old">   {</li>
+<li class="old">      printf("That is way too heavy.\n");</li>
+<li class="old">   }</li>
+<li class="old">   else if (obj-&gt;weight + weightOfContents(to) &gt; to-&gt;capacity)</li>
+<li class="old">   {</li>
+<li class="old">      printf("That would become too heavy.\n");</li>
+<li class="old">   }</li>
+<li class="old">   else</li>
+<li class="old">   {</li>
+<li class="old">      if (to == player-&gt;location)</li>
+<li class="old">      {</li>
+<li class="old">         printf("You drop %s.\n", obj-&gt;description);</li>
+<li class="old">      }</li>
+<li class="old">      else if (to != player)</li>
+<li class="old">      {</li>
+<li class="old">         printf(to-&gt;health &gt; 0 ? "You give %s to %s.\n"</li>
+<li class="old">                               : "You put %s in %s.\n",</li>
+<li class="old">                obj-&gt;description, to-&gt;description);</li>
+<li class="old">      }</li>
+<li class="old">      else if (obj-&gt;location == player-&gt;location)</li>
+<li class="old">      {</li>
+<li class="old">         printf("You pick up %s.\n", obj-&gt;description);</li>
+<li class="old">      }</li>
+<li class="old">      else</li>
+<li class="old">      {</li>
+<li class="old">         printf("You get %s from %s.\n", obj-&gt;description,</li>
+<li class="old">                                         obj-&gt;location-&gt;description);</li>
+<li class="old">      }</li>
+<li class="old">      obj-&gt;location = to;</li>
+<li class="old">   }</li>
+<li class="old">}</li>
+</ol>
+</td>
+</tr></table>
 <hr />
 <p>
 Next chapter: <a href="htpataic15.html">15. Light and dark</a>

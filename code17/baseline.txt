@@ -131,7 +131,7 @@ a wooden box
 That is still locked.
 
 --> put key in box
-That is way too heavy.
+The key seems to fit the lock.
 
 --> unlock box
 OK.

@@ -111,6 +111,31 @@ Now we can finally put the gold coin back in the box!
 #diff 14 inventory2.c
 </td>
 </tr></table>
+<p>
+You may notice that commands like &lsquo;put coin in forest&rsquo;
+and &lsquo;put coin in box&rsquo; (when the box is closed)
+get the following strange reply:
+&ldquo;That is way too heavy.&rdquo;
+That is because most objects
+(including the closed box, and scenary like the forest)
+have zero capacity to hold other objects.
+Rightfully so, but the message is quite inappropriate.
+To avoid that, we will introduce a separate message
+for objects that have zero capacity:
+&ldquo;It doesn&rsquo;t seem to fit in.&rdquo;
+</p>
+<p>
+However, that particular message is totally misleading
+when it comes as a response to &lsquo;put key in box&rsquo;.
+So we will make a special exception for that particular combination of objects.
+</p>
+<table class="code"><tr>
+<th>move.c</th>
+</tr><tr>
+<td>
+#diff 14 move.c
+</td>
+</tr></table>
 <hr />
 <p>
 Next chapter: <a href="htpataic15.html">15. Light and dark</a>

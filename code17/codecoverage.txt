@@ -23,7 +23,7 @@ Lines executed:100.00% of 40
 Creating 'misc.c.gcov'
 
 File 'move.c'
-Lines executed:88.89% of 18
+Lines executed:90.00% of 20
 Creating 'move.c.gcov'
 
 File 'noun.c'
@@ -47,11 +47,11 @@ Lines executed:100.00% of 12
 Creating 'parsexec.c.gcov'
 
 File 'reach.c'
-Lines executed:100.00% of 18
+Lines executed:88.89% of 18
 Creating 'reach.c.gcov'
 
 File 'toggle.c'
 Lines executed:93.33% of 30
 Creating 'toggle.c.gcov'
 
-Lines executed:92.33% of 352
+Lines executed:91.81% of 354
