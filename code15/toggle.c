@@ -18,7 +18,7 @@ const char *isAlreadyLocked(void)   { return "That is already locked.\n";   }
 const char *isAlreadyUnlocked(void) { return "That is already unlocked.\n"; }
 
 const char *isStillOpen(void)       { return "That is still open.\n";       }
-const char *isStillLocked(void)     { return "That is still locked.\n";     }
+const char *isStillLocked(void)     { return "That is locked.\n";           }
 
 const char *toggleBackdoor(void)
 {

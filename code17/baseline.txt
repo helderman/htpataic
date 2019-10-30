@@ -128,7 +128,7 @@ an open door to the north
 a wooden box
 
 --> open box
-That is still locked.
+That is locked.
 
 --> put key in box
 The key seems to fit the lock.
