@@ -35,7 +35,7 @@ Lines executed:100.00% of 3
 Creating 'object.c.gcov'
 
 File 'onoff.c'
-Lines executed:100.00% of 12
+Lines executed:100.00% of 14
 Creating 'onoff.c.gcov'
 
 File 'openclose.c'
@@ -51,7 +51,7 @@ Lines executed:88.89% of 18
 Creating 'reach.c.gcov'
 
 File 'toggle.c'
-Lines executed:93.33% of 30
+Lines executed:94.29% of 35
 Creating 'toggle.c.gcov'
 
-Lines executed:91.81% of 354
+Lines executed:91.97% of 361

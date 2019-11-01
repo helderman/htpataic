@@ -35,6 +35,13 @@ It's too dark.
 --> turn lamp on
 OK.
 
+You are in a little cave.
+You see:
+an exit to the west
+solid rock all around
+a closed door to the south
+a tiny key
+
 --> look around
 You are in a little cave.
 You see:

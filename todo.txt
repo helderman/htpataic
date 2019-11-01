@@ -1,5 +1,3 @@
-- automatically look around when turning lamp on in cave
-
 - ch17: do a serious performance test!
 - downloadable ZIP files
 - noun.c getPossession: getting/asking from actor or from dead object

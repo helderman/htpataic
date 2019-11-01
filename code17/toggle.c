@@ -1,4 +1,7 @@
+#include <stdio.h>
 #include "object.h"
+#include "misc.h"
+#include "location.h"
 
 static void swapLocations(OBJECT *obj1, OBJECT *obj2)
 {
@@ -46,8 +49,14 @@ const char *toggleBoxLock(void)
    }
 }
 
-const char *toggleLamp(void)
+void toggleLamp(void)
 {
+   bool oldLit = isLit(player->location);
    swapLocations(lampOn, lampOff);
-   return "OK.\n";
+   printf("OK.\n");
+   if (oldLit != isLit(player->location))
+   {
+      printf("\n");
+      executeLookAround();
+   }
 }

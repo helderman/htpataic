@@ -382,11 +382,11 @@ In a big adventure with more locations
 (and maybe more lamps, torches, glowsticks),
 it would be wise to introduce an attribute for this;
 similar to how we replaced the whitelist of actors
-with a 'health' attribute in chapter 10.
+with a &lsquo;health&rsquo; attribute in chapter 10.
 </li>
 <li>Lines 35 and 65:
 nearby objects that remain hidden in the dark,
-are being treated as 'not here'.
+are being treated as &lsquo;not here&rsquo;.
 This naturally prevents the game from leaking information
 about objects the player is not supposed to be aware of.
 </li>
@@ -740,6 +740,13 @@ It's too dark.<br />
 --&gt; turn lamp on<br />
 OK.<br />
 <br />
+You are in a little cave.<br />
+You see:<br />
+an exit to the west<br />
+solid rock all around<br />
+a closed door to the south<br />
+a tiny key<br />
+<br />
 --&gt; look around<br />
 You are in a little cave.<br />
 You see:<br />
@@ -793,9 +800,15 @@ Bye!<br />
 <li class="new">   OBJECT *obj = reachableObject("what you want to turn on", params[0]);</li>
 <li class="new">   if (obj != NULL)</li>
 <li class="new">   {</li>
-<li class="new">      printf("%s", obj == lampOff ? toggleLamp() :</li>
-<li class="new">                   obj == lampOn  ? "The lamp is already on.\n" :</li>
-<li class="new">                                    "You cannot turn that on.\n");</li>
+<li class="new">      if (obj == lampOff)</li>
+<li class="new">      {</li>
+<li class="new">         toggleLamp();</li>
+<li class="new">      }</li>
+<li class="new">      else</li>
+<li class="new">      {</li>
+<li class="new">         printf(obj == lampOn ? "The lamp is already on.\n"</li>
+<li class="new">                              : "You cannot turn that on.\n");</li>
+<li class="new">      }</li>
 <li class="new">   }</li>
 <li class="new">   return true;</li>
 <li class="new">}</li>
@@ -805,9 +818,15 @@ Bye!<br />
 <li class="new">   OBJECT *obj = reachableObject("what you want to turn off", params[0]);</li>
 <li class="new">   if (obj != NULL)</li>
 <li class="new">   {</li>
-<li class="new">      printf("%s", obj == lampOn  ? toggleLamp() :</li>
-<li class="new">                   obj == lampOff ? "The lamp is already off.\n" :</li>
-<li class="new">                                    "You cannot turn that off.\n");</li>
+<li class="new">      if (obj == lampOn)</li>
+<li class="new">      {</li>
+<li class="new">         toggleLamp();</li>
+<li class="new">      }</li>
+<li class="new">      else</li>
+<li class="new">      {</li>
+<li class="new">         printf(obj == lampOff ? "The lamp is already off.\n"</li>
+<li class="new">                               : "You cannot turn that off.\n");</li>
+<li class="new">      }</li>
 <li class="new">   }</li>
 <li class="new">   return true;</li>
 <li class="new">}</li>
@@ -840,7 +859,8 @@ we will use the same trick we used to open and close the door and the box
 <li class="old">extern const char *toggleBackdoor(void);</li>
 <li class="old">extern const char *toggleBox(void);</li>
 <li class="old">extern const char *toggleBoxLock(void);</li>
-<li class="new">extern const char *toggleLamp(void);</li>
+<li class="new"></li>
+<li class="new">extern void toggleLamp(void);</li>
 </ol>
 </td>
 </tr><tr>
@@ -848,7 +868,10 @@ we will use the same trick we used to open and close the door and the box
 </tr><tr>
 <td>
 <ol>
+<li class="new">#include &lt;stdio.h&gt;</li>
 <li class="old">#include "object.h"</li>
+<li class="new">#include "misc.h"</li>
+<li class="new">#include "location.h"</li>
 <li class="old"></li>
 <li class="old">static void swapLocations(OBJECT *obj1, OBJECT *obj2)</li>
 <li class="old">{</li>
@@ -893,17 +916,52 @@ we will use the same trick we used to open and close the door and the box
 <li class="old">   else</li>
 <li class="old">   {</li>
 <li class="old">      return "You don't have a key.\n";</li>
+<li class="new">   }</li>
+<li class="new">}</li>
+<li class="new"></li>
+<li class="new">void toggleLamp(void)</li>
+<li class="new">{</li>
+<li class="new">   bool oldLit = isLit(player-&gt;location);</li>
+<li class="new">   swapLocations(lampOn, lampOff);</li>
+<li class="new">   printf("OK.\n");</li>
+<li class="new">   if (oldLit != isLit(player-&gt;location))</li>
+<li class="new">   {</li>
+<li class="new">      printf("\n");</li>
+<li class="new">      executeLookAround();</li>
 <li class="old">   }</li>
 <li class="old">}</li>
-<li class="new"></li>
-<li class="new">const char *toggleLamp(void)</li>
-<li class="new">{</li>
-<li class="new">   swapLocations(lampOn, lampOff);</li>
-<li class="new">   return "OK.\n";</li>
-<li class="new">}</li>
 </ol>
 </td>
 </tr></table>
+<div class="explanation">
+<p>
+Explanation:
+</p>
+<ul>
+<li>Line 55:
+we are doing the exact same trick
+as used in chapter 12 to open and close objects.
+Just swap between two different objects:
+one for the lamp turned on, the other for the lamp turned off.
+</li>
+<li>Lines 57-61:
+when turning on the light in a dark area,
+we immediately give players a look at their surroundings.
+This is consistent with the behavior of the &lsquo;go&rsquo; command:
+the moment you set eyes on a location,
+&lsquo;look around&rsquo; is automatically executed.
+You may notice we are doing the same here when turning the light <i>off</i>.
+Obviously this will return little more than
+&ldquo;it is very dark in here&rdquo;,
+but that too seems like a relevant observation.
+So since we are doing a &lsquo;look around&rsquo; either way,
+what is the point of the &lsquo;if&rsquo; statement?
+Well, that prevents a useless &lsquo;look around&rsquo;
+when turning the lamp on or off in broad daylight (i.e. in the field),
+or with any other source of light still active in the same room.
+</li>
+</ul>
+</div>
 <img class="genmap" src="code15/map.png" />
 <p>
 Finally, we will mark the dark locations in our generated map.
