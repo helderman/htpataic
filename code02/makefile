@@ -1,3 +1,5 @@
+all: success.txt src.zip
+
 C = parsexec.c main.c
 H = parsexec.h
 
@@ -7,6 +9,9 @@ success.txt: lilcave testscript.txt baseline.txt
 
 lilcave: $(C) $(H)
 	gcc -Wall -Wextra -Wpedantic $(C) -o $@
+
+src.zip: $(C) $(H) makefile testscript.txt baseline.txt
+	zip -rq $@ $^
 
 clean:
 	$(RM) lilcave transcript.txt success.txt

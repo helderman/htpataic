@@ -225,13 +225,13 @@ Each pattern is tied to a function that executes the appropriate command.
 <th>parsexec.h</th>
 </tr><tr>
 <td>
-#new 13 parsexec.h
+#new parsexec.h
 </td>
 </tr><tr>
 <th>parsexec.c</th>
 </tr><tr>
 <td>
-#new 13 parsexec.c
+#new parsexec.c
 </td>
 </tr></table>
 <div class="explanation">
@@ -287,13 +287,13 @@ But as you can see below, it can be done in less than 100 lines of code!
 <th>match.h</th>
 </tr><tr>
 <td>
-#diff 13 match.h
+#diff match.h
 </td>
 </tr><tr>
 <th>match.c</th>
 </tr><tr>
 <td>
-#diff 13 match.c
+#diff match.c
 </td>
 </tr></table>
 <div class="explanation">
@@ -353,20 +353,20 @@ to make use of the new array <i>params</i>.
 <table class="demo">
 <tr><th>Sample output</th></tr>
 <tr><td>
-#test 13
+#test
 </td></tr>
 </table>
 <table class="code"><tr>
 <th>inventory.h</th>
 </tr><tr>
 <td>
-#ldiff 13 inventory.h
+#ldiff inventory.h
 </td>
 </tr><tr>
 <th>inventory.c</th>
 </tr><tr>
 <td>
-#diff 13 inventory.c
+#diff inventory.c
 </td>
 </tr></table>
 <p>
@@ -376,13 +376,13 @@ Same thing for the module we added in the previous chapter.
 <th>openclose.h</th>
 </tr><tr>
 <td>
-#ldiff 13 openclose.h
+#ldiff openclose.h
 </td>
 </tr><tr>
 <th>openclose.c</th>
 </tr><tr>
 <td>
-#diff 13 openclose.c
+#diff openclose.c
 </td>
 </tr></table>
 <p>
@@ -394,13 +394,13 @@ separate from the <i>look</i> command to inspect specific objects
 <th>location.h</th>
 </tr><tr>
 <td>
-#diff 13 location.h
+#diff location.h
 </td>
 </tr><tr>
 <th>location.c</th>
 </tr><tr>
 <td>
-#diff 13 location.c
+#diff location.c
 </td>
 </tr></table>
 <p>
@@ -431,6 +431,9 @@ Please be aware that this is not an easy thing to do.
 For now, this is outside the scope of this tutorial.
 </p>
 <hr />
+<table class="download"><tr><td>
+#zip
+</td></tr></table>
 <p>
 Next chapter: <a href="htpataic14.html">14. Multiple arguments</a>
 </p>

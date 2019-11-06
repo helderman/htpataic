@@ -38,7 +38,7 @@ Alright; so first of all, in darkness you cannot see your surroundings.
 <th>location.c</th>
 </tr><tr>
 <td>
-#diff 15 location.c
+#diff location.c
 </td>
 </tr></table>
 <p>
@@ -48,7 +48,7 @@ Secondly, in darkness you cannot see or use nearby objects.
 <th>noun.c</th>
 </tr><tr>
 <td>
-#diff 15 noun.c
+#diff noun.c
 </td>
 </tr></table>
 <p>
@@ -59,13 +59,13 @@ It is defined (and used some more) in <i>misc.c</i>.
 <th>misc.h</th>
 </tr><tr>
 <td>
-#diff 15 misc.h
+#diff misc.h
 </td>
 </tr><tr>
 <th>misc.c</th>
 </tr><tr>
 <td>
-#diff 15 misc.c
+#diff misc.c
 </td>
 </tr></table>
 <div class="explanation">
@@ -98,7 +98,7 @@ We will add a lamp the player can carry to get through the dark locations.
 <th>object.txt</th>
 </tr><tr>
 <td>
-#diff 15 object.txt
+#diff object.txt
 </td>
 </tr></table>
 <p>
@@ -108,7 +108,7 @@ We will add some commands we can use to turn the lamp on and off.
 <th>parsexec.c</th>
 </tr><tr>
 <td>
-#diff 15 parsexec.c
+#diff parsexec.c
 </td>
 </tr></table>
 <p>
@@ -117,20 +117,20 @@ Below is the implementation of these commands.
 <table class="demo">
 <tr><th>Sample output</th></tr>
 <tr><td>
-#test 15
+#test
 </td></tr>
 </table>
 <table class="code"><tr>
 <th>onoff.h</th>
 </tr><tr>
 <td>
-#diff 15 onoff.h
+#diff onoff.h
 </td>
 </tr><tr>
 <th>onoff.c</th>
 </tr><tr>
 <td>
-#diff 15 onoff.c
+#diff onoff.c
 </td>
 </tr></table>
 <p>
@@ -142,13 +142,13 @@ we will use the same trick we used to open and close the door and the box
 <th>toggle.h</th>
 </tr><tr>
 <td>
-#diff 15 toggle.h
+#diff toggle.h
 </td>
 </tr><tr>
 <th>toggle.c</th>
 </tr><tr>
 <td>
-#diff 15 toggle.c
+#diff toggle.c
 </td>
 </tr></table>
 <div class="explanation">
@@ -180,7 +180,7 @@ or with any other source of light still active in the same room.
 </li>
 </ul>
 </div>
-<img class="genmap" src="code15/map.png" />
+#map
 <p>
 Finally, we will mark the dark locations in our generated map.
 </p>
@@ -188,7 +188,7 @@ Finally, we will mark the dark locations in our generated map.
 <th>map.awk</th>
 </tr><tr>
 <td>
-#diff 15 map.awk
+#diff map.awk
 </td>
 </tr></table>
 <p>
@@ -196,6 +196,9 @@ Do be careful not to turn off the lamp after dropping it;
 in the dark, you will never be able to find it back!
 </p>
 <hr />
+<table class="download"><tr><td>
+#zip
+</td></tr></table>
 <p>
 Next chapter: <a href="htpataic16.html">16. Savegame</a>
 </p>

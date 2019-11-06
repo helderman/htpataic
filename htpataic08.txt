@@ -64,21 +64,21 @@ instead of just a single tag.
 <table class="demo">
 <tr><th>Sample output</th></tr>
 <tr><td>
-#test 8
+#test
 </td></tr>
 </table>
 <table class="code"><tr>
 <th>object.h</th>
 </tr><tr>
 <td>
-#diff 8 object.h
+#diff object.h
 </td>
 </tr></table>
 <table class="code"><tr>
 <th>object.c</th>
 </tr><tr>
 <td>
-#diff 8 object.c
+#diff object.c
 </td>
 </tr></table>
 <div class="explanation">
@@ -132,13 +132,13 @@ inform the player he has to be more specific.
 <th>noun.h</th>
 </tr><tr>
 <td>
-#diff 8 noun.h
+#diff noun.h
 </td>
 </tr><tr>
 <th>noun.c</th>
 </tr><tr>
 <td>
-#diff 8 noun.c
+#diff noun.c
 </td>
 </tr></table>
 <div class="explanation">
@@ -179,7 +179,7 @@ but it will do until we make ourselves a better parser in chapter 13.
 <th>parsexec.c</th>
 </tr><tr>
 <td>
-#diff 8 parsexec.c
+#diff parsexec.c
 </td>
 </tr></table>
 <p>
@@ -195,6 +195,9 @@ we need a way to make it more maintainable.
 We will do so in the next chapter.
 </p>
 <hr />
+<table class="download"><tr><td>
+#zip
+</td></tr></table>
 <p>
 Next chapter: <a href="htpataic09.html">9. Code generation</a>
 </p>

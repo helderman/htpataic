@@ -426,7 +426,7 @@ for our adventure might look like this:
 </tr><tr>
 <td>
 <ol>
-<li class="new">all: success.txt map.png</li>
+<li class="new"><span class="old">all: success.txt src.zip </span>map.png</li>
 <li class="old"></li>
 <li class="old">C = object.c misc.c noun.c location.c move.c inventory.c parsexec.c main.c</li>
 <li class="old">H = object.h misc.h noun.h location.h move.h inventory.h parsexec.h</li>
@@ -450,6 +450,9 @@ for our adventure might look like this:
 <li class="new"></li>
 <li class="new">map.gv: map.awk object.txt</li>
 <li class="new">	awk -f map.awk object.txt &gt; $@</li>
+<li class="old"></li>
+<li class="new"><span class="old">src.zip: $(C) $(H) </span>object.txt<span class="old"> makefile testscript.txt baseline.txt</span></li>
+<li class="old">	zip -rq $@ $^</li>
 <li class="old"></li>
 <li class="old">clean:</li>
 <li class="new"><span class="old">	$(RM) </span>object.c object.h<span class="old"> lilcave </span>map.gv map.png<span class="old"> transcript.txt success.txt</span></li>
@@ -485,7 +488,7 @@ already so in the next three chapters.
 <li>Lines 20-24:
 these rules generate the map image.
 </li>
-<li>Lines 26-27:
+<li>Lines 29-30:
 it is customary to have a separate rule to delete all targets and intermediate files.
 </li>
 </ul>
@@ -495,6 +498,9 @@ Now a single command <i>make</i> will do everything that is necessary
 to construct an executable and a map image.
 </p>
 <hr />
+<table class="download"><tr><td>
+<a href="code09/src.zip">Download source code</a>
+</td></tr></table>
 <p>
 Next chapter: <a href="htpataic10.html">10. More attributes</a>
 </p>

@@ -98,14 +98,14 @@ before you are ready to move on to the next chapter.
 <table class="demo">
 <tr><th>Sample output</th></tr>
 <tr><td>
-#test 1
+#test
 </td></tr>
 </table>
 <table class="code"><tr>
 <th>main.c</th>
 </tr><tr>
 <td>
-#diff 1 main.c
+#diff main.c
 </td>
 </tr></table>
 <div class="explanation">
@@ -148,6 +148,9 @@ I will focus on the programming aspect of the game,
 and leave the rest up to your imagination.
 </p>
 <hr />
+<table class="download"><tr><td>
+#zip
+</td></tr></table>
 <p>
 Next chapter: <a href="htpataic02.html">2. The main loop</a>
 </p>

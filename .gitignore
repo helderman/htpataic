@@ -1,3 +1,6 @@
+# Exclude dependency files in the root folder
+*.d
+
 # Exclude gcc/gcov/test output in the code folders
 lilcave
 lilcave.testable

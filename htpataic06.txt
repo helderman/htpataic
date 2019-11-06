@@ -88,20 +88,20 @@ So we expand the array of objects:
 <table class="demo">
 <tr><th>Sample output</th></tr>
 <tr><td>
-#test 6
+#test
 </td></tr>
 </table>
 <table class="code"><tr>
 <th>object.h</th>
 </tr><tr>
 <td>
-#diff 6 object.h
+#diff object.h
 </td>
 </tr><tr>
 <th>object.c</th>
 </tr><tr>
 <td>
-#diff 6 object.c
+#diff object.c
 </td>
 </tr></table>
 <p>
@@ -112,13 +112,13 @@ to determine whether a passage exists between two given locations.
 <th>misc.h</th>
 </tr><tr>
 <td>
-#diff 6 misc.h
+#diff misc.h
 </td>
 </tr><tr>
 <th>misc.c</th>
 </tr><tr>
 <td>
-#diff 6 misc.c
+#diff misc.c
 </td>
 </tr></table>
 <div class="explanation">
@@ -148,13 +148,13 @@ that can take the player to the desired location.
 <th>location.h</th>
 </tr><tr>
 <td>
-#diff 6 location.h
+#diff location.h
 </td>
 </tr><tr>
 <th>location.c</th>
 </tr><tr>
 <td>
-#ldiff 6 location.c
+#ldiff location.c
 </td>
 </tr></table>
 <div class="explanation">
@@ -185,13 +185,13 @@ are not considered visible.
 <th>noun.h</th>
 </tr><tr>
 <td>
-#diff 6 noun.h
+#diff noun.h
 </td>
 </tr><tr>
 <th>noun.c</th>
 </tr><tr>
 <td>
-#diff 6 noun.c
+#diff noun.c
 </td>
 </tr></table>
 <div class="explanation">
@@ -230,6 +230,9 @@ Homework assignment: draw a more elaborate map
 and turn it into a list of objects (locations and passages).
 </p>
 <hr />
+<table class="download"><tr><td>
+#zip
+</td></tr></table>
 <p>
 Next chapter: <a href="htpataic07.html">7. Distance</a>
 </p>

@@ -81,7 +81,7 @@ This will be discussed in chapter 21.
 <th>main.c</th>
 </tr><tr>
 <td>
-#diff 16 main.c
+#diff main.c
 </td>
 </tr></table>
 <div class="explanation">
@@ -167,6 +167,9 @@ this is the first time since chapter 2,
 that we are making changes to <i>main.c</i>!
 </p>
 <hr />
+<table class="download"><tr><td>
+#zip
+</td></tr></table>
 <p>
 Next chapter: <a href="htpataic17.html">17. Test automation</a>
 </p>

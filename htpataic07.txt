@@ -245,13 +245,13 @@ since we will be using them in more than one module.
 <th>misc.h</th>
 </tr><tr>
 <td>
-#diff 7 misc.h
+#diff misc.h
 </td>
 </tr><tr>
 <th>misc.c</th>
 </tr><tr>
 <td>
-#diff 7 misc.c
+#diff misc.c
 </td>
 </tr></table>
 <div class="explanation">
@@ -272,20 +272,20 @@ we can replace most of the <i>if</i> conditions by a check on distance.
 <table class="demo">
 <tr><th>Sample output</th></tr>
 <tr><td>
-#test 7
+#test
 </td></tr>
 </table>
 <table class="code"><tr>
 <th>location.h</th>
 </tr><tr>
 <td>
-#diff 7 location.h
+#diff location.h
 </td>
 </tr><tr>
 <th>location.c</th>
 </tr><tr>
 <td>
-#diff 7 location.c
+#diff location.c
 </td>
 </tr></table>
 <p>
@@ -295,13 +295,13 @@ The same goes for function <i>executeGet</i>.
 <th>inventory.h</th>
 </tr><tr>
 <td>
-#diff 7 inventory.h
+#diff inventory.h
 </td>
 </tr><tr>
 <th>inventory.c</th>
 </tr><tr>
 <td>
-#diff 7 inventory.c
+#diff inventory.c
 </td>
 </tr></table>
 <p>
@@ -316,13 +316,13 @@ where we will introduce different objects having the same tag.
 <th>noun.h</th>
 </tr><tr>
 <td>
-#diff 7 noun.h
+#diff noun.h
 </td>
 </tr><tr>
 <th>noun.c</th>
 </tr><tr>
 <td>
-#diff 7 noun.c
+#diff noun.c
 </td>
 </tr></table>
 <div class="explanation">
@@ -370,6 +370,9 @@ In the next chapter,
 we will use distance to improve the recognition of nouns entered by the user.
 </p>
 <hr />
+<table class="download"><tr><td>
+#zip
+</td></tr></table>
 <p>
 Next chapter: <a href="htpataic08.html">8. North, east, south, west</a>
 </p>

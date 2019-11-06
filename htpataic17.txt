@@ -88,7 +88,7 @@ once the test script has been finished.
 <th>testscript.txt</th>
 </tr><tr>
 <td>
-#new 17 testscript.txt
+#new testscript.txt
 </td>
 </tr></table>
 <p>
@@ -121,7 +121,7 @@ Keep it in a safe place as well; it is our
 <th>baseline.txt</th>
 </tr><tr>
 <td>
-#new 17 baseline.txt
+#new baseline.txt
 </td>
 </tr></table>
 <p>
@@ -293,6 +293,9 @@ I leave it up to you to decide whether or not to make
 an integral part of your test automation.
 </p>
 <hr />
+<table class="download"><tr><td>
+#zip
+</td></tr></table>
 <p>
 Next chapter: <a href="htpataic18.html">18. Abbreviations</a>
 </p>

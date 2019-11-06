@@ -18,6 +18,11 @@ img.genmap {
 	font-style: italic;
 }
 
+.download {
+	float: right;
+	background: yellow;
+}
+
 .contents {
 	border: thin solid grey;
 	float: right;

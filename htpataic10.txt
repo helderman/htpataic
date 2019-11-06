@@ -87,7 +87,7 @@ We define seven new attributes in <i>object.txt</i>:
 <th>object.txt</th>
 </tr><tr>
 <td>
-#diff 10 object.txt
+#diff object.txt
 </td>
 </tr></table>
 <div class="explanation">
@@ -133,7 +133,7 @@ New attributes also require an adjustment in the code generator.
 <th>object.awk</th>
 </tr><tr>
 <td>
-#diff 10 object.awk
+#diff object.awk
 </td>
 </tr></table>
 <p>
@@ -146,14 +146,14 @@ in our implementation of command <i>go</i>.
 <table class="demo">
 <tr><th>Sample output</th></tr>
 <tr><td>
-#test 10
+#test
 </td></tr>
 </table>
 <table class="code"><tr>
 <th>location.c</th>
 </tr><tr>
 <td>
-#diff 10 location.c
+#diff location.c
 </td>
 </tr></table>
 <p>
@@ -165,7 +165,7 @@ And a <b>health</b> check replaces the hard-coded whitelist of actors.
 <th>move.c</th>
 </tr><tr>
 <td>
-#diff 10 move.c
+#diff move.c
 </td>
 </tr></table>
 <p>
@@ -175,7 +175,7 @@ Here is one more module that can use <b>health</b> to identify actors.
 <th>inventory.c</th>
 </tr><tr>
 <td>
-#diff 10 inventory.c
+#diff inventory.c
 </td>
 </tr></table>
 <p>
@@ -205,13 +205,13 @@ a &lsquo;passage with a twist.&rsquo;
 <th>misc.h</th>
 </tr><tr>
 <td>
-#diff 10 misc.h
+#diff misc.h
 </td>
 </tr><tr>
 <th>misc.c</th>
 </tr><tr>
 <td>
-#diff 10 misc.c
+#diff misc.c
 </td>
 </tr></table>
 <p>
@@ -220,12 +220,12 @@ it would be nice to expand the generated map from the previous chapter
 with dashed lines for the &lsquo;apparent&rsquo; passages
 (leading towards a <b>prospect</b>).
 </p>
-<img class="genmap" src="genmap10.png" />
+#map
 <table class="code"><tr>
 <th>map.awk</th>
 </tr><tr>
 <td>
-#diff 10 map.awk
+#diff map.awk
 </td>
 </tr></table>
 <p>
@@ -264,6 +264,9 @@ Rest assured, the cave will be re-opened in the next chapter.
 </ul>
 </p>
 <hr />
+<table class="download"><tr><td>
+#zip
+</td></tr></table>
 <p>
 Next chapter: <a href="htpataic11.html">11. Conditions</a>
 </p>

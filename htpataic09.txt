@@ -69,7 +69,7 @@ to make it clear it is related to <i>object.h</i> and <i>object.c</i>.
 <th>object.txt</th>
 </tr><tr>
 <td>
-#diff 9 object.txt
+#diff object.txt
 </td>
 </tr></table>
 <p>
@@ -88,7 +88,7 @@ Here is one possible implementation, written in
 <th>object.awk</th>
 </tr><tr>
 <td>
-#diff 9 object.awk
+#diff object.awk
 </td>
 </tr></table>
 <div class="explanation">
@@ -206,12 +206,12 @@ A simple AWK script, similar to the one above, can be used to
 a map of your virtual world by
 <a href="http://en.wikipedia.org/wiki/Graph_drawing">drawing a graph</a>.
 </p>
-<img class="genmap" src="code09/map.png" />
+#map
 <table class="code"><tr>
 <th>map.awk</th>
 </tr><tr>
 <td>
-#diff 9 map.awk
+#diff map.awk
 </td>
 </tr></table>
 <p>
@@ -268,7 +268,7 @@ for our adventure might look like this:
 <th>makefile</th>
 </tr><tr>
 <td>
-#diff 9 makefile
+#diff makefile
 </td>
 </tr></table>
 <div class="explanation">
@@ -300,7 +300,7 @@ already so in the next three chapters.
 <li>Lines 20-24:
 these rules generate the map image.
 </li>
-<li>Lines 26-27:
+<li>Lines 29-30:
 it is customary to have a separate rule to delete all targets and intermediate files.
 </li>
 </ul>
@@ -310,6 +310,9 @@ Now a single command <i>make</i> will do everything that is necessary
 to construct an executable and a map image.
 </p>
 <hr />
+<table class="download"><tr><td>
+#zip
+</td></tr></table>
 <p>
 Next chapter: <a href="htpataic10.html">10. More attributes</a>
 </p>

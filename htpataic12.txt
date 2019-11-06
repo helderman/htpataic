@@ -80,7 +80,7 @@ So initially, the door is closed
 in the generated map you see on the right).
 To open the door, all we have to do is swap the locations.
 </p>
-<img class="genmap" src="genmap12.png" />
+#map
 <table><tr>
 <td class="snippet">openDoorToBackroom-&gt;location = cave;
 closedDoorToBackroom-&gt;location = NULL;
@@ -206,7 +206,7 @@ for each of the commands we wish to support:
 <th>object.txt</th>
 </tr><tr>
 <td>
-#diff 12 object.txt
+#diff object.txt
 </td>
 </tr></table>
 <div class="explanation">
@@ -236,13 +236,13 @@ Instead, we will implement the necessary logic in a separate module.
 <th>toggle.h</th>
 </tr><tr>
 <td>
-#diff 12 toggle.h
+#diff toggle.h
 </td>
 </tr><tr>
 <th>toggle.c</th>
 </tr><tr>
 <td>
-#diff 12 toggle.c
+#diff toggle.c
 </td>
 </tr></table>
 <p>
@@ -254,13 +254,13 @@ are totally generic.
 <th>openclose.h</th>
 </tr><tr>
 <td>
-#diff 12 openclose.h
+#diff openclose.h
 </td>
 </tr><tr>
 <th>openclose.c</th>
 </tr><tr>
 <td>
-#diff 12 openclose.c
+#diff openclose.c
 </td>
 </tr></table>
 <p>
@@ -276,13 +276,13 @@ these will benefit from the same function.
 <th>reach.h</th>
 </tr><tr>
 <td>
-#diff 12 reach.h
+#diff reach.h
 </td>
 </tr><tr>
 <th>reach.c</th>
 </tr><tr>
 <td>
-#diff 12 reach.c
+#diff reach.c
 </td>
 </tr></table>
 <p>
@@ -292,13 +292,13 @@ The necessary modifications to <i>object.awk</i> are very straightforward:
 <th>object.awk</th>
 </tr><tr>
 <td>
-#diff 12 object.awk
+#diff object.awk
 </td>
 </tr></table>
 <table class="demo">
 <tr><th>Sample output</th></tr>
 <tr><td>
-#test 12
+#test
 </td></tr>
 </table>
 <p>
@@ -308,7 +308,7 @@ The additions to <i>parsexec.c</i> are equally straightforward.
 <th>parsexec.c</th>
 </tr><tr>
 <td>
-#diff 12 parsexec.c
+#diff parsexec.c
 </td>
 </tr></table>
 <p>
@@ -336,6 +336,9 @@ the current two-line implementation badly needs replacement!
 </ul>
 </p>
 <hr />
+<table class="download"><tr><td>
+#zip
+</td></tr></table>
 <p>
 Next chapter: <a href="htpataic13.html">13. The parser</a>
 </p>

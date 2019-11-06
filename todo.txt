@@ -1,5 +1,4 @@
 - ch17: do a serious performance test!
-- downloadable ZIP files
 - noun.c getPossession: getting/asking from actor or from dead object
 - move.c reachableObject: eliminate 'default:'
 

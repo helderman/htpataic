@@ -1,4 +1,4 @@
-all: success.txt map.png
+all: success.txt src.zip map.png
 
 C = object.c misc.c match.c noun.c toggle.c location.c move.c reach.c inventory.c inventory2.c openclose.c parsexec.c main.c
 H = object.h misc.h match.h noun.h toggle.h location.h move.h reach.h inventory.h inventory2.h openclose.h parsexec.h
@@ -22,6 +22,9 @@ map.png: map.gv
 
 map.gv: map.awk object.txt
 	awk -f map.awk object.txt > $@
+
+src.zip: $(C) $(H) object.txt makefile testscript.txt baseline.txt
+	zip -rq $@ $^
 
 clean:
 	$(RM) object.c object.h lilcave map.gv map.png transcript.txt success.txt

@@ -80,14 +80,14 @@ we alter lines 4, 18 and 22 (slightly highlighted below).
 <table class="demo">
 <tr><th>Sample output</th></tr>
 <tr><td>
-#test 3
+#test
 </td></tr>
 </table>
 <table class="code"><tr>
 <th>parsexec.c</th>
 </tr><tr>
 <td>
-#diff 3 parsexec.c
+#diff parsexec.c
 </td>
 </tr></table>
 <div class="explanation">
@@ -110,13 +110,13 @@ Next, we add a new module to the project.
 <th>location.h</th>
 </tr><tr>
 <td>
-#diff 3 location.h
+#diff location.h
 </td>
 </tr><tr>
 <th>location.c</th>
 </tr><tr>
 <td>
-#diff 3 location.c
+#diff location.c
 </td>
 </tr></table>
 <div class="explanation">
@@ -173,6 +173,9 @@ In chapter 6, we will show how to &lsquo;connect&rsquo; locations.
 But next up, we will start adding objects to the game.
 </p>
 <hr />
+<table class="download"><tr><td>
+#zip
+</td></tr></table>
 <p>
 Next chapter: <a href="htpataic04.html">4. Objects</a>
 </p>

@@ -247,20 +247,20 @@ We start with a whole new module for the array of objects.
 <table class="demo">
 <tr><th>Sample output</th></tr>
 <tr><td>
-#test 4
+#test
 </td></tr>
 </table>
 <table class="code"><tr>
 <th>object.h</th>
 </tr><tr>
 <td>
-#diff 4 object.h
+#diff object.h
 </td>
 </tr><tr>
 <th>object.c</th>
 </tr><tr>
 <td>
-#diff 4 object.c
+#diff object.c
 </td>
 </tr></table>
 <p>
@@ -280,13 +280,13 @@ is going to help us find the object that matches the noun specified.
 <th>noun.h</th>
 </tr><tr>
 <td>
-#diff 4 noun.h
+#diff noun.h
 </td>
 </tr><tr>
 <th>noun.c</th>
 </tr><tr>
 <td>
-#diff 4 noun.c
+#diff noun.c
 </td>
 </tr></table>
 <div class="explanation">
@@ -348,13 +348,13 @@ and in the next chapter we will introduce another command that needs it.
 <th>misc.h</th>
 </tr><tr>
 <td>
-#diff 4 misc.h
+#diff misc.h
 </td>
 </tr><tr>
 <th>misc.c</th>
 </tr><tr>
 <td>
-#diff 4 misc.c
+#diff misc.c
 </td>
 </tr></table>
 <div class="explanation">
@@ -388,13 +388,13 @@ and so is the variable <i>locationOfPlayer</i>.
 <th>location.h</th>
 </tr><tr>
 <td>
-#diff 4 location.h
+#diff location.h
 </td>
 </tr><tr>
 <th>location.c</th>
 </tr><tr>
 <td>
-#diff 4 location.c
+#diff location.c
 </td>
 </tr></table>
 <div class="explanation">
@@ -430,6 +430,9 @@ Silver and gold is scattered across the floor, but we cannot even pick it up!
 Let&rsquo;s fix that in the next chapter.
 </p>
 <hr />
+<table class="download"><tr><td>
+#zip
+</td></tr></table>
 <p>
 Next chapter: <a href="htpataic05.html">5. Inventory</a>
 </p>
