@@ -12,16 +12,20 @@ code??:
 	$(MAKE) --no-print-directory -C $@
 
 # Always rebuild HTML file if dependency file is missing.
-htpataic%.html: htpataic%.d
+htpataic%.html: deps/htpataic%.d
 
-# Build both the HTML file and the dependency file.
-htpataic%.d: htpataic%.txt
-	tools/compile.sh "$*"
+# HTML file and dependency file are built simultaneously.
+deps/htpataic%.d: htpataic%.txt | deps
+	tools/compile.sh "$(*F)"
+
+# Create directory for dependency files if it does not already exist.
+deps:
+	mkdir $@
 
 # Include the dependency files.
--include $(patsubst %.txt,%.d,$(wildcard htpataic??.txt))
+-include $(patsubst %.txt,deps/%.d,$(wildcard htpataic??.txt))
 
 # Delete targets and intermediate files; also in the subdirectories.
 clean:
-	$(RM) htpataic??.html htpataic??.d
+	$(RM) htpataic??.html deps/htpataic??.d
 	for d in code??; do $(MAKE) --no-print-directory -C $$d clean; done

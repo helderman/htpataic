@@ -30,4 +30,8 @@ do
 		;;
 	esac
 done < "htpataic$1.txt" > "htpataic$1.html"
-echo "$DEPS" > "htpataic$1.d"
+
+# Create (or overwrite) the dependencies file.
+# This file should be included into our main makefile;
+# just like you would with auto-dependencies created by gcc -M.
+echo "$DEPS" > "deps/htpataic$1.d"
