@@ -1,9 +1,9 @@
 #!/bin/bash
 
-DIR="${0%/*}"
+TOOLS="${0%/*}"
 
 if [ -z "$(diff --old-line-format=%L --new-line-format= --unchanged-line-format= "$@")" ]; then
-	"$DIR/ldiff.sh" "$@"
+	"$TOOLS/ldiff.sh" "$@"
 else
-	"$DIR/wdiff.sh" "$@"
+	"$TOOLS/wdiff.sh" "$@"
 fi

@@ -1,4 +1,4 @@
-- htpataic??.txt also in separate subdirectory?
+- code??/makefile: also clean src.zip
 
 - ch17: do a serious performance test!
 - noun.c getPossession: getting/asking from actor or from dead object

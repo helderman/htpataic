@@ -1,31 +1,38 @@
 # Please build with GNU Make on Ubuntu, with the following packages installed.
 # sudo apt install expect gcc graphviz wdiff zip
 
-.PHONY: all clean code??
+# Directories
+SRC = src
+CODE = code??
+DEPS = deps
+HTML = .
+
+# $(CODE) is added here to force its recipe to be executed
+.PHONY: all clean $(CODE)
 
 # 'make' builds both the HTML documentation and the code samples.
 # For HTML, the existence of a source file htpataic??.txt is leading.
-all: code?? $(patsubst %.txt,%.html,$(wildcard htpataic??.txt))
+all: $(CODE) $(patsubst $(SRC)/%.txt,$(HTML)/%.html,$(wildcard $(SRC)/htpataic??.txt))
 
 # To build sample code, we recursively call make for each subdirectory.
-code??:
+$(CODE):
 	$(MAKE) --no-print-directory -C $@
 
 # Always rebuild HTML file if dependency file is missing.
-htpataic%.html: deps/htpataic%.d
+$(HTML)/htpataic%.html: $(DEPS)/htpataic%.d
 
 # HTML file and dependency file are built simultaneously.
-deps/htpataic%.d: htpataic%.txt | deps
-	tools/compile.sh "$(*F)"
+$(DEPS)/htpataic%.d: $(SRC)/htpataic%.txt | $(DEPS)
+	tools/compile.sh "$(*F)" "$@" "$(SRC)" "$(HTML)"
 
 # Create directory for dependency files if it does not already exist.
-deps:
+$(DEPS):
 	mkdir $@
 
 # Include the dependency files.
--include $(patsubst %.txt,deps/%.d,$(wildcard htpataic??.txt))
+-include $(patsubst $(SRC)/%.txt,$(DEPS)/%.d,$(wildcard $(SRC)/htpataic??.txt))
 
 # Delete targets and intermediate files; also in the subdirectories.
 clean:
-	$(RM) htpataic??.html deps/htpataic??.d
-	for d in code??; do $(MAKE) --no-print-directory -C $$d clean; done
+	$(RM) $(HTML)/htpataic??.html $(DEPS)/htpataic??.d
+	for d in $(CODE); do $(MAKE) --no-print-directory -C $$d clean; done

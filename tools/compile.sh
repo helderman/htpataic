@@ -1,37 +1,40 @@
 #!/bin/bash
 
-DIR="${0%/*}"
+# Directories
+TOOLS="${0%/*}"
+CODE="code$1"
 
-DEPS="htpataic$1.html: htpataic$1.txt"
+# To build up a list of dependencies
+DEPS="\$(HTML)/htpataic$1.html: \$(SRC)/htpataic$1.txt"
 
 while IFS= read -r line
 do
 	case "$line" in
 
 	(\#contents)
-		"$DIR/contents.sh" "$1"
+		"$TOOLS/contents.sh" "$1" "$3"
 		;;
 	(\#new\ *|\#diff\ *|\#[lw]diff\ *)
-		"$DIR/codediff.sh" "${1#0}" ${line#\#}
-		DEPS+=" code$1/${line#* }"
+		"$TOOLS/codediff.sh" "${1#0}" ${line#\#}
+		DEPS+=" $CODE/${line#* }"
 		;;
 	(\#test)
-		"$DIR/html.sh" "code$1/baseline.txt"
-		DEPS+=" code$1/baseline.txt"
+		"$TOOLS/html.sh" "$CODE/baseline.txt"
+		DEPS+=" $CODE/baseline.txt"
 		;;
 	(\#map)
-		echo '<img class="genmap" src="code'$1'/map.png" />'
+		echo "<img class=\"genmap\" src=\"$CODE/map.png\" />"
 		;;
 	(\#zip)
-		echo '<a href="code'$1'/src.zip">Download source code</a>'
+		echo "<a href=\"$CODE/src.zip\">Download source code</a>"
 		;;
 	(*)
 		echo "$line"
 		;;
 	esac
-done < "htpataic$1.txt" > "htpataic$1.html"
+done < "$3/htpataic$1.txt" > "$4/htpataic$1.html"
 
 # Create (or overwrite) the dependencies file.
 # This file should be included into our main makefile;
 # just like you would with auto-dependencies created by gcc -M.
-echo "$DEPS" > "deps/htpataic$1.d"
+echo "$DEPS" > "$2"

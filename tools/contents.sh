@@ -1,5 +1,5 @@
 #!/bin/bash
 
-DIR="${0%/*}"
+TOOLS="${0%/*}"
 
-awk -v current="htpataic$1.txt" -f "$DIR/contents.awk" htpataic??.txt
+awk -v current="$2/htpataic$1.txt" -f "$TOOLS/contents.awk" "$2"/htpataic??.txt
