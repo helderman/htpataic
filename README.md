@@ -7,9 +7,11 @@ This is a complete walkthrough,
 where we will follow the incremental development
 of a simple yet fully functional game.
 
-Source code is included,
-making it easy to follow the progress of the program with each chapter.
-
 Start reading here:
 
 [https://helderman.github.io/htpataic/htpataic01.html](https://helderman.github.io/htpataic/htpataic01.html)
+
+Source code is included,
+making it easy to follow the progress of the program with each chapter.
+
+[![Run on Repl.it](https://repl.it/badge/github/helderman/htpataic)](https://repl.it/github/helderman/htpataic)
