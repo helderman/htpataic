@@ -12,10 +12,69 @@
 <h1>How to program a text adventure in C</h1>
 <h2>18. Abbreviations</h2>
 <p class="intro">
-TODO
+Classic adventures like
+<a href="https://en.wikipedia.org/wiki/Colossal_Cave_Adventure">Colossal Cave</a>
+and
+<a href="https://en.wikipedia.org/wiki/Zork">Zork</a>
+have more than a hundred locations for the player to discover.
+Playing these games involves a lot of 'go north/east/south/west',
+so it's no surprise that from the very beginning,
+text adventures accepted abbreviations like n, e, s, w.
 </p>
 <p>
-TODO
+Implementing an abbreviation appears to be trivial.
+From a coding perspective,
+an abbreviation is just a synonym for its full-sized counterpart, right?
+So all we have to do is
+add an extra row to the list of commands in function <i>parseAndExecute</i>.
+</p>
+<p>
+There is a downside to that approach. When using
+<a href="https://en.wikipedia.org/wiki/Speech_synthesis">text-to-speech</a>
+to read out loud the progress of a game session,
+then those abbreviations do not come out too well.
+How is a
+<a href="https://en.wikipedia.org/wiki/Screen_reader">screen reader</a>
+supposed to know 'ne' means north-east?
+</p>
+<p>
+So instead, I would recommend a pre-processor
+that <b>expands</b> abbreviations before sending the user's input to the parser.
+</p>
+<table class="code"><tr>
+<th>expand.h</th>
+</tr><tr>
+<td>
+#diff expand.h
+</td>
+</tr><tr>
+<th>expand.c</th>
+</tr><tr>
+<td>
+#diff expand.c
+</td>
+</tr></table>
+<p>
+Now all we have to do is call function <i>expand</i>
+right before calling <i>parseAndExecute</i>.
+</p>
+<table class="demo">
+<tr><th>Sample output</th></tr>
+<tr><td>
+#test
+</td></tr>
+</table>
+<table class="code"><tr>
+<th>main.c</th>
+</tr><tr>
+<td>
+#diff main.c
+</td>
+</tr></table>
+<p>
+Of course, there should be more to an adventure than
+traversing dozens of locations just to take object A to location B.
+In the next chapter, we will look at ways to bring more depth into the game.
 </p>
 <hr />
 <table class="download"><tr><td>

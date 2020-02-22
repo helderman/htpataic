@@ -1,0 +1,214 @@
+#include <stdio.h>
+#include "object.h"
+#include "toggle.h"
+
+typedef struct object {
+   bool         (*condition)(void);
+   const char    *description;
+   const char   **tags;
+   struct object *location;
+   struct object *destination;
+   struct object *prospect;
+   const char    *details;
+   const char    *contents;
+   const char    *textGo;
+   int            weight;
+   int            capacity;
+   int            health;
+   const char  *(*open)(void);
+   const char  *(*close)(void);
+   const char  *(*lock)(void);
+   const char  *(*unlock)(void);
+} OBJECT;
+
+extern OBJECT objs[];
+
+- field
+     description "an open field"
+     tags        "field"
+     details     "The field is a nice and quiet place under a clear blue sky.\n"
+     capacity    9999
+
+- cave
+     description "a little cave"
+     tags        "cave"
+     details     "The cave is just a cold, damp, rocky chamber.\n"
+     capacity    9999
+
+- silver
+     description "a silver coin"
+     tags        "silver", "coin", "silver coin"
+     location    field
+     details     "The coin has an eagle on the obverse.\n"
+     weight      1
+
+- gold
+     description "a gold coin"
+     tags        "gold", "coin", "gold coin"
+     location    openBox
+     details     "The shiny coin seems to be a rare and priceless artefact.\n"
+     weight      1
+
+- guard
+     description "a burly guard"
+     tags        "guard", "burly guard"
+     location    field
+     details     "The guard is a really big fellow.\n"
+     contents    "He has"
+     health      100
+     capacity    20
+
+- player
+     description "yourself"
+     tags        "yourself"
+     location    field
+     details     "You would need a mirror to look at yourself.\n"
+     contents    "You have"
+     health      100
+     capacity    20
+
+- intoCave
+     condition   { return guard->health == 0 || silver->location == guard; }
+     description "a cave entrance to the east"
+     tags        "east", "entrance"
+     location    field
+     destination cave
+     details     "The entrance is just a narrow opening in a small outcrop.\n"
+     textGo      "You walk into the cave.\n"
+     open        isAlreadyOpen
+
+- intoCaveBlocked
+     condition   { return guard->health > 0 && silver->location != guard; }
+     description "a cave entrance to the east"
+     tags        "east", "entrance"
+     location    field
+     prospect    cave
+     details     "The entrance is just a narrow opening in a small outcrop.\n"
+     textGo      "The guard stops you from walking into the cave.\n"
+     open        isAlreadyOpen
+
+- exitCave
+     description "an exit to the west"
+     tags        "west", "exit"
+     location    cave
+     destination field
+     details     "Sunlight pours in through an opening in the cave's wall.\n"
+     textGo      "You walk out of the cave.\n"
+     open        isAlreadyOpen
+
+- wallField
+     description "dense forest all around"
+     tags        "west", "north", "south", "forest"
+     location    field
+     details     "The field is surrounded by trees and undergrowth.\n"
+     textGo      "Dense forest is blocking the way.\n"
+
+- wallCave
+     description "solid rock all around"
+     tags        "east", "north", "rock"
+     location    cave
+     details     "Carved in stone is a secret password 'abccb'.\n"
+     textGo      "Solid rock is blocking the way.\n"
+
+- backroom
+     description "a backroom"
+     tags        "backroom"
+     details     "The room is dusty and messy.\n"
+     capacity    9999
+
+- wallBackroom
+     description "solid rock all around"
+     tags        "east", "west", "south", "rock"
+     location    backroom
+     details     "Trendy wallpaper covers the rock walls.\n"
+     textGo      "Solid rock is blocking the way.\n"
+
+- openDoorToBackroom
+     description "an open door to the south"
+     tags        "south", "door", "doorway"
+     destination backroom
+     details     "The door is open.\n"
+     textGo      "You walk through the door into a backroom.\n"
+     open        isAlreadyOpen
+     close       toggleBackdoor
+
+- closedDoorToBackroom
+     description "a closed door to the south"
+     tags        "south", "door", "doorway"
+     location    cave
+     prospect    backroom
+     details     "The door is closed.\n"
+     textGo      "The door is closed.\n"
+     open        toggleBackdoor
+     close       isAlreadyClosed
+
+- openDoorToCave
+     description "an open door to the north"
+     tags        "north", "door", "doorway"
+     destination cave
+     details     "The door is open.\n"
+     textGo      "You walk through the door into the cave.\n"
+     open        isAlreadyOpen
+     close       toggleBackdoor
+
+- closedDoorToCave
+     description "a closed door to the north"
+     tags        "north", "door", "doorway"
+     location    backroom
+     prospect    cave
+     details     "The door is closed.\n"
+     textGo      "The door is closed.\n"
+     open        toggleBackdoor
+     close       isAlreadyClosed
+
+- openBox
+     description "a wooden box"
+     tags        "box", "wooden box"
+     details     "The box is open.\n"
+     weight      5
+     capacity    10
+     open        isAlreadyOpen
+     close       toggleBox
+     lock        isStillOpen
+     unlock      isAlreadyOpen
+
+- closedBox
+     description "a wooden box"
+     tags        "box", "wooden box"
+     details     "The box is closed.\n"
+     weight      5
+     open        toggleBox
+     close       isAlreadyClosed
+     lock        toggleBoxLock
+     unlock      isAlreadyUnlocked
+
+- lockedBox
+     description "a wooden box"
+     tags        "box", "wooden box"
+     location    backroom
+     details     "The box is closed.\n"
+     weight      5
+     open        isStillLocked
+     close       isAlreadyClosed
+     lock        isAlreadyLocked
+     unlock      toggleBoxLock
+
+- keyForBox
+     description "a tiny key"
+     tags        "key", "tiny key"
+     location    cave
+     details     "The key is really small and shiny.\n"
+     weight      1
+
+- lampOff
+     description "a lamp"
+     tags        "lamp"
+     location    field
+     details     "The lamp is off.\n"
+     weight      5
+
+- lampOn
+     description "a lamp"
+     tags        "lamp"
+     details     "The lamp is on.\n"
+     weight      5

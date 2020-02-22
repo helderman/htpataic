@@ -11,7 +11,7 @@ Lines executed:86.67% of 45
 Creating 'location.c.gcov'
 
 File 'main.c'
-Lines executed:72.73% of 22
+Lines executed:76.92% of 26
 Creating 'main.c.gcov'
 
 File 'match.c'
@@ -54,4 +54,4 @@ File 'toggle.c'
 Lines executed:94.29% of 35
 Creating 'toggle.c.gcov'
 
-Lines executed:91.97% of 361
+Lines executed:92.05% of 365

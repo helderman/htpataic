@@ -35,10 +35,220 @@
 <h1>How to program a text adventure in C</h1>
 <h2>18. Abbreviations</h2>
 <p class="intro">
-TODO
+Classic adventures like
+<a href="https://en.wikipedia.org/wiki/Colossal_Cave_Adventure">Colossal Cave</a>
+and
+<a href="https://en.wikipedia.org/wiki/Zork">Zork</a>
+have more than a hundred locations for the player to discover.
+Playing these games involves a lot of 'go north/east/south/west',
+so it's no surprise that from the very beginning,
+text adventures accepted abbreviations like n, e, s, w.
 </p>
 <p>
-TODO
+Implementing an abbreviation appears to be trivial.
+From a coding perspective,
+an abbreviation is just a synonym for its full-sized counterpart, right?
+So all we have to do is
+add an extra row to the list of commands in function <i>parseAndExecute</i>.
+</p>
+<p>
+There is a downside to that approach. When using
+<a href="https://en.wikipedia.org/wiki/Speech_synthesis">text-to-speech</a>
+to read out loud the progress of a game session,
+then those abbreviations do not come out too well.
+How is a
+<a href="https://en.wikipedia.org/wiki/Screen_reader">screen reader</a>
+supposed to know 'ne' means north-east?
+</p>
+<p>
+So instead, I would recommend a pre-processor
+that <b>expands</b> abbreviations before sending the user's input to the parser.
+</p>
+<table class="code"><tr>
+<th>expand.h</th>
+</tr><tr>
+<td>
+<ol>
+<li class="new">extern char *expand(char *input, int bufsize);</li>
+</ol>
+</td>
+</tr><tr>
+<th>expand.c</th>
+</tr><tr>
+<td>
+<ol>
+<li class="new">#include &lt;stdbool.h&gt;</li>
+<li class="new">#include &lt;string.h&gt;</li>
+<li class="new">#include "match.h"</li>
+<li class="new"></li>
+<li class="new">typedef struct</li>
+<li class="new">{</li>
+<li class="new">   const char *abbreviated;</li>
+<li class="new">   const char *expanded;</li>
+<li class="new">} SHORTHAND;</li>
+<li class="new"></li>
+<li class="new">static int minimum(int x, int y)</li>
+<li class="new">{</li>
+<li class="new">   return x &lt; y ? x : y;</li>
+<li class="new">}</li>
+<li class="new"></li>
+<li class="new">char *expand(char *input, int bufsize)</li>
+<li class="new">{</li>
+<li class="new">   static const SHORTHAND shorthands[] =</li>
+<li class="new">   {</li>
+<li class="new">      {"n", "go north"},</li>
+<li class="new">      {"s", "go south"},</li>
+<li class="new">      {"w", "go west"},</li>
+<li class="new">      {"e", "go east"},</li>
+<li class="new">      {"inv", "inventory"},</li>
+<li class="new">      {"x A", "look "},</li>
+<li class="new">      {"A", NULL}</li>
+<li class="new">   };</li>
+<li class="new">   const SHORTHAND *sh;</li>
+<li class="new">   for (sh = shorthands; !matchCommand(input, sh-&gt;abbreviated); sh++);</li>
+<li class="new">   if (sh-&gt;expanded != NULL)</li>
+<li class="new">   {</li>
+<li class="new">      const char *moreInput = *paramByLetter('A');</li>
+<li class="new">      int lengthOfExpanded = strlen(sh-&gt;expanded);</li>
+<li class="new">      memmove(input + lengthOfExpanded, moreInput,</li>
+<li class="new">              minimum(strlen(moreInput) + 1, bufsize - lengthOfExpanded - 1));</li>
+<li class="new">      strncpy(input, sh-&gt;expanded, lengthOfExpanded);</li>
+<li class="new">   }</li>
+<li class="new">   return input;</li>
+<li class="new">}</li>
+</ol>
+</td>
+</tr></table>
+<p>
+Now all we have to do is call function <i>expand</i>
+right before calling <i>parseAndExecute</i>.
+</p>
+<table class="demo">
+<tr><th>Sample output</th></tr>
+<tr><td>
+Welcome to Little Cave Adventure.<br />
+You are in an open field.<br />
+You see:<br />
+a silver coin<br />
+a burly guard<br />
+a cave entrance to the east<br />
+dense forest all around<br />
+a lamp<br />
+<br />
+--&gt; e<br />
+The guard stops you from walking into the cave.<br />
+<br />
+--&gt; get coin<br />
+You pick up a silver coin.<br />
+<br />
+--&gt; inv<br />
+You have:<br />
+a silver coin<br />
+<br />
+--&gt; x coin<br />
+The coin has an eagle on the obverse.<br />
+<br />
+--&gt; give coin<br />
+You give a silver coin to a burly guard.<br />
+<br />
+--&gt; e<br />
+You walk into the cave.<br />
+<br />
+It is very dark in here.<br />
+You see:<br />
+an exit to the west<br />
+<br />
+--&gt; n<br />
+It's too dark.<br />
+<br />
+--&gt; w<br />
+You walk out of the cave.<br />
+<br />
+You are in an open field.<br />
+You see:<br />
+a burly guard<br />
+a cave entrance to the east<br />
+dense forest all around<br />
+a lamp<br />
+<br />
+--&gt; w<br />
+Dense forest is blocking the way.<br />
+<br />
+--&gt; quit<br />
+<br />
+Bye!<br />
+</td></tr>
+</table>
+<table class="code"><tr>
+<th>main.c</th>
+</tr><tr>
+<td>
+<ol>
+<li class="old">#include &lt;stdio.h&gt;</li>
+<li class="old">#include &lt;stdbool.h&gt;</li>
+<li class="old">#include &lt;string.h&gt;</li>
+<li class="new"><span class="old">#include </span>"expand.h"</li>
+<li class="new">#include<span class="old"> "parsexec.h"</span></li>
+<li class="old"></li>
+<li class="old">static char input[100] = "look around";</li>
+<li class="old"></li>
+<li class="old">static bool getFromFP(FILE *fp)</li>
+<li class="old">{</li>
+<li class="old">   bool ok = fgets(input, sizeof(input), fp) != NULL;</li>
+<li class="old">   if (ok) input[strcspn(input, "\n")] = '\0';</li>
+<li class="old">   return ok;</li>
+<li class="old">}</li>
+<li class="old"></li>
+<li class="old">static bool getInput(const char *filename)</li>
+<li class="old">{</li>
+<li class="old">   static FILE *fp = NULL;</li>
+<li class="old">   bool ok;</li>
+<li class="old">   if (fp == NULL)</li>
+<li class="old">   {</li>
+<li class="old">      if (filename != NULL) fp = fopen(filename, "rt");</li>
+<li class="old">      if (fp == NULL) fp = stdin;</li>
+<li class="old">   }</li>
+<li class="old">   else if (fp == stdin &amp;&amp; filename != NULL)</li>
+<li class="old">   {</li>
+<li class="old">      FILE *out = fopen(filename, "at");</li>
+<li class="old">      if (out != NULL)</li>
+<li class="old">      {</li>
+<li class="old">         fprintf(out, "%s\n", input);</li>
+<li class="old">         fclose(out);</li>
+<li class="old">      }</li>
+<li class="old">   }</li>
+<li class="old">   printf("\n--&gt; ");</li>
+<li class="old">   ok = getFromFP(fp);</li>
+<li class="old">   if (fp != stdin)</li>
+<li class="old">   {</li>
+<li class="old">      if (ok)</li>
+<li class="old">      {</li>
+<li class="old">         printf("%s\n", input);</li>
+<li class="old">      }</li>
+<li class="old">      else</li>
+<li class="old">      {</li>
+<li class="old">         fclose(fp);</li>
+<li class="old">         ok = getFromFP(fp = stdin);</li>
+<li class="old">      }</li>
+<li class="old">   }</li>
+<li class="old">   return ok;</li>
+<li class="old">}</li>
+<li class="old"></li>
+<li class="old">int main(int argc, char *argv[])</li>
+<li class="old">{</li>
+<li class="old">   (void)argc;</li>
+<li class="old">   printf("Welcome to Little Cave Adventure.\n");</li>
+<li class="new"><span class="old">   while </span>(parseAndExecute(expand(input, sizeof(input)))<span class="old"> &amp;&amp; getInput(argv[1]));</span></li>
+<li class="old">   printf("\nBye!\n");</li>
+<li class="old">   return 0;</li>
+<li class="old">}</li>
+</ol>
+</td>
+</tr></table>
+<p>
+Of course, there should be more to an adventure than
+traversing dozens of locations just to take object A to location B.
+In the next chapter, we will look at ways to bring more depth into the game.
 </p>
 <hr />
 <table class="download"><tr><td>

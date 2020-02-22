@@ -89,20 +89,36 @@ This will be discussed in chapter 21.
 Explanation:
 </p>
 <ul>
-<li>Line 9:
+<li>Line 11:
+<a href="http://en.wikipedia.org/wiki/Fgets">fgets</a>
+has the nasty habit of storing a trailing
+<a href="http://en.wikipedia.org/wiki/Newline">newline</a>
+character in buffer <i>input</i>.
+I never mentioned it, as the parser was smart enough to ignore trailing
+<a href="http://en.wikipedia.org/wiki/Whitespace_character">whitespace</a>.
+But in this chapter, we are logging the contents of <i>input</i>,
+and in chapter 18, we will be manipulating the contents,
+making this newline character more of a nuisance.
+So from now on, we will be stripping it off.
+Credits to
+<a href="https://stackoverflow.com/a/28462221/2485966">Tim &#268;as</a>
+for the clever use of <i>strcspn</i>.
+</li>
+<li>Line 17:
 the
 <a href="https://en.wikipedia.org/wiki/Static_variable">static variable</a>
-<i>fp</i> represents the source of input;
-it is either <i>stdin</i> (the program takes commands from the keyboard)
+<i>fp</i> represents the source of input; it is either
+<a href="https://en.wikipedia.org/wiki/Standard_streams#Standard_input_(stdin)">stdin</a>
+(the program takes commands from the keyboard)
 or a file containing the list of commands entered in earlier sessions.
 </li>
-<li>Line 11-15:
+<li>Line 19-23:
 the first time <i>getInput</i> is called (<i>fp</i> is still NULL),
 <i>fp</i> will be set,
 either to a file or (if no filename was specified) to <i>stdin</i>.
 In case of a file, it will be opened now for reading.
 </li>
-<li>Line 16-24:
+<li>Line 24-32:
 when reading input from <i>stdin</i>,
 each new command entered by the user will be logged
 (if a filename was specified).
@@ -117,15 +133,15 @@ We deliberately do this
 so we will not log commands that cause the program to terminate
 (both &lsquo;quit&rsquo; and any commands that trigger a crash).
 </li>
-<li>The &lsquo;else&rsquo; at the start of line 16
+<li>The &lsquo;else&rsquo; at the start of line 24
 causes logging to be skipped during the first call of <i>getInput</i>.
-This prevents the initial &lsquo;look around&rsquo; (line 5)
+This prevents the initial &lsquo;look around&rsquo; (line 6)
 from being logged.
 </li>
 <li>We are writing to
-the same file that was opened earlier to read input from (line 13).
+the same file that was opened earlier to read input from (line 21).
 But writing never starts until
-after the file was closed after having been read completely (line 35).
+after the file was closed after having been read completely (line 43).
 So we need to open it again; this time for &lsquo;appending&rsquo;
 (i.e. writing at the end of the file).
 </li>
@@ -137,25 +153,27 @@ then I suggest you flush after each command written.
 </li>
 </ul>
 </li>
-<li>Line 26:
+<li>Line 34:
 here we try to read a command, either from file or from keyboard.
 </li>
-<li>Line 29-32:
+<li>Line 37-40:
 after sucessfully reading a command from file,
 we echo the command to screen.
 That way, the user will get to see the full dialog of earlier sessions.
 </li>
-<li>Line 33-37:
-once the input file reaches EOF, we switch over to manual input.
+<li>Line 41-45:
+once the input file reaches
+<a href="https://en.wikipedia.org/wiki/End-of-file">EOF</a>,
+we switch over to manual input.
 We close the file, set <i>fp</i> to <i>stdin</i>,
 and read again using the new file pointer.
 </li>
-<li>Lines 42 and 46:
+<li>Lines 50 and 54:
 the name of the file must be passed as the first argument
 when calling the program.
 If no name is given, then argv[1] will be NULL.
 </li>
-<li>Line 44:
+<li>Line 52:
 dummy statement
 to suppress a compiler warning on unused parameter <i>argc</i>.
 </li>
