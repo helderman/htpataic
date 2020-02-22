@@ -11,4 +11,4 @@ src.zip: main.c makefile testscript.txt baseline.txt
 	zip -rq $@ $^
 
 clean:
-	$(RM) lilcave transcript.txt success.txt
+	$(RM) lilcave transcript.txt success.txt src.zip

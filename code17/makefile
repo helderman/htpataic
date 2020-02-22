@@ -32,4 +32,4 @@ src.zip: $(C) $(H) object.txt makefile testscript.txt baseline.txt
 	zip -rq $@ $^
 
 clean:
-	$(RM) object.c object.h lilcave map.gv map.png lilcave.testable *.gcda *.gcno *.gcov codecoverage.txt transcript.txt success.txt
+	$(RM) object.c object.h lilcave map.gv map.png lilcave.testable *.gcda *.gcno *.gcov codecoverage.txt transcript.txt success.txt src.zip
