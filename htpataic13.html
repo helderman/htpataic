@@ -325,7 +325,7 @@ Explanation:
 <ul>
 <li>Line 1:
 from <a href="http://en.wikipedia.org/wiki/Ctype.h">ctype.h</a>,
-we will be using <i>isspace</i> (line 26),
+we will be using <i>isspace</i> (line 27),
 which provides a more complete
 <a href="http://en.wikipedia.org/wiki/Whitespace_(computer_science)">whitespace</a>
 test than a simple comparison with
@@ -334,38 +334,38 @@ test than a simple comparison with
 <a href="http://en.wikipedia.org/wiki/Tab_character">tab</a>,
 among others).
 </li>
-<li>Line 9-13:
+<li>Line 10-14:
 type <i>COMMAND</i> is a structure that combines a pattern with a function.
 </li>
-<li>Line 15-30:
+<li>Line 16-31:
 a few generic handlers.
 </li>
-<li>Line 26:
+<li>Line 27:
 this loop prints the first word entered by the player;
 we assume this is supposed to be the (unrecognized) verb.
 </li>
-<li>Line 34-53:
+<li>Line 35-54:
 the array of patterns.
 </li>
-<li>Line 52:
+<li>Line 53:
 the last pattern should always be &ldquo;A&rdquo;;
 this pattern matches <i>anything</i> and so it will pick up
 everything that hasn&rsquo;t been matched by preceding patterns.
 </li>
-<li>Line 55:
+<li>Line 56:
 this loop scans though all patterns from top to bottom;
 it stops at the first pattern that matches.
-The &lsquo;sure match&rsquo; on line 52 ensures
+The &lsquo;sure match&rsquo; on line 53 ensures
 the loop will never pass the end of the array.
 </li>
-<li>Line 56:
+<li>Line 57:
 the function that belongs to the matching pattern is called.
 </li>
 </ul>
 </div>
 <p>
 The hardest part is the implementation of function <i>matchCommand</i>.
-But as you can see below, it can be done in less than 100 lines of code!
+But as you can see below, that too can be done in less than 100 lines of code.
 </p>
 <table class="code"><tr>
 <th>match.h</th>

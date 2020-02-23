@@ -40,8 +40,8 @@ Classic adventures like
 and
 <a href="https://en.wikipedia.org/wiki/Zork">Zork</a>
 have more than a hundred locations for the player to discover.
-Playing these games involves a lot of 'go north/east/south/west',
-so it's no surprise that from the very beginning,
+Playing these games involves a lot of &ldquo;go north/east/south/west&rdquo;,
+so it&rsquo;s no surprise that from the very beginning,
 text adventures accepted abbreviations like n, e, s, w.
 </p>
 <p>
@@ -58,11 +58,30 @@ to read out loud the progress of a game session,
 then those abbreviations do not come out too well.
 How is a
 <a href="https://en.wikipedia.org/wiki/Screen_reader">screen reader</a>
-supposed to know 'ne' means north-east?
+supposed to know &lsquo;ne&rsquo; means north-east?
 </p>
 <p>
-So instead, I would recommend a pre-processor
-that <b>expands</b> abbreviations before sending the user's input to the parser.
+So instead, I would recommend a pre-processor that
+<b>expands</b> abbreviations before sending the user&rsquo;s input to the parser.
+Implementation-wise,
+such a pre-processor is quite similar to the actual parser.
+We can even re-use function <i>matchCommand</i>.
+</p>
+<p>
+It may seem like overkill to use <i>matchCommand</i>
+for recognizing a one-letter command like &lsquo;n&rsquo;,
+but why would I want to implement
+case insensitity and whitespace trimming all over again?
+</p>
+<p>
+One may argue that this approach is suboptimal.
+A simple abbreviation is expanded to something more verbose
+(e.g. &ldquo;go north&rdquo;),
+which then has to be broken down again by the parser.
+Please feel free to optimize, if it makes you feel better.
+Just don&rsquo;t forget the
+<a href="http://wiki.c2.com/?RulesOfOptimization">rules of optimization</a>
+from the previous chapter.
 </p>
 <table class="code"><tr>
 <th>expand.h</th>
@@ -119,6 +138,71 @@ that <b>expands</b> abbreviations before sending the user's input to the parser.
 </ol>
 </td>
 </tr></table>
+<div class="explanation">
+<p>
+Explanation:
+</p>
+<ul>
+<li>Line 5-9:
+struct <i>SHORTHAND</i> is similar to struct <i>COMMAND</i>
+(defined in <i>parsexec.c</i>).
+It maps a command pattern not to a function
+but to another (more verbose) command string.
+</li>
+<li>Line 16:
+this is the function that expands the abbreviation (if any).
+Expansion takes place directly in the input buffer.
+To be able to prevent
+<a href="http://en.wikipedia.org/wiki/Buffer_overflow">buffer overflow</a>,
+the function must be aware of the size of the buffer
+(parameter <i>bufsize</i>).
+</li>
+<li>Line 25:
+an example of an expansion that is slightly less trivial.
+When expanding the abbreviation &lsquo;x&rsquo;,
+short for &lsquo;examine&rsquo;
+(a common alternative for the verb &lsquo;look&rsquo; as used in our game),
+we should preserve whatever follows the verb.
+For example,
+&ldquo;x coin&rdquo; should be expanded to &ldquo;look coin&rdquo;.
+This warrants a trailing space in the string &ldquo;look &rdquo;.
+</li>
+<li>Line 26:
+just like in the parser, the final pattern &ldquo;A&rdquo;
+should catch every command that did not match any of the abbreviations.
+</li>
+<li>Line 29:
+this loop tries to find the abbreviation that matches the user&rsquo;s input.
+</li>
+<li>Line 30:
+if the loop stopped at the final &lsquo;sure-match&rsquo; pattern (line 26),
+then there was no matching abbreviation.
+We will skip the rest of the function; no expansion will take place.
+</li>
+<li>Line 32:
+retrieves the value of parameter <i>A</i>
+(e.g. &ldquo;coin&rdquo; if the user entered &ldquo;x coin&rdquo;),
+or an empty string if the abbreviation is parameterless.
+</li>
+<li>Line 34:
+moving the noun (the parameter <i>A</i>, if any) away from the verb,
+to make room for the expanded verb.
+Deliberately using <i>memmove</i> instead of <i>strcpy</i>
+(from <a href="http://en.wikipedia.org/wiki/String.h">string.h</a>),
+as we are (possibly) moving data within the same input buffer.
+</li>
+<li>Line 35:
+here <i>bufsize</i> is taken into account, to prevent
+<a href="http://en.wikipedia.org/wiki/Buffer_overflow">buffer overflow</a>.
+For very long commands, this may truncate the string,
+but assuming the buffer has a reasonable size,
+that is unlikely to bother the player.
+</li>
+<li>Line 36:
+now we can finally copy the expanded command to the front of the input buffer.
+</li>
+</ul>
+</div>
 <p>
 Now all we have to do is call function <i>expand</i>
 right before calling <i>parseAndExecute</i>.

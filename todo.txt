@@ -1,3 +1,4 @@
+- sizeof is an operator, needs no parentheses
 - repl.it button on every html page
 - ch17: do a serious performance test!
 - noun.c getPossession: getting/asking from actor or from dead object
