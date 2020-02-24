@@ -22,8 +22,8 @@ $(CODE):
 $(HTML)/htpataic%.html: $(DEPS)/htpataic%.d
 
 # HTML file and dependency file are built simultaneously.
-$(DEPS)/htpataic%.d: $(SRC)/htpataic%.txt | $(DEPS)
-	tools/compile.sh "$(*F)" "$@" "$(SRC)" "$(HTML)"
+$(HTML)/htpataic%.html: $(SRC)/htpataic%.txt | $(DEPS)
+	tools/compile.sh "$(*F)" "$(DEPS)/htpataic$(*F).d" "$(SRC)" "$(HTML)"
 
 # Create directory for dependency files if it does not already exist.
 $(DEPS):

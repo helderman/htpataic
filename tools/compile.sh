@@ -26,7 +26,8 @@ do
 		echo "<img class=\"genmap\" src=\"$CODE/map.png\" />"
 		;;
 	(\#zip)
-		echo "<a href=\"$CODE/src.zip\">Download source code</a>"
+		echo "<a class=\"button\" href=\"$CODE/src.zip\">&#x2B73; &nbsp; Download source code</a>"
+		echo "<a class=\"button\" href=\"https://repl.it/github/helderman/htpataic\">&#x1F300; &nbsp; Run on Repl.it</a>"
 		;;
 	(*)
 		echo "$line"

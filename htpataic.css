@@ -20,7 +20,16 @@ img.genmap {
 
 .download {
 	float: right;
-	background: yellow;
+}
+
+.button {
+	font-family: sans-serif;
+	text-decoration: none;
+	background-color: #66F;
+	color: white;
+	padding: 2px 6px;
+	border: 1px outset grey;
+	border-radius: 4px;
 }
 
 .contents {
