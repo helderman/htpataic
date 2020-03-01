@@ -278,7 +278,7 @@ Bye!<br />
 <li class="old"></li>
 <li class="old">static bool getFromFP(FILE *fp)</li>
 <li class="old">{</li>
-<li class="old">   bool ok = fgets(input, sizeof(input), fp) != NULL;</li>
+<li class="old">   bool ok = fgets(input, sizeof input, fp) != NULL;</li>
 <li class="old">   if (ok) input[strcspn(input, "\n")] = '\0';</li>
 <li class="old">   return ok;</li>
 <li class="old">}</li>
@@ -322,7 +322,7 @@ Bye!<br />
 <li class="old">{</li>
 <li class="old">   (void)argc;</li>
 <li class="old">   printf("Welcome to Little Cave Adventure.\n");</li>
-<li class="new"><span class="old">   while </span>(parseAndExecute(expand(input, sizeof(input)))<span class="old"> &amp;&amp; getInput(argv[1]));</span></li>
+<li class="new"><span class="old">   while </span>(parseAndExecute(expand(input, sizeof input))<span class="old"> &amp;&amp; getInput(argv[1]));</span></li>
 <li class="old">   printf("\nBye!\n");</li>
 <li class="old">   return 0;</li>
 <li class="old">}</li>

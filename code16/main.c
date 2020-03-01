@@ -7,7 +7,7 @@ static char input[100] = "look around";
 
 static bool getFromFP(FILE *fp)
 {
-   bool ok = fgets(input, sizeof(input), fp) != NULL;
+   bool ok = fgets(input, sizeof input, fp) != NULL;
    if (ok) input[strcspn(input, "\n")] = '\0';
    return ok;
 }

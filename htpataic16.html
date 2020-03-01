@@ -114,7 +114,7 @@ This will be discussed in chapter 21.
 <li class="old"></li>
 <li class="new"><span class="old">static bool </span>getFromFP(FILE *fp)</li>
 <li class="old">{</li>
-<li class="new"><span class="old">   </span>bool ok =<span class="old"> fgets(input, sizeof(input), </span>fp)<span class="old"> != NULL;</span></li>
+<li class="new"><span class="old">   </span>bool ok =<span class="old"> fgets(input, sizeof input, </span>fp)<span class="old"> != NULL;</span></li>
 <li class="new"><span class="old">   </span>if (ok) input[strcspn(input, "\n")] = '\0';</li>
 <li class="new">   return ok;</li>
 <li class="new">}</li>

@@ -1,4 +1,3 @@
-- sizeof is an operator, needs no parentheses
 - ch17: do a serious performance test!
 - noun.c getPossession: getting/asking from actor or from dead object
 - move.c reachableObject: eliminate 'default:'

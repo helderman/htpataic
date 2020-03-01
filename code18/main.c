@@ -8,7 +8,7 @@ static char input[100] = "look around";
 
 static bool getFromFP(FILE *fp)
 {
-   bool ok = fgets(input, sizeof(input), fp) != NULL;
+   bool ok = fgets(input, sizeof input, fp) != NULL;
    if (ok) input[strcspn(input, "\n")] = '\0';
    return ok;
 }
@@ -52,7 +52,7 @@ int main(int argc, char *argv[])
 {
    (void)argc;
    printf("Welcome to Little Cave Adventure.\n");
-   while (parseAndExecute(expand(input, sizeof(input))) && getInput(argv[1]));
+   while (parseAndExecute(expand(input, sizeof input)) && getInput(argv[1]));
    printf("\nBye!\n");
    return 0;
 }

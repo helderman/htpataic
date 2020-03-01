@@ -208,7 +208,7 @@ Next, we add a new module to the project.
 <li class="new">   {"a little cave", "cave"}</li>
 <li class="new">};</li>
 <li class="new"></li>
-<li class="new">#define numberOfLocations   (sizeof(locs) / sizeof(*locs))</li>
+<li class="new">#define numberOfLocations   (sizeof locs / sizeof *locs)</li>
 <li class="new"></li>
 <li class="new">static unsigned locationOfPlayer = 0;</li>
 <li class="new"></li>

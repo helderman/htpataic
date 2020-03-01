@@ -10,7 +10,7 @@ locs[] = {
    {"a little cave", "cave"}
 };
 
-#define numberOfLocations   (sizeof(locs) / sizeof(*locs))
+#define numberOfLocations   (sizeof locs / sizeof *locs)
 
 static unsigned locationOfPlayer = 0;
 
