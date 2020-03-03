@@ -7,9 +7,9 @@ open door
 go south
 unlock box
 open box
-look box
+examine box
 get gold from box
 inventory
 put gold in box
-look box
+examine box
 quit

@@ -298,6 +298,7 @@ Each pattern is tied to a function that executes the appropriate command.
 <li class="new">      {executeLookAround, "look around"},</li>
 <li class="new">      {executeLook      , "look at A"},</li>
 <li class="new">      {executeLook      , "look A"},</li>
+<li class="new">      {executeLook      , "examine A"},</li>
 <li class="new">      {executeGo        , "go to A"},</li>
 <li class="new">      {executeGo        , "go A"},</li>
 <li class="new">      {executeGet       , "get A"},</li>
@@ -344,21 +345,25 @@ a few generic handlers.
 this loop prints the first word entered by the player;
 we assume this is supposed to be the (unrecognized) verb.
 </li>
-<li>Line 35-54:
+<li>Line 35-55:
 the array of patterns.
 </li>
-<li>Line 53:
+<li>Line 40-42:
+<a href="https://en.wikipedia.org/wiki/Synonym">synonyms</a>
+are simple: just map different patterns to the same function.
+</li>
+<li>Line 54:
 the last pattern should always be &ldquo;A&rdquo;;
 this pattern matches <i>anything</i> and so it will pick up
 everything that hasn&rsquo;t been matched by preceding patterns.
 </li>
-<li>Line 56:
+<li>Line 57:
 this loop scans though all patterns from top to bottom;
 it stops at the first pattern that matches.
-The &lsquo;sure match&rsquo; on line 53 ensures
+The &lsquo;sure match&rsquo; on line 54 ensures
 the loop will never pass the end of the array.
 </li>
-<li>Line 57:
+<li>Line 58:
 the function that belongs to the matching pattern is called.
 </li>
 </ul>
@@ -568,7 +573,7 @@ OK.<br />
 --&gt; open box<br />
 OK.<br />
 <br />
---&gt; look box<br />
+--&gt; examine box<br />
 The box is open.<br />
 You see:<br />
 a gold coin<br />

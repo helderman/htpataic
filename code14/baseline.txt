@@ -46,7 +46,7 @@ OK.
 --> open box
 OK.
 
---> look box
+--> examine box
 The box is open.
 You see:
 a gold coin
@@ -62,7 +62,7 @@ a tiny key
 --> put gold in box
 You put a gold coin in a wooden box.
 
---> look box
+--> examine box
 The box is open.
 You see:
 a gold coin

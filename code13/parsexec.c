@@ -39,6 +39,7 @@ bool parseAndExecute(const char *input)
       {executeLookAround, "look around"},
       {executeLook      , "look at A"},
       {executeLook      , "look A"},
+      {executeLook      , "examine A"},
       {executeGo        , "go to A"},
       {executeGo        , "go A"},
       {executeGet       , "get A"},

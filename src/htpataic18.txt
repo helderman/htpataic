@@ -94,13 +94,12 @@ the function must be aware of the size of the buffer
 </li>
 <li>Line 25:
 an example of an expansion that is slightly less trivial.
-When expanding the abbreviation &lsquo;x&rsquo;,
-short for &lsquo;examine&rsquo;
-(a common alternative for the verb &lsquo;look&rsquo; as used in our game),
+When expanding &lsquo;x&rsquo; to &lsquo;examine&rsquo;,
 we should preserve whatever follows the verb.
 For example,
-&ldquo;x coin&rdquo; should be expanded to &ldquo;look coin&rdquo;.
-This warrants a trailing space in the string &ldquo;look &rdquo;.
+&ldquo;x coin&rdquo; should be expanded to &ldquo;examine coin&rdquo;.
+The trailing space in the string &ldquo;examine &rdquo; is there on purpose;
+it helps to keep the code simple.
 </li>
 <li>Line 26:
 just like in the parser, the final pattern &ldquo;A&rdquo;

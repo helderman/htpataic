@@ -22,7 +22,7 @@ char *expand(char *input, int bufsize)
       {"w", "go west"},
       {"e", "go east"},
       {"inv", "inventory"},
-      {"x A", "look "},
+      {"x A", "examine "},
       {"A", NULL}
    };
    const SHORTHAND *sh;

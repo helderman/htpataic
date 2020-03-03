@@ -46,7 +46,7 @@ OK.
 --> open box
 OK.
 
---> look box
+--> examine box
 The box is open.
 You see:
 a gold coin
