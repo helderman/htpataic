@@ -268,8 +268,8 @@ Each pattern is tied to a function that executes the appropriate command.
 <li class="new"></li>
 <li class="new">typedef struct</li>
 <li class="new">{</li>
-<li class="new">   bool (*function)(void);</li>
 <li class="new">   const char *pattern;</li>
+<li class="new">   bool (*function)(void);</li>
 <li class="new">} COMMAND;</li>
 <li class="new"></li>
 <li class="new">static bool executeQuit(void)</li>
@@ -293,24 +293,24 @@ Each pattern is tied to a function that executes the appropriate command.
 <li class="new">{</li>
 <li class="new">   static const COMMAND commands[] =</li>
 <li class="new">   {</li>
-<li class="new">      {executeQuit      , "quit"},</li>
-<li class="new">      {executeLookAround, "look"},</li>
-<li class="new">      {executeLookAround, "look around"},</li>
-<li class="new">      {executeLook      , "look at A"},</li>
-<li class="new">      {executeLook      , "look A"},</li>
-<li class="new">      {executeLook      , "examine A"},</li>
-<li class="new">      {executeGo        , "go to A"},</li>
-<li class="new">      {executeGo        , "go A"},</li>
-<li class="new">      {executeGet       , "get A"},</li>
-<li class="new">      {executeDrop      , "drop A"},</li>
-<li class="new">      {executeAsk       , "ask A"},</li>
-<li class="new">      {executeGive      , "give A"},</li>
-<li class="new">      {executeInventory , "inventory"},</li>
-<li class="new">      {executeOpen      , "open A"},</li>
-<li class="new">      {executeClose     , "close A"},</li>
-<li class="new">      {executeLock      , "lock A"},</li>
-<li class="new">      {executeUnlock    , "unlock A"},</li>
-<li class="new">      {executeNoMatch   , "A"}</li>
+<li class="new">      { "quit"        , executeQuit       },</li>
+<li class="new">      { "look"        , executeLookAround },</li>
+<li class="new">      { "look around" , executeLookAround },</li>
+<li class="new">      { "look at A"   , executeLook       },</li>
+<li class="new">      { "look A"      , executeLook       },</li>
+<li class="new">      { "examine A"   , executeLook       },</li>
+<li class="new">      { "go to A"     , executeGo         },</li>
+<li class="new">      { "go A"        , executeGo         },</li>
+<li class="new">      { "get A"       , executeGet        },</li>
+<li class="new">      { "drop A"      , executeDrop       },</li>
+<li class="new">      { "ask A"       , executeAsk        },</li>
+<li class="new">      { "give A"      , executeGive       },</li>
+<li class="new">      { "inventory"   , executeInventory  },</li>
+<li class="new">      { "open A"      , executeOpen       },</li>
+<li class="new">      { "close A"     , executeClose      },</li>
+<li class="new">      { "lock A"      , executeLock       },</li>
+<li class="new">      { "unlock A"    , executeUnlock     },</li>
+<li class="new">      { "A"           , executeNoMatch    }</li>
 <li class="new">   };</li>
 <li class="new">   const COMMAND *cmd;</li>
 <li class="new">   for (cmd = commands; !matchCommand(input, cmd-&gt;pattern); cmd++);</li>
@@ -846,7 +846,7 @@ For now, this is outside the scope of this tutorial.
 <a class="button" href="https://repl.it/github/helderman/htpataic">&#x1F300; &nbsp; Run on Repl.it</a>
 </td></tr></table>
 <p>
-Next chapter: <a href="htpataic14.html">14. Multiple arguments</a>
+Next chapter: <a href="htpataic14.html">14. Multiple nouns</a>
 </p>
 </body>
 </html>

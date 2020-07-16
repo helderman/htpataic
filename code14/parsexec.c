@@ -10,8 +10,8 @@
 
 typedef struct
 {
-   bool (*function)(void);
    const char *pattern;
+   bool (*function)(void);
 } COMMAND;
 
 static bool executeQuit(void)
@@ -35,29 +35,29 @@ bool parseAndExecute(const char *input)
 {
    static const COMMAND commands[] =
    {
-      {executeQuit      , "quit"},
-      {executeLookAround, "look"},
-      {executeLookAround, "look around"},
-      {executeLook      , "look at A"},
-      {executeLook      , "look A"},
-      {executeLook      , "examine A"},
-      {executeGo        , "go to A"},
-      {executeGo        , "go A"},
-      {executeGetFrom   , "get A from B"},
-      {executeGet       , "get A"},
-      {executePutIn     , "put A in B"},
-      {executePutIn     , "drop A in B"},
-      {executeDrop      , "drop A"},
-      {executeAskFrom   , "ask A from B"},
-      {executeAsk       , "ask A"},
-      {executeGiveTo    , "give A to B"},
-      {executeGive      , "give A"},
-      {executeInventory , "inventory"},
-      {executeOpen      , "open A"},
-      {executeClose     , "close A"},
-      {executeLock      , "lock A"},
-      {executeUnlock    , "unlock A"},
-      {executeNoMatch   , "A"}
+      { "quit"        , executeQuit       },
+      { "look"        , executeLookAround },
+      { "look around" , executeLookAround },
+      { "look at A"   , executeLook       },
+      { "look A"      , executeLook       },
+      { "examine A"   , executeLook       },
+      { "go to A"     , executeGo         },
+      { "go A"        , executeGo         },
+      { "get A from B", executeGetFrom    },
+      { "get A"       , executeGet        },
+      { "put A in B"  , executePutIn      },
+      { "drop A in B" , executePutIn      },
+      { "drop A"      , executeDrop       },
+      { "ask A from B", executeAskFrom    },
+      { "ask A"       , executeAsk        },
+      { "give A to B" , executeGiveTo     },
+      { "give A"      , executeGive       },
+      { "inventory"   , executeInventory  },
+      { "open A"      , executeOpen       },
+      { "close A"     , executeClose      },
+      { "lock A"      , executeLock       },
+      { "unlock A"    , executeUnlock     },
+      { "A"           , executeNoMatch    }
    };
    const COMMAND *cmd;
    for (cmd = commands; !matchCommand(input, cmd->pattern); cmd++);

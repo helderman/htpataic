@@ -9,8 +9,8 @@
 
 typedef struct
 {
-   bool (*function)(void);
    const char *pattern;
+   bool (*function)(void);
 } COMMAND;
 
 static bool executeQuit(void)
@@ -34,24 +34,24 @@ bool parseAndExecute(const char *input)
 {
    static const COMMAND commands[] =
    {
-      {executeQuit      , "quit"},
-      {executeLookAround, "look"},
-      {executeLookAround, "look around"},
-      {executeLook      , "look at A"},
-      {executeLook      , "look A"},
-      {executeLook      , "examine A"},
-      {executeGo        , "go to A"},
-      {executeGo        , "go A"},
-      {executeGet       , "get A"},
-      {executeDrop      , "drop A"},
-      {executeAsk       , "ask A"},
-      {executeGive      , "give A"},
-      {executeInventory , "inventory"},
-      {executeOpen      , "open A"},
-      {executeClose     , "close A"},
-      {executeLock      , "lock A"},
-      {executeUnlock    , "unlock A"},
-      {executeNoMatch   , "A"}
+      { "quit"        , executeQuit       },
+      { "look"        , executeLookAround },
+      { "look around" , executeLookAround },
+      { "look at A"   , executeLook       },
+      { "look A"      , executeLook       },
+      { "examine A"   , executeLook       },
+      { "go to A"     , executeGo         },
+      { "go A"        , executeGo         },
+      { "get A"       , executeGet        },
+      { "drop A"      , executeDrop       },
+      { "ask A"       , executeAsk        },
+      { "give A"      , executeGive       },
+      { "inventory"   , executeInventory  },
+      { "open A"      , executeOpen       },
+      { "close A"     , executeClose      },
+      { "lock A"      , executeLock       },
+      { "unlock A"    , executeUnlock     },
+      { "A"           , executeNoMatch    }
    };
    const COMMAND *cmd;
    for (cmd = commands; !matchCommand(input, cmd->pattern); cmd++);

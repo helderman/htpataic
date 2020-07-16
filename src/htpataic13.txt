@@ -439,7 +439,7 @@ For now, this is outside the scope of this tutorial.
 #zip
 </td></tr></table>
 <p>
-Next chapter: <a href="htpataic14.html">14. Multiple arguments</a>
+Next chapter: <a href="htpataic14.html">14. Multiple nouns</a>
 </p>
 </body>
 </html>
