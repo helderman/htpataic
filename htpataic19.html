@@ -35,10 +35,640 @@
 <h1>How to program a text adventure in C</h1>
 <h2>19. Conversations</h2>
 <p class="intro">
-TODO
+One of the most difficult parts of writing an adventure
+is to come up with challenging puzzles.
+Puzzles must be difficult, but without being illogical.
+If your game demands the player to unlock a door with a towel, fine.
+But then at least give the player a clue.
+It&rsquo;s no fun brute-forcing your way through a game
+by trying every combination of object(s) and verb until you find
+something that matches the author&rsquo;s obscure sense of logic.
 </p>
 <p>
-TODO
+Clues can be hidden in descriptive text.
+This text may come out unannounced,
+for example as you enter a location or run into an actor.
+But it also makes sense to let the player actively discover clues
+by examining objects and talking to non-player characters.
+</p>
+<p>
+Conversation with non-player characters can add a lot of depth to a game.
+Suppose you found an engraved key or a magic wand,
+and you have no idea where or how to use it.
+Ask the locals!
+They may be able to decypher the engravings for you,
+or introduce you to the nearest mage who can help you master the wand.
+</p>
+<p>
+The more you refine your inquiries
+(by referring to a specific item, location or actor),
+the more useful the information you get in return.
+Like in real life, it&rsquo;s all about asking the right questions.
+</p>
+<p>
+Information gathered from different sources may even be interrelated.
+The baker may have given you some useful gossip,
+but what if the goldsmith tells you the baker is actually a notorious liar?
+</p>
+<p>
+You can make the storyline even more complex by demanding the player
+to &lsquo;encourage&rsquo; actors to spill their guts.
+Either with a friendly gesture (is there some item they need?) or by force.
+</p>
+<p>
+For now, I will keep it simple.
+Every object will have its own &lsquo;gossip&rsquo;,
+which can be revealed by talking about that object with an actor.
+</p>
+<table class="code"><tr>
+<th>object.txt</th>
+</tr><tr>
+<td>
+<ol>
+<li class="old">#include &lt;stdio.h&gt;</li>
+<li class="old">#include "object.h"</li>
+<li class="old">#include "toggle.h"</li>
+<li class="old"></li>
+<li class="old">typedef struct object {</li>
+<li class="old">   bool         (*condition)(void);</li>
+<li class="old">   const char    *description;</li>
+<li class="old">   const char   **tags;</li>
+<li class="old">   struct object *location;</li>
+<li class="old">   struct object *destination;</li>
+<li class="old">   struct object *prospect;</li>
+<li class="old">   const char    *details;</li>
+<li class="old">   const char    *contents;</li>
+<li class="old">   const char    *textGo;</li>
+<li class="new">   const char    *gossip;</li>
+<li class="old">   int            weight;</li>
+<li class="old">   int            capacity;</li>
+<li class="old">   int            health;</li>
+<li class="old">   const char  *(*open)(void);</li>
+<li class="old">   const char  *(*close)(void);</li>
+<li class="old">   const char  *(*lock)(void);</li>
+<li class="old">   const char  *(*unlock)(void);</li>
+<li class="old">} OBJECT;</li>
+<li class="old"></li>
+<li class="old">extern OBJECT objs[];</li>
+<li class="old"></li>
+<li class="new">- gossipEWNS</li>
+<li class="new">     tags        "east", "west", "north", "south"</li>
+<li class="new">     gossip      "It's just a compass direction."</li>
+<li class="new"></li>
+<li class="old">- field</li>
+<li class="old">     description "an open field"</li>
+<li class="old">     tags        "field"</li>
+<li class="old">     details     "The field is a nice and quiet place under a clear blue sky.\n"</li>
+<li class="new">     gossip      "A lot of tourists go there."</li>
+<li class="old">     capacity    9999</li>
+<li class="old"></li>
+<li class="old">- cave</li>
+<li class="old">     description "a little cave"</li>
+<li class="old">     tags        "cave"</li>
+<li class="old">     details     "The cave is just a cold, damp, rocky chamber.\n"</li>
+<li class="new">     gossip      "It's dark in there; bring a lamp!"</li>
+<li class="old">     capacity    9999</li>
+<li class="old"></li>
+<li class="old">- silver</li>
+<li class="old">     description "a silver coin"</li>
+<li class="old">     tags        "silver", "coin", "silver coin"</li>
+<li class="old">     location    field</li>
+<li class="old">     details     "The coin has an eagle on the obverse.\n"</li>
+<li class="new">     gossip      "Money makes the world go round..."</li>
+<li class="old">     weight      1</li>
+<li class="old"></li>
+<li class="old">- gold</li>
+<li class="old">     description "a gold coin"</li>
+<li class="old">     tags        "gold", "coin", "gold coin"</li>
+<li class="old">     location    openBox</li>
+<li class="old">     details     "The shiny coin seems to be a rare and priceless artefact.\n"</li>
+<li class="new">     gossip      "Money makes the world go round..."</li>
+<li class="old">     weight      1</li>
+<li class="old"></li>
+<li class="old">- guard</li>
+<li class="old">     description "a burly guard"</li>
+<li class="old">     tags        "guard", "burly guard"</li>
+<li class="old">     location    field</li>
+<li class="old">     details     "The guard is a really big fellow.\n"</li>
+<li class="new">     gossip      "Easy to bribe..."</li>
+<li class="old">     contents    "He has"</li>
+<li class="old">     health      100</li>
+<li class="old">     capacity    20</li>
+<li class="old"></li>
+<li class="old">- player</li>
+<li class="old">     description "yourself"</li>
+<li class="old">     tags        "yourself"</li>
+<li class="old">     location    field</li>
+<li class="old">     details     "You would need a mirror to look at yourself.\n"</li>
+<li class="new">     gossip      "You're not from around here, are you?"</li>
+<li class="old">     contents    "You have"</li>
+<li class="old">     health      100</li>
+<li class="old">     capacity    20</li>
+<li class="old"></li>
+<li class="old">- intoCave</li>
+<li class="old">     condition   { return guard-&gt;health == 0 || silver-&gt;location == guard; }</li>
+<li class="old">     description "a cave entrance to the east"</li>
+<li class="old">     tags        "east", "entrance"</li>
+<li class="old">     location    field</li>
+<li class="old">     destination cave</li>
+<li class="old">     details     "The entrance is just a narrow opening in a small outcrop.\n"</li>
+<li class="old">     textGo      "You walk into the cave.\n"</li>
+<li class="old">     open        isAlreadyOpen</li>
+<li class="old"></li>
+<li class="old">- intoCaveBlocked</li>
+<li class="old">     condition   { return guard-&gt;health &gt; 0 &amp;&amp; silver-&gt;location != guard; }</li>
+<li class="old">     description "a cave entrance to the east"</li>
+<li class="old">     tags        "east", "entrance"</li>
+<li class="old">     location    field</li>
+<li class="old">     prospect    cave</li>
+<li class="old">     details     "The entrance is just a narrow opening in a small outcrop.\n"</li>
+<li class="old">     textGo      "The guard stops you from walking into the cave.\n"</li>
+<li class="old">     open        isAlreadyOpen</li>
+<li class="old"></li>
+<li class="old">- exitCave</li>
+<li class="old">     description "an exit to the west"</li>
+<li class="old">     tags        "west", "exit"</li>
+<li class="old">     location    cave</li>
+<li class="old">     destination field</li>
+<li class="old">     details     "Sunlight pours in through an opening in the cave's wall.\n"</li>
+<li class="old">     textGo      "You walk out of the cave.\n"</li>
+<li class="old">     open        isAlreadyOpen</li>
+<li class="old"></li>
+<li class="old">- wallField</li>
+<li class="old">     description "dense forest all around"</li>
+<li class="old">     tags        "west", "north", "south", "forest"</li>
+<li class="old">     location    field</li>
+<li class="old">     details     "The field is surrounded by trees and undergrowth.\n"</li>
+<li class="old">     textGo      "Dense forest is blocking the way.\n"</li>
+<li class="new">     gossip      "You cannot go there, it is impenetrable."</li>
+<li class="old"></li>
+<li class="old">- wallCave</li>
+<li class="old">     description "solid rock all around"</li>
+<li class="old">     tags        "east", "north", "rock"</li>
+<li class="old">     location    cave</li>
+<li class="old">     details     "Carved in stone is a secret password 'abccb'.\n"</li>
+<li class="old">     textGo      "Solid rock is blocking the way.\n"</li>
+<li class="old"></li>
+<li class="old">- backroom</li>
+<li class="old">     description "a backroom"</li>
+<li class="old">     tags        "backroom"</li>
+<li class="old">     details     "The room is dusty and messy.\n"</li>
+<li class="new">     gossip      "There is something of value to be found there."</li>
+<li class="old">     capacity    9999</li>
+<li class="old"></li>
+<li class="old">- wallBackroom</li>
+<li class="old">     description "solid rock all around"</li>
+<li class="old">     tags        "east", "west", "south", "rock"</li>
+<li class="old">     location    backroom</li>
+<li class="old">     details     "Trendy wallpaper covers the rock walls.\n"</li>
+<li class="old">     textGo      "Solid rock is blocking the way.\n"</li>
+<li class="old"></li>
+<li class="old">- openDoorToBackroom</li>
+<li class="old">     description "an open door to the south"</li>
+<li class="old">     tags        "south", "door", "doorway"</li>
+<li class="old">     destination backroom</li>
+<li class="old">     details     "The door is open.\n"</li>
+<li class="old">     textGo      "You walk through the door into a backroom.\n"</li>
+<li class="old">     open        isAlreadyOpen</li>
+<li class="old">     close       toggleBackdoor</li>
+<li class="old"></li>
+<li class="old">- closedDoorToBackroom</li>
+<li class="old">     description "a closed door to the south"</li>
+<li class="old">     tags        "south", "door", "doorway"</li>
+<li class="old">     location    cave</li>
+<li class="old">     prospect    backroom</li>
+<li class="old">     details     "The door is closed.\n"</li>
+<li class="old">     textGo      "The door is closed.\n"</li>
+<li class="old">     open        toggleBackdoor</li>
+<li class="old">     close       isAlreadyClosed</li>
+<li class="old"></li>
+<li class="old">- openDoorToCave</li>
+<li class="old">     description "an open door to the north"</li>
+<li class="old">     tags        "north", "door", "doorway"</li>
+<li class="old">     destination cave</li>
+<li class="old">     details     "The door is open.\n"</li>
+<li class="old">     textGo      "You walk through the door into the cave.\n"</li>
+<li class="old">     open        isAlreadyOpen</li>
+<li class="old">     close       toggleBackdoor</li>
+<li class="old"></li>
+<li class="old">- closedDoorToCave</li>
+<li class="old">     description "a closed door to the north"</li>
+<li class="old">     tags        "north", "door", "doorway"</li>
+<li class="old">     location    backroom</li>
+<li class="old">     prospect    cave</li>
+<li class="old">     details     "The door is closed.\n"</li>
+<li class="old">     textGo      "The door is closed.\n"</li>
+<li class="old">     open        toggleBackdoor</li>
+<li class="old">     close       isAlreadyClosed</li>
+<li class="old"></li>
+<li class="old">- openBox</li>
+<li class="old">     description "a wooden box"</li>
+<li class="old">     tags        "box", "wooden box"</li>
+<li class="old">     details     "The box is open.\n"</li>
+<li class="new">     gossip      "You need a key to open it."</li>
+<li class="old">     weight      5</li>
+<li class="old">     capacity    10</li>
+<li class="old">     open        isAlreadyOpen</li>
+<li class="old">     close       toggleBox</li>
+<li class="old">     lock        isStillOpen</li>
+<li class="old">     unlock      isAlreadyOpen</li>
+<li class="old"></li>
+<li class="old">- closedBox</li>
+<li class="old">     description "a wooden box"</li>
+<li class="old">     tags        "box", "wooden box"</li>
+<li class="old">     details     "The box is closed.\n"</li>
+<li class="old">     weight      5</li>
+<li class="old">     open        toggleBox</li>
+<li class="old">     close       isAlreadyClosed</li>
+<li class="old">     lock        toggleBoxLock</li>
+<li class="old">     unlock      isAlreadyUnlocked</li>
+<li class="old"></li>
+<li class="old">- lockedBox</li>
+<li class="old">     description "a wooden box"</li>
+<li class="old">     tags        "box", "wooden box"</li>
+<li class="old">     location    backroom</li>
+<li class="old">     details     "The box is closed.\n"</li>
+<li class="old">     weight      5</li>
+<li class="old">     open        isStillLocked</li>
+<li class="old">     close       isAlreadyClosed</li>
+<li class="old">     lock        isAlreadyLocked</li>
+<li class="old">     unlock      toggleBoxLock</li>
+<li class="old"></li>
+<li class="old">- keyForBox</li>
+<li class="old">     description "a tiny key"</li>
+<li class="old">     tags        "key", "tiny key"</li>
+<li class="old">     location    cave</li>
+<li class="old">     details     "The key is really small and shiny.\n"</li>
+<li class="new">     gossip      "A small key opens a small lock."</li>
+<li class="old">     weight      1</li>
+<li class="old"></li>
+<li class="old">- lampOff</li>
+<li class="old">     description "a lamp"</li>
+<li class="old">     tags        "lamp"</li>
+<li class="old">     location    field</li>
+<li class="old">     details     "The lamp is off.\n"</li>
+<li class="new">     gossip      "Essential in dark areas."</li>
+<li class="old">     weight      5</li>
+<li class="old"></li>
+<li class="old">- lampOn</li>
+<li class="old">     description "a lamp"</li>
+<li class="old">     tags        "lamp"</li>
+<li class="old">     details     "The lamp is on.\n"</li>
+<li class="old">     weight      5</li>
+</ol>
+</td>
+</tr></table>
+<div class="explanation">
+<p>
+Explanation:
+</p>
+<ul>
+<li>Line 15:
+the new property.
+</li>
+<li>Line 27-29:
+introducing a dummy object to prevent generic tags
+(in this case east, west, north, south) to be handled by a specific object
+(for example the forest).
+</li>
+</ul>
+</div>
+<p>
+Adding a new command &lsquo;talk&rsquo; to the parser:
+</p>
+<table class="code"><tr>
+<th>parsexec.c</th>
+</tr><tr>
+<td>
+<ol>
+<li class="old">#include &lt;ctype.h&gt;</li>
+<li class="old">#include &lt;stdio.h&gt;</li>
+<li class="old">#include "object.h"</li>
+<li class="old">#include "misc.h"</li>
+<li class="old">#include "match.h"</li>
+<li class="old">#include "location.h"</li>
+<li class="old">#include "inventory.h"</li>
+<li class="old">#include "inventory2.h"</li>
+<li class="old">#include "openclose.h"</li>
+<li class="old">#include "onoff.h"</li>
+<li class="new">#include "talk.h"</li>
+<li class="old"></li>
+<li class="old">typedef struct</li>
+<li class="old">{</li>
+<li class="old">   const char *pattern;</li>
+<li class="old">   bool (*function)(void);</li>
+<li class="old">} COMMAND;</li>
+<li class="old"></li>
+<li class="old">static bool executeQuit(void)</li>
+<li class="old">{</li>
+<li class="old">   return false;</li>
+<li class="old">}</li>
+<li class="old"></li>
+<li class="old">static bool executeNoMatch(void)</li>
+<li class="old">{</li>
+<li class="old">   const char *src = *params;</li>
+<li class="old">   if (*src != '\0')</li>
+<li class="old">   {</li>
+<li class="old">      printf("I don't know how to '");</li>
+<li class="old">      while (*src != '\0' &amp;&amp; !isspace(*src)) putchar(*src++);</li>
+<li class="old">      printf("'.\n");</li>
+<li class="old">   }</li>
+<li class="old">   return true;</li>
+<li class="old">}</li>
+<li class="old"></li>
+<li class="old">bool parseAndExecute(const char *input)</li>
+<li class="old">{</li>
+<li class="old">   static const COMMAND commands[] =</li>
+<li class="old">   {</li>
+<li class="old">      { "quit"        , executeQuit       },</li>
+<li class="old">      { "look"        , executeLookAround },</li>
+<li class="old">      { "look around" , executeLookAround },</li>
+<li class="old">      { "look at A"   , executeLook       },</li>
+<li class="old">      { "look A"      , executeLook       },</li>
+<li class="old">      { "examine A"   , executeLook       },</li>
+<li class="old">      { "go to A"     , executeGo         },</li>
+<li class="old">      { "go A"        , executeGo         },</li>
+<li class="old">      { "get A from B", executeGetFrom    },</li>
+<li class="old">      { "get A"       , executeGet        },</li>
+<li class="old">      { "put A in B"  , executePutIn      },</li>
+<li class="old">      { "drop A in B" , executePutIn      },</li>
+<li class="old">      { "drop A"      , executeDrop       },</li>
+<li class="old">      { "ask A from B", executeAskFrom    },</li>
+<li class="old">      { "ask A"       , executeAsk        },</li>
+<li class="old">      { "give A to B" , executeGiveTo     },</li>
+<li class="old">      { "give A"      , executeGive       },</li>
+<li class="old">      { "inventory"   , executeInventory  },</li>
+<li class="old">      { "open A"      , executeOpen       },</li>
+<li class="old">      { "close A"     , executeClose      },</li>
+<li class="old">      { "lock A"      , executeLock       },</li>
+<li class="old">      { "unlock A"    , executeUnlock     },</li>
+<li class="old">      { "turn on A"   , executeTurnOn     },</li>
+<li class="old">      { "turn off A"  , executeTurnOff    },</li>
+<li class="old">      { "turn A on"   , executeTurnOn     },</li>
+<li class="old">      { "turn A off"  , executeTurnOff    },</li>
+<li class="new">      { "talk with B about A", executeTalkTo     },</li>
+<li class="new">      { "talk about A with B", executeTalkTo     },</li>
+<li class="new">      { "talk about A", executeTalk       },</li>
+<li class="new">      { "talk A"      , executeTalk       },</li>
+<li class="old">      { "A"           , executeNoMatch    }</li>
+<li class="old">   };</li>
+<li class="old">   const COMMAND *cmd;</li>
+<li class="old">   for (cmd = commands; !matchCommand(input, cmd-&gt;pattern); cmd++);</li>
+<li class="old">   return (*cmd-&gt;function)();</li>
+<li class="old">}</li>
+</ol>
+</td>
+</tr></table>
+<div class="explanation">
+<p>
+Explanation:
+</p>
+<ul>
+<li>Line 66-69:
+four new patterns for one new verb.
+As explained in chapter 14, the order of the patterns is important.
+</li>
+</ul>
+</div>
+<p>
+The implementation of the command:
+</p>
+<table class="code"><tr>
+<th>talk.h</th>
+</tr><tr>
+<td>
+<ol>
+<li class="new">extern bool executeTalk(void);</li>
+<li class="new">extern bool executeTalkTo(void);</li>
+</ol>
+</td>
+</tr><tr>
+<th>talk.c</th>
+</tr><tr>
+<td>
+<ol>
+<li class="new">#include &lt;stdio.h&gt;</li>
+<li class="new">#include "object.h"</li>
+<li class="new">#include "misc.h"</li>
+<li class="new">#include "match.h"</li>
+<li class="new">#include "noun.h"</li>
+<li class="new">#include "reach.h"</li>
+<li class="new"></li>
+<li class="new">static void talk(const char *about, OBJECT *to)</li>
+<li class="new">{</li>
+<li class="new">   OBJECT *topic = getTopic(about);</li>
+<li class="new">   if (topic == NULL)</li>
+<li class="new">   {</li>
+<li class="new">      printf("I don't understand what you want to talk about.\n");</li>
+<li class="new">   }</li>
+<li class="new">   else</li>
+<li class="new">   {</li>
+<li class="new">      printf("You hear %s say: '%s'\n",</li>
+<li class="new">             to-&gt;description,</li>
+<li class="new">             topic == to ? "I don't want to talk about myself."</li>
+<li class="new">                         : topic-&gt;gossip);</li>
+<li class="new">   }</li>
+<li class="new">}</li>
+<li class="new"></li>
+<li class="new">bool executeTalk(void)</li>
+<li class="new">{</li>
+<li class="new">   OBJECT *to = actorHere();</li>
+<li class="new">   if (to != NULL)</li>
+<li class="new">   {</li>
+<li class="new">      talk(params[0], to);</li>
+<li class="new">   }</li>
+<li class="new">   else</li>
+<li class="new">   {</li>
+<li class="new">      printf("There is nobody here to talk to.\n");</li>
+<li class="new">   }</li>
+<li class="new">   return true;</li>
+<li class="new">}</li>
+<li class="new"></li>
+<li class="new">bool executeTalkTo(void)</li>
+<li class="new">{</li>
+<li class="new">   OBJECT *to = reachableObject("who to talk to", params[1]);</li>
+<li class="new">   if (to != NULL)</li>
+<li class="new">   {</li>
+<li class="new">      if (to-&gt;health &gt; 0)</li>
+<li class="new">      {</li>
+<li class="new">         talk(params[0], to);</li>
+<li class="new">      }</li>
+<li class="new">      else</li>
+<li class="new">      {</li>
+<li class="new">         printf("There is no response from %s.\n", to-&gt;description);</li>
+<li class="new">      }</li>
+<li class="new">   }</li>
+<li class="new">   return true;</li>
+<li class="new">}</li>
+</ol>
+</td>
+</tr></table>
+<div class="explanation">
+<p>
+Explanation:
+</p>
+<ul>
+<li>Line TODO:
+</li>
+</ul>
+</div>
+<p>
+The implementation of <i>getTopic</i>:
+</p>
+<table class="code"><tr>
+<th>noun.h</th>
+</tr><tr>
+<td>
+<ol>
+<li class="old">extern OBJECT *getVisible(const char *intention, const char *noun);</li>
+<li class="old">extern OBJECT *getPossession(OBJECT *from, const char *verb, const char *noun);</li>
+<li class="new">extern OBJECT *getTopic(const char *noun);</li>
+</ol>
+</td>
+</tr><tr>
+<th>noun.c</th>
+</tr><tr>
+<td>
+<ol>
+<li class="old">#include &lt;stdbool.h&gt;</li>
+<li class="old">#include &lt;stdio.h&gt;</li>
+<li class="old">#include &lt;string.h&gt;</li>
+<li class="old">#include "object.h"</li>
+<li class="old">#include "misc.h"</li>
+<li class="old"></li>
+<li class="old">static bool objectHasTag(OBJECT *obj, const char *noun)</li>
+<li class="old">{</li>
+<li class="old">   if (noun != NULL &amp;&amp; *noun != '\0')</li>
+<li class="old">   {</li>
+<li class="old">      const char **tag;</li>
+<li class="old">      for (tag = obj-&gt;tags; *tag != NULL; tag++)</li>
+<li class="old">      {</li>
+<li class="old">         if (strcmp(*tag, noun) == 0) return true;</li>
+<li class="old">      }</li>
+<li class="old">   }</li>
+<li class="old">   return false;</li>
+<li class="old">}</li>
+<li class="old"></li>
+<li class="old">static OBJECT ambiguousNoun;</li>
+<li class="old"></li>
+<li class="old">static OBJECT *getObject(const char *noun, OBJECT *from, DISTANCE maxDistance)</li>
+<li class="old">{</li>
+<li class="old">   OBJECT *obj, *res = NULL;</li>
+<li class="old">   forEachObject(obj)</li>
+<li class="old">   {</li>
+<li class="old">      if (objectHasTag(obj, noun) &amp;&amp; getDistance(from, obj) &lt;= maxDistance)</li>
+<li class="old">      {</li>
+<li class="old">         res = res == NULL ? obj : &amp;ambiguousNoun;</li>
+<li class="old">      }</li>
+<li class="old">   }</li>
+<li class="old">   return res;</li>
+<li class="old">}</li>
+<li class="old"></li>
+<li class="old">OBJECT *getVisible(const char *intention, const char *noun)</li>
+<li class="old">{</li>
+<li class="old">   OBJECT *obj = getObject(noun, player, distOverthere);</li>
+<li class="old">   if (obj == NULL)</li>
+<li class="old">   {</li>
+<li class="old">      if (getObject(noun, player, distNotHere) == NULL)</li>
+<li class="old">      {</li>
+<li class="old">         printf("I don't understand %s.\n", intention);</li>
+<li class="old">      }</li>
+<li class="old">      else if (isLit(player-&gt;location))</li>
+<li class="old">      {</li>
+<li class="old">         printf("You don't see any %s here.\n", noun);</li>
+<li class="old">      }</li>
+<li class="old">      else</li>
+<li class="old">      {</li>
+<li class="old">         printf("It's too dark.\n");</li>
+<li class="old">      }</li>
+<li class="old">   }</li>
+<li class="old">   else if (obj == &amp;ambiguousNoun)</li>
+<li class="old">   {</li>
+<li class="old">      printf("Please be specific about which %s you mean.\n", noun);</li>
+<li class="old">      obj = NULL;</li>
+<li class="old">   }</li>
+<li class="old">   return obj;</li>
+<li class="old">}</li>
+<li class="old"></li>
+<li class="old">OBJECT *getPossession(OBJECT *from, const char *verb, const char *noun)</li>
+<li class="old">{</li>
+<li class="old">   OBJECT *obj = NULL;</li>
+<li class="old">   if (from == NULL)</li>
+<li class="old">   {</li>
+<li class="old">      printf("I don't understand who you want to %s.\n", verb);</li>
+<li class="old">   }</li>
+<li class="old">   else if ((obj = getObject(noun, from, distHeldContained)) == NULL)</li>
+<li class="old">   {</li>
+<li class="old">      if (getObject(noun, player, distNotHere) == NULL)</li>
+<li class="old">      {</li>
+<li class="old">         printf("I don't understand what you want to %s.\n", verb);</li>
+<li class="old">      }</li>
+<li class="old">      else if (from == player)</li>
+<li class="old">      {</li>
+<li class="old">         printf("You are not holding any %s.\n", noun);</li>
+<li class="old">      }</li>
+<li class="old">      else</li>
+<li class="old">      {</li>
+<li class="old">         printf("There appears to be no %s you can get from %s.\n",</li>
+<li class="old">                noun, from-&gt;description);</li>
+<li class="old">      }</li>
+<li class="old">   }</li>
+<li class="old">   else if (obj == &amp;ambiguousNoun)</li>
+<li class="old">   {</li>
+<li class="old">      printf("Please be specific about which %s you want to %s.\n",</li>
+<li class="old">             noun, verb);</li>
+<li class="old">      obj = NULL;</li>
+<li class="old">   }</li>
+<li class="old">   else if (obj == from)</li>
+<li class="old">   {</li>
+<li class="old">      printf("You should not be doing that to %s.\n", obj-&gt;description);</li>
+<li class="old">      obj = NULL;</li>
+<li class="old">   }</li>
+<li class="old">   return obj;</li>
+<li class="old">}</li>
+<li class="new"></li>
+<li class="new">OBJECT *getTopic(const char *noun)</li>
+<li class="new">{</li>
+<li class="new">   OBJECT *obj;</li>
+<li class="new">   forEachObject(obj)</li>
+<li class="new">   {</li>
+<li class="new">      if (objectHasTag(obj, noun)) return obj;</li>
+<li class="new">   }</li>
+<li class="new">   return NULL;</li>
+<li class="new">}</li>
+</ol>
+</td>
+</tr></table>
+<div class="explanation">
+<p>
+Explanation:
+</p>
+<ul>
+<li>Line 98-106:
+&lsquo;talk&rsquo; is one of the few commands that can be applied to an object
+that is not present; that you may not even have seen yet. Therefore,
+function <i>getTopic</i> is not interested in the object&rsquo;s distance.
+It will return whatever object it can find with the given tag.
+</li>
+</ul>
+</div>
+<p>
+You could also give every actor their own opinion about certain topics.
+This could result in a matrix with actors along one axis,
+and objects along the other.
+That&lsquo;s a lot of possible replies in conversation.
+For an author, that can be quite a burden.
+</p>
+<p>
+A recommended read is
+<i>Dynamic Conversation Engine Concept</i> by Luke Bergeron.
+I found this to be really inspiring.
+The article has been removed from
+<a href="https://en.wikipedia.org/wiki/Scribd">Scribd</a>,
+but fortunately the
+<a href="https://en.wikipedia.org/wiki/Wayback_Machine">Wayback Machine</a>
+still has a copy:<br />
+<a href="https://web.archive.org/web/20100409073709/http://www.scribd.com/doc/17682546/Dynamic-Conversation-Engine-Concept">https://web.archive.org/web/20100409073709/http://www.scribd.com/doc/17682546/Dynamic-Conversation-Engine-Concept</a>
 </p>
 <hr />
 <table class="download"><tr><td>

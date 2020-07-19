@@ -12,10 +12,172 @@
 <h1>How to program a text adventure in C</h1>
 <h2>19. Conversations</h2>
 <p class="intro">
-TODO
+One of the most difficult parts of writing an adventure
+is to come up with challenging puzzles.
+Puzzles must be difficult, but without being illogical.
+If your game demands the player to unlock a door with a towel, fine.
+But then at least give the player a clue.
+It&rsquo;s no fun brute-forcing your way through a game
+by trying every combination of object(s) and verb until you find
+something that matches the author&rsquo;s obscure sense of logic.
 </p>
 <p>
-TODO
+Clues can be hidden in descriptive text.
+This text may come out unannounced,
+for example as you enter a location or run into an actor.
+But it also makes sense to let the player actively discover clues
+by examining objects and talking to non-player characters.
+</p>
+<p>
+Conversation with non-player characters can add a lot of depth to a game.
+Suppose you found an engraved key or a magic wand,
+and you have no idea where or how to use it.
+Ask the locals!
+They may be able to decypher the engravings for you,
+or introduce you to the nearest mage who can help you master the wand.
+</p>
+<p>
+The more you refine your inquiries
+(by referring to a specific item, location or actor),
+the more useful the information you get in return.
+Like in real life, it&rsquo;s all about asking the right questions.
+</p>
+<p>
+Information gathered from different sources may even be interrelated.
+The baker may have given you some useful gossip,
+but what if the goldsmith tells you the baker is actually a notorious liar?
+</p>
+<p>
+You can make the storyline even more complex by demanding the player
+to &lsquo;encourage&rsquo; actors to spill their guts.
+Either with a friendly gesture (is there some item they need?) or by force.
+</p>
+<p>
+For now, I will keep it simple.
+Every object will have its own &lsquo;gossip&rsquo;,
+which can be revealed by talking about that object with an actor.
+</p>
+<table class="code"><tr>
+<th>object.txt</th>
+</tr><tr>
+<td>
+#diff object.txt
+</td>
+</tr></table>
+<div class="explanation">
+<p>
+Explanation:
+</p>
+<ul>
+<li>Line 15:
+the new property.
+</li>
+<li>Line 27-29:
+introducing a dummy object to prevent generic tags
+(in this case east, west, north, south) to be handled by a specific object
+(for example the forest).
+</li>
+</ul>
+</div>
+<p>
+Adding a new command &lsquo;talk&rsquo; to the parser:
+</p>
+<table class="code"><tr>
+<th>parsexec.c</th>
+</tr><tr>
+<td>
+#diff parsexec.c
+</td>
+</tr></table>
+<div class="explanation">
+<p>
+Explanation:
+</p>
+<ul>
+<li>Line 66-69:
+four new patterns for one new verb.
+As explained in chapter 14, the order of the patterns is important.
+</li>
+</ul>
+</div>
+<p>
+The implementation of the command:
+</p>
+<table class="code"><tr>
+<th>talk.h</th>
+</tr><tr>
+<td>
+#diff talk.h
+</td>
+</tr><tr>
+<th>talk.c</th>
+</tr><tr>
+<td>
+#diff talk.c
+</td>
+</tr></table>
+<div class="explanation">
+<p>
+Explanation:
+</p>
+<ul>
+<li>Line TODO:
+</li>
+</ul>
+</div>
+<p>
+The implementation of <i>getTopic</i>:
+</p>
+<table class="code"><tr>
+<th>noun.h</th>
+</tr><tr>
+<td>
+#diff noun.h
+</td>
+</tr><tr>
+<th>noun.c</th>
+</tr><tr>
+<td>
+#diff noun.c
+</td>
+</tr></table>
+<div class="explanation">
+<p>
+Explanation:
+</p>
+<ul>
+<li>Line 98-106:
+&lsquo;talk&rsquo; is one of the few commands that can be applied to an object
+that is not present; that you may not even have seen yet. Therefore,
+function <i>getTopic</i> is not interested in the object&rsquo;s distance.
+It will return whatever object it can find with the given tag.
+</li>
+</ul>
+</div>
+<p>
+You could also give every actor their own opinion about certain topics.
+This could result in a matrix with actors along one axis,
+and objects along the other.
+That&lsquo;s a lot of possible replies in conversation.
+For an author, that can be quite a burden.
+Also be careful that this will not turn into another brute-force puzzle,
+where the player has to interrogate every actor about every possible topic.
+</p>
+<p>
+A nice variation could be to make it possible for the player
+to give commands to other characters.
+For example: <i>tell giant to open door.</i>
+</p>
+<p>
+A recommended read is
+<i>Dynamic Conversation Engine Concept</i> by Luke Bergeron.
+I found this to be really inspiring.
+The article has been removed from
+<a href="https://en.wikipedia.org/wiki/Scribd">Scribd</a>,
+but fortunately the
+<a href="https://en.wikipedia.org/wiki/Wayback_Machine">Wayback Machine</a>
+still has a copy:<br />
+<a href="https://web.archive.org/web/20100409073709/http://www.scribd.com/doc/17682546/Dynamic-Conversation-Engine-Concept">https://web.archive.org/web/20100409073709/http://www.scribd.com/doc/17682546/Dynamic-Conversation-Engine-Concept</a>
 </p>
 <hr />
 <table class="download"><tr><td>
