@@ -17,46 +17,204 @@ is to come up with challenging puzzles.
 Puzzles must be difficult, but without being illogical.
 If your game demands the player to unlock a door with a towel, fine.
 But then at least give the player a clue.
-It&rsquo;s no fun brute-forcing your way through a game
-by trying every combination of object(s) and verb until you find
+It&rsquo;s no fun brute-forcing your way through a game,
+having to try every combination of object(s) and verb until you find
 something that matches the author&rsquo;s obscure sense of logic.
 </p>
 <p>
 Clues can be hidden in descriptive text.
 This text may come out unannounced,
-for example as you enter a location or run into an actor.
-But it also makes sense to let the player actively discover clues
+for example as you enter a location
+(&ldquo;A hollow voice says
+<a href="https://en.wikipedia.org/wiki/Colossal_Cave_Adventure#Plugh">PLUGH</a>&rdquo;)
+or run into an actor.
+But it also makes sense to let the player actively search for clues
 by examining objects and talking to non-player characters.
+Obvious advantages are:
 </p>
+<ul>
+<li>It gives the player a sense of being actively involved in the story.
+In a detective story,
+examining the crime scene and interrogating witnesses and suspects
+should play a vital role in solving the mystery.
+</li>
+<li>It is a natural way to split descriptive text into smaller chunks,
+and serving the information in an on-demand fashion to the player.
+This prevents a waterfall of (unsolicited) information
+at certain (fixed) points in the game.
+</li>
+</ul>
 <p>
 Conversation with non-player characters can add a lot of depth to a game.
-Suppose you found an engraved key or a magic wand,
-and you have no idea where or how to use it.
-Ask the locals!
-They may be able to decypher the engravings for you,
-or introduce you to the nearest mage who can help you master the wand.
+Clues given may help you or hinder you.
+Some examples:
 </p>
-<p>
-The more you refine your inquiries
-(by referring to a specific item, location or actor),
-the more useful the information you get in return.
+<ul>
+<li>When entering a town, the locals may be able to tell you
+how to earn money, where to find food, or how to sneak into the castle.
+The more focused the inquiry
+(referring to a relevant item, location or actor),
+the more focused the information returned.
 Like in real life, it&rsquo;s all about asking the right questions.
-</p>
-<p>
-Information gathered from different sources may even be interrelated.
+</li>
+<li>Information gathered from different sources
+may be interrelated or contradictory.
 The baker may have given you some useful gossip,
-but what if the goldsmith tells you the baker is actually a notorious liar?
-</p>
-<p>
-You can make the storyline even more complex by demanding the player
-to &lsquo;encourage&rsquo; actors to spill their guts.
+but what if the goldsmith told you the baker is actually a notorious liar?
+</li>
+<li>The player may need to &lsquo;encourage&rsquo; actors to spill their guts.
 Either with a friendly gesture (is there some item they need?) or by force.
+An actor&rsquo;s willingness to supply (valid) information
+could be implemented by certain &lsquo;psychological&rsquo; properties,
+rating their loyalty or fear towards the player.
+</li>
+</ul>
+<p>
+Conversations may go a lot further than just asking for information.
+Some suggestions:
+</p>
+<ul>
+<li>Allow the player to give commands to other actors,
+for example: &ldquo;Tell giant to break door with axe.&rdquo;
+So rather than taking action yourself,
+you could try and find a &lsquo;specialist&rsquo; to do the job.
+Whether or not other actors will obey your commands, might depend
+on the effort you have put into building a certain relationship with them.
+</li>
+<li>Allow the player to pass information back to other actors.
+You may not be strong enough to push aside a pair of guards,
+but it might help to use a little lie to spark a conflict between them.
+</li>
+</ul>
+<p>
+Of course, these more advanced forms of interacting with actors
+demand a pretty sophisticated conversation engine.
+A recommended read is
+<i>Dynamic Conversation Engine Concept</i> by Luke Bergeron.
+I found this to be incredibly inspiring.
+The article has been removed from
+<a href="https://en.wikipedia.org/wiki/Scribd">Scribd</a>,
+but fortunately the
+<a href="https://en.wikipedia.org/wiki/Wayback_Machine">Wayback Machine</a>
+still has a copy:<br />
+<a href="https://web.archive.org/web/20100409073709/http://www.scribd.com/doc/17682546/Dynamic-Conversation-Engine-Concept">https://web.archive.org/web/20100409073709/http://www.scribd.com/doc/17682546/Dynamic-Conversation-Engine-Concept</a>
+</p>
+<h3>Talk</h3>
+<p>
+In our little adventure game, we will try to keep it simple.
+We will implement a very straightforward &lsquo;talk&rsquo; verb.
+It allows the player to talk with an actor about some topic.
+The topic of discussion can be any object:
+an item, a location, even another actor.
+In its most elaborate form,
+you could give every actor their own opinion about certain topics.
+That requires a matrix of possible reactions;
+one for every combination of actor and object.
+</p>
+<table cellpadding="8">
+<tr>
+<th></th>
+<th>Tour guide</th>
+<th>Guard</th>
+</tr>
+<tr>
+<th>Cave</th>
+<td class="comment">&ldquo;A unique experience for you to see!&rdquo;</td>
+<td class="comment">&ldquo;Sorry, we&rsquo;re closed.&rdquo;</td>
+</tr>
+<tr>
+<th>Silver coin</th>
+<td class="comment">&ldquo;You found a coin? That brings good luck!&rdquo;</td>
+<td class="comment">&ldquo;Maybe we can arrange something for you...&rdquo;</td>
+</tr>
+<tr>
+<th>Gold coin</th>
+<td class="comment">&ldquo;Rumor has it there&rsquo;s treasure in the caves.&rdquo;</td>
+<td class="comment">&ldquo;You will have to find a key first...&rdquo;</td>
+</tr>
+<th>Tour guide</th>
+<td class="comment">&ldquo;Sorry, I just can&rsquo;t stop talking!&rdquo;</td>
+<td class="comment">&ldquo;Too slick, if you ask me.&rdquo;</td>
+</tr>
+<th>Guard</th>
+<td class="comment">&ldquo;When the price is right, he&rsquo;s your man!&rdquo;</td>
+<td class="comment">&ldquo;I&rsquo;m not in the mood to talk about myself.&rdquo;</td>
+</tr>
+</table>
+<p>
+In a big adventure, such a matrix could be huge,
+making it extremely time-consuming for the author to come up with
+a witty response on every attempt from the player to engage in conversation.
+Furthermore, a huge number of combinations
+could easily turn into just another brute-force puzzle, where the player
+feels forced to interrogate every actor about every possible topic.
 </p>
 <p>
-For now, I will keep it simple.
-Every object will have its own &lsquo;gossip&rsquo;,
-which can be revealed by talking about that object with an actor.
+To keep it maintainable,
+you may want to cut down on the number of combinations.
+Here are a few ways to do so.
 </p>
+<ul>
+<li><b>Eliminate actors from the matrix.</b>
+Some actors may be unable to speak (e.g. animals),
+not willing to speak (enemies), or both (monsters).
+Those actors do not belong in the matrix;
+a single uniform response per actor should suffice.
+(&ldquo;The dog replies: woof woof woof.&rdquo;)
+An exceptional response to one particular topic
+could be handled in a hard-coded way.
+(&ldquo;When hearing the word &lsquo;rosebud&rsquo;,
+the dog starts to growl.&rdquo;)
+</li>
+<li><b>Eliminate objects from the matrix.</b>
+For many (or even all) objects, you may want to supply a single response,
+to be returned by every (talkative) actor.
+(&ldquo;You get the advice: do not fight with the guard!&rdquo;)
+Again, if there is an exceptional answer, to be given by a particular actor,
+then that can be hard-coded.
+(&ldquo;The tour guide says: do not forget to pay the guard!&rdquo;)
+</li>
+<li><b>Group actors.</b>
+Instead of giving every individual its own column in the matrix,
+use &lsquo;categories&rsquo; of actors.
+There may be many different villagers,
+but if they all share the same basic knowledge about the majority of topics,
+then this will save you a lot of duplicate entries.
+Again, exceptions to the rule can be hard-coded.
+</li>
+<li><b>Multiple smaller matrices.</b>
+Suppose the game is set in a big world
+where the player roams from village to village.
+Villagers may not be aware of items, locations and actors in other villages.
+Giving each village its own matrix, eliminates all the irrelevant cross-village combinations.
+(A mathematician might refer to this approach as a
+<a href="https://en.wikipedia.org/wiki/Block_matrix#Block_diagonal_matrices">block diagonal matrix</a>.)
+</li>
+<li><b>Sparse matrix.</b>
+All the previous approaches had one disadvantage:
+there is no structural solution for exceptional combinations of actor and object
+(that one actor to give the player the essential clue about that one object).
+But there is an alternative to 'hard-coding' the exceptions:
+put these combinations in a separate
+<a href="https://en.wikipedia.org/wiki/Sparse_matrix">sparse matrix</a>.
+Such a matrix would typically be implemented not as a two-dimensional array,
+but as a list of tuples.
+Covering exceptional cases only, the list should be relatively short,
+which helps to keep it compact and maintainable.
+</li>
+</ul>
+TODO: properties 'loyalty' and 'confidentiality'.
+Only spill gossip if object's confidentiality &lt; actor's loyalty.
+<p>
+To keep things simple, we will stick to a single response per object,
+given by any actor the player will talk to about that object.
+</p>
+<table class="demo">
+<tr><th>Sample output</th></tr>
+<tr><td>
+#test
+</td></tr>
+</table>
 <table class="code"><tr>
 <th>object.txt</th>
 </tr><tr>
@@ -154,31 +312,6 @@ It will return whatever object it can find with the given tag.
 </li>
 </ul>
 </div>
-<p>
-You could also give every actor their own opinion about certain topics.
-This could result in a matrix with actors along one axis,
-and objects along the other.
-That&lsquo;s a lot of possible replies in conversation.
-For an author, that can be quite a burden.
-Also be careful that this will not turn into another brute-force puzzle,
-where the player has to interrogate every actor about every possible topic.
-</p>
-<p>
-A nice variation could be to make it possible for the player
-to give commands to other characters.
-For example: <i>tell giant to open door.</i>
-</p>
-<p>
-A recommended read is
-<i>Dynamic Conversation Engine Concept</i> by Luke Bergeron.
-I found this to be really inspiring.
-The article has been removed from
-<a href="https://en.wikipedia.org/wiki/Scribd">Scribd</a>,
-but fortunately the
-<a href="https://en.wikipedia.org/wiki/Wayback_Machine">Wayback Machine</a>
-still has a copy:<br />
-<a href="https://web.archive.org/web/20100409073709/http://www.scribd.com/doc/17682546/Dynamic-Conversation-Engine-Concept">https://web.archive.org/web/20100409073709/http://www.scribd.com/doc/17682546/Dynamic-Conversation-Engine-Concept</a>
-</p>
 <hr />
 <table class="download"><tr><td>
 #zip
