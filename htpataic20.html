@@ -35,10 +35,80 @@
 <h1>How to program a text adventure in C</h1>
 <h2>20. Combat</h2>
 <p class="intro">
-TODO
+Since the early classics were influenced by
+<a href="https://en.wikipedia.org/wiki/Fantasy">fantasy</a>,
+it is not surprising that many text-based games adopted elements from
+<a href="https://en.wikipedia.org/wiki/Role-playing_game">RPG games</a>
+like
+<a href="https://en.wikipedia.org/wiki/Dungeons_%26_Dragons">Dungeons &amp; Dragons</a>.
 </p>
 <p>
-TODO
+Multi-player games thrive on role play and combat; you see that in every
+<a href="https://en.wikipedia.org/wiki/MUD">MUD</a>.
+Single-player games on the other hand, typically focus on puzzle solving.
+The boundary lines are not always that sharp, so in the absence of
+<a href="https://en.wikipedia.org/wiki/Internet">the internet</a>
+as we know it today,
+there were plenty of single-player games that featured combat,
+though often in a simplified form.
+</p>
+<p>
+When implementing combat in a text adventure,
+you will have to choose between real-time and turn-based.
+In multi-player games, turn-based only makes sense when playing offline (as in
+<a href="https://en.wikipedia.org/wiki/Play-by-mail_game">play-by-mail</a>).
+Online players do not want to be kept waiting for other players to respond,
+which is why a
+<a href="https://en.wikipedia.org/wiki/MUD">MUD</a>
+is always played in real time.
+This brings a few coding challenges; in particular
+<a href="https://en.wikipedia.org/wiki/Synchronization_(computer_science)">synchronization</a>.
+It's also important to implement some kind of cool-down,
+to prevent things like combat to turn into a speed typing contest.
+</p>
+<p>
+Single-player games are typically turn-based.
+Computers respond faster than humans,
+so a human player will not be frustrated by the time it takes
+for a non-player character to respond to the player's actions.
+Turn-based has the advantage of not rushing players,
+giving them all the time in the world to think about their next move,
+while at the same time offering instant feedback
+at every attempt from the player to solve that seemingly unsolvable problem.
+</p>
+<p>
+Turn-based does not mean there is no notion of time;
+it's just not <i>real time</i>.
+Every command from the user is a 'turn' in the game.
+During that turn, some 'game time' passes,
+which gives other (non-player) characters an equal opportunity to take action.
+For example, after the player has taken a swing at an orc,
+it's the orc turn to retaliate.
+</p>
+<p>
+Please note that this return action is not necessarily implied by the player's command.
+Once enraged, the orc is likely to keep responding with violence,
+regardless of what the player's subsequent commands will be.
+Therefore, it is best to implement all actions from 'the rest of the world'
+not as part of any user command, but as a separate step in the main loop.
+(Remember the main loop from chapter 2?)
+</p>
+<p>
+In it's simplest form, every command represents an equal time slice.
+But it's also possible to make certain commands 'consume' more time than others,
+giving the rest of the world more time to do their 'thing' in response.
+For example, the player may be given the opportunity
+to travel from one town to another with a single 'go' command,
+but that may cost the player so much game time,
+that night will fall halfway through,
+bringing out nasty night crawlers.
+At the very least, I would recommend to let 'supportive' commands,
+for example 'help', 'save', 'load', consume zero game time.
+These commands are not part of the storyline;
+it would be unfair to penalize the player for using them.
+</p>
+<p>
+TODO.
 </p>
 <hr />
 <table class="download"><tr><td>
