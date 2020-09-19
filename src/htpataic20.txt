@@ -23,31 +23,85 @@ like
 Multi-player games thrive on role play and combat; you see that in every
 <a href="https://en.wikipedia.org/wiki/MUD">MUD</a>.
 Single-player games on the other hand, typically focus on puzzle solving.
-The boundary lines are not always that sharp, so in the absence of
-<a href="https://en.wikipedia.org/wiki/Internet">the internet</a>
-as we know it today,
+The boundaries are not always that sharp.
+In the early days, before the rise of
+<a href="https://en.wikipedia.org/wiki/Internet">the internet</a>,
 there were plenty of single-player games that featured combat,
 though often in a simplified form.
 </p>
 <p>
+It is easy enough to implement a &lsquo;kill&rsquo; command that will dispose of any actors standing in your way.
+</p>
+<table><tr>
+<td class="snippet">guard-&gt;health--;    /* do this often enough and he's dead */
+</td>
+</tr></table>
+<p>
+But of course there is a lot more to it.
+Some weapons may be more effective than others.
+Some opponents may be tougher than others.
+Both the player and non-player characters stand a better chance in combat
+when being healthy, skilled and well-equiped.
+A lot can be learned from
+<a href="https://en.wikipedia.org/wiki/Tabletop_role-playing_game">tabletop role-playing games</a>,
+where
+<a href="https://en.wikipedia.org/wiki/Statistic_(role-playing_games)">statistics</a>
+determine the chances of survival.
+Each stat can be implemented as an attribute in our &lsquo;object&rsquo; structure;
+this was discussed in chapter 10.
+A combat-related command should use these stats
+in a &lsquo;damage formula&rsquo;
+that determines the impact of the command on the actors involved.
+</p>
+<h3>Random</h3>
+<p>
+Traditionally, some uncertainty is built into such a formula.
+Tabletop games have
+<a href="https://en.wikipedia.org/wiki/Dice">dice</a>,
+computer games have a
+<a href="https://en.wikipedia.org/wiki/Random_number_generation">random number generator</a>.
+Please note that &lsquo;randomness&rsquo; may cause trouble with the
+&lsquo;roll-forward&rsquo; savegame technique proposed in chapter 16.
+Roll-forward demands repeatability.
+When saving a game, you expect the exact same game state when restoring.
+But different random number might completely change
+the outcome of battles that took place prior to saving.
+</p>
+<p>
+Fortunately, computers typically use
+<a href="https://en.wikipedia.org/wiki/Pseudorandom_number_generator">Pseudorandom number generators</a>.
+Reproducibility is one of their big advantages.
+Just make sure to seed the PRNG with the same fixed number at the start of every game.
+If you prefer to have a uniquely random game experience for every new game session
+(though I doubt that will be relevant for a text adventure,
+where a player is typically dedicated to a single ongoing session),
+then at least make sure the seed is stored as part of the savegame.
+</p>
+<h3>Real-time vs turn based</h3>
+<p>
 When implementing combat in a text adventure,
-you will have to choose between real-time and turn-based.
+you will have to choose between
+<a href="https://en.wikipedia.org/wiki/Turns,_rounds_and_time-keeping_systems_in_games#Real-time">real-time</a>
+and
+<a href="https://en.wikipedia.org/wiki/Turns,_rounds_and_time-keeping_systems_in_games#Turn-based">turn-based</a>.
 In multi-player games, turn-based only makes sense when playing offline (as in
 <a href="https://en.wikipedia.org/wiki/Play-by-mail_game">play-by-mail</a>).
 Online players do not want to be kept waiting for other players to respond,
 which is why a
 <a href="https://en.wikipedia.org/wiki/MUD">MUD</a>
-is always played in real time.
+is typically played in real time.
 This brings a few coding challenges; in particular
 <a href="https://en.wikipedia.org/wiki/Synchronization_(computer_science)">synchronization</a>.
-It's also important to implement some kind of cool-down,
-to prevent things like combat to turn into a speed typing contest.
+It&rsquo;s also important to implement some kind of
+<a href="https://en.wikipedia.org/wiki/Glossary_of_video_game_terms#cooldown">cooldown</a>,
+to prevent things like combat to turn into a
+<a href="https://en.wikipedia.org/wiki/Speed_typing_contest">speed typing contest</a>.
 </p>
 <p>
 Single-player games are typically turn-based.
 Computers respond faster than humans,
 so a human player will not be frustrated by the time it takes
-for a non-player character to respond to the player's actions.
+for a non-player character to respond to the player&rsquo;s actions.
 Turn-based has the advantage of not rushing players,
 giving them all the time in the world to think about their next move,
 while at the same time offering instant feedback
@@ -55,35 +109,94 @@ at every attempt from the player to solve that seemingly unsolvable problem.
 </p>
 <p>
 Turn-based does not mean there is no notion of time;
-it's just not <i>real time</i>.
-Every command from the user is a 'turn' in the game.
-During that turn, some 'game time' passes,
+it&rsquo;s just not <i>real time</i>.
+Every command from the user is a &lsquo;turn&rsquo; in the game.
+During that turn, some &lsquo;game time&rsquo; passes,
 which gives other (non-player) characters an equal opportunity to take action.
 For example, after the player has taken a swing at an orc,
-it's the orc turn to retaliate.
+it&rsquo;s the orc&rsquo;s turn to retaliate.
 </p>
 <p>
-Please note that this return action is not necessarily implied by the player's command.
-Once enraged, the orc is likely to keep responding with violence,
-regardless of what the player's subsequent commands will be.
-Therefore, it is best to implement all actions from 'the rest of the world'
-not as part of any user command, but as a separate step in the main loop.
-(Remember the main loop from chapter 2?)
-</p>
-<p>
-In it's simplest form, every command represents an equal time slice.
-But it's also possible to make certain commands 'consume' more time than others,
-giving the rest of the world more time to do their 'thing' in response.
+In its simplest form, every command represents an equal time slice.
+But it is also possible to make certain commands &lsquo;consume&rsquo; more time than others,
+giving the rest of the world more time to do their &lsquo;thing&rsquo; in response.
 For example, the player may be given the opportunity
-to travel from one town to another with a single 'go' command,
+to travel from one town to another with a single &lsquo;go&rsquo; command,
 but that may cost the player so much game time,
 that night will fall halfway through,
 bringing out nasty night crawlers.
-At the very least, I would recommend to let 'supportive' commands,
-for example 'help', 'save', 'load', consume zero game time.
+&lsquo;Long&rsquo; commands may also consume more resources, like
+food, water, physical strength, or fuel for any vehicle you may be driving.
+</p>
+<p>
+At the very least, I would recommend to let &lsquo;supportive&rsquo; commands,
+for example &lsquo;help&rsquo;, &lsquo;save&rsquo;, &lsquo;load&rsquo;, consume zero game time.
 These commands are not part of the storyline;
 it would be unfair to penalize the player for using them.
+The same thing goes for typos and other input that is rejected by the parser;
+this is supposed to be an adventure, not a
+<a href="https://en.wikipedia.org/wiki/Spelling_bee">spelling bee</a>.
 </p>
+<table><tr>
+<td class="snippet">The orc looks very angry.
+
+--&gt; hit orc
+You hit the orc on the head.
+The orc is dazed, and for a moment, is defenseless.
+
+--&gt; stabbb orc
+I don't know how to 'stabbb'.
+The orc recovers and strikes back.
+You are dead.
+
+--&gt; <span class="red">*** rage quit ***</span>
+</td>
+</tr></table>
+<p>
+Please note that in battle, a return action
+is not necessarily implied by the player&rsquo;s last command.
+Once enraged, the orc is likely to keep responding with violence,
+regardless of what the player&rsquo;s subsequent commands will be.
+</p>
+<table><tr>
+<td class="snippet">--&gt; hit orc
+You hit the orc; orc loses 10 HP.
+Orc strikes back; you lose 10 HP.
+
+--&gt; give flowers to orc
+Orc accepts your gift and makes a flower basket out of it.
+
+--&gt; <span class="red">mood swings???</span>
+</td>
+</tr></table>
+<p>
+Therefore, it is best to implement all actions from &lsquo;the rest of the world&rsquo;
+not as part of any user command, but as a separate step in the main loop.
+Remember the main loop from chapter 2?
+We will just add a new function call there.
+</p>
+<table class="code"><tr>
+<th>main.c</th>
+</tr><tr>
+<td>
+#diff main.c
+</td>
+</tr></table>
+<div class="explanation">
+<p>
+Explanation:
+</p>
+<ul>
+<li>Line 6:
+another new module, shown below.
+</li>
+<li>Line 56:
+directly after calling function parseAndExecute,
+we will call a new function named &lsquo;turn&rsquo;.
+The return value of parseAndExecute is passed into turn as a parameter.
+</li>
+</ul>
+</div>
 <p>
 TODO.
 </p>

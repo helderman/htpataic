@@ -1,0 +1,46 @@
+Welcome to Little Cave Adventure.
+You are in an open field.
+You see:
+a silver coin
+a burly guard
+a cave entrance to the east
+dense forest all around
+a lamp
+You hear a bird singing in the distance.
+
+--> talk with guard
+I don't understand what you want to talk about.
+
+--> talk about coin
+You hear a burly guard say: 'Money makes the world go round...'
+You hear a bird singing in the distance.
+
+--> talk with guard about forest
+You hear a burly guard say: 'You cannot go there, it is impenetrable.'
+You hear a bird singing in the distance.
+
+--> talk about cave
+You hear a burly guard say: 'It's dark in there; bring a lamp!'
+You hear a bird singing in the distance.
+
+--> talk about east
+You hear a burly guard say: 'It's just a compass direction.'
+You hear a bird singing in the distance.
+
+--> talk about yourself
+You hear a burly guard say: 'You're not from around here, are you?'
+You hear a bird singing in the distance.
+
+--> talk about guard
+You hear a burly guard say: 'I don't want to talk about myself.'
+You hear a bird singing in the distance.
+
+--> talk about hamburgers
+I don't understand what you want to talk about.
+
+--> talk
+I don't understand what you want to talk about.
+
+--> quit
+
+Bye!
