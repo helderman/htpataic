@@ -284,6 +284,256 @@ The return value of parseAndExecute is passed into turn as a parameter.
 <p>
 TODO.
 </p>
+<table class="code"><tr>
+<th>turn.h</th>
+</tr><tr>
+<td>
+<ol>
+<li class="new">extern bool turn(int time);</li>
+</ol>
+</td>
+</tr><tr>
+<th>turn.c</th>
+</tr><tr>
+<td>
+<ol>
+<li class="new">#include &lt;stdbool.h&gt;</li>
+<li class="new">#include &lt;stdio.h&gt;</li>
+<li class="new">#include "object.h"</li>
+<li class="new">#include "misc.h"</li>
+<li class="new">#include "damage.h"</li>
+<li class="new"></li>
+<li class="new">static OBJECT *findBestWeaponAround(OBJECT *actor, OBJECT *weapon)</li>
+<li class="new">{</li>
+<li class="new">   OBJECT *obj;</li>
+<li class="new">   forEachObject(obj)</li>
+<li class="new">   {</li>
+<li class="new">      if (getDistance(actor, obj) == distHere &amp;&amp;</li>
+<li class="new">          obj-&gt;impact &lt; weapon-&gt;impact)</li>
+<li class="new">      {</li>
+<li class="new">         weapon = obj;</li>
+<li class="new">      }</li>
+<li class="new">   }</li>
+<li class="new">   return weapon;</li>
+<li class="new">}</li>
+<li class="new"></li>
+<li class="new">static void actorTakingTurn(OBJECT *actor)</li>
+<li class="new">{</li>
+<li class="new">   if (actor-&gt;trust &lt; 0)</li>
+<li class="new">   {</li>
+<li class="new">      OBJECT *weapon = getOptimalWeapon(actor);</li>
+<li class="new">      OBJECT *best = findBestWeaponAround(actor, weapon);</li>
+<li class="new">      if (weapon == best)</li>
+<li class="new">      {</li>
+<li class="new">         dealDamage(actor, getOptimalWeapon(actor), player);</li>
+<li class="new">      }</li>
+<li class="new">      else</li>
+<li class="new">      {</li>
+<li class="new">         best-&gt;location = actor;</li>
+<li class="new">         printf("You see %s pick up %s.\n",</li>
+<li class="new">                actor-&gt;description, best-&gt;description);</li>
+<li class="new">      }</li>
+<li class="new">   }</li>
+<li class="new">}</li>
+<li class="new"></li>
+<li class="new">bool turn(int time)</li>
+<li class="new">{</li>
+<li class="new">   if (time &lt;= 0)</li>
+<li class="new">   {</li>
+<li class="new">      return time == 0;</li>
+<li class="new">   }</li>
+<li class="new">   else</li>
+<li class="new">   {</li>
+<li class="new">      OBJECT *obj;</li>
+<li class="new">      forEachObject(obj)</li>
+<li class="new">      {</li>
+<li class="new">         if (getDistance(player, obj) == distHere &amp;&amp; obj-&gt;health &gt; 0)</li>
+<li class="new">         {</li>
+<li class="new">            actorTakingTurn(obj);</li>
+<li class="new">         }</li>
+<li class="new">      }</li>
+<li class="new">      return true;</li>
+<li class="new">   }</li>
+<li class="new">}</li>
+</ol>
+</td>
+</tr></table>
+<p>
+TODO.
+</p>
+<table class="code"><tr>
+<th>attack.h</th>
+</tr><tr>
+<td>
+<ol>
+<li class="new">extern int executeAttack(void);</li>
+</ol>
+</td>
+</tr><tr>
+<th>attack.c</th>
+</tr><tr>
+<td>
+<ol>
+<li class="new">#include &lt;stdio.h&gt;</li>
+<li class="new">#include "object.h"</li>
+<li class="new">#include "misc.h"</li>
+<li class="new">#include "match.h"</li>
+<li class="new">#include "noun.h"</li>
+<li class="new">#include "reach.h"</li>
+<li class="new">#include "damage.h"</li>
+<li class="new"></li>
+<li class="new">static OBJECT *victimHere()</li>
+<li class="new">{</li>
+<li class="new">   OBJECT *victim = actorHere();</li>
+<li class="new">   if (victim == NULL)</li>
+<li class="new">   {</li>
+<li class="new">      printf("There is nobody here to attack.\n");</li>
+<li class="new">   }</li>
+<li class="new">   return victim;</li>
+<li class="new">}</li>
+<li class="new"></li>
+<li class="new">int executeAttack(void)</li>
+<li class="new">{</li>
+<li class="new">   OBJECT *victim =</li>
+<li class="new">      *params[0] == '\0' ? victimHere()</li>
+<li class="new">                         : reachableObject("who to attack", params[0]);</li>
+<li class="new">   if (victim != NULL)</li>
+<li class="new">   {</li>
+<li class="new">      OBJECT *weapon =</li>
+<li class="new">         *params[1] == '\0' ? getOptimalWeapon(player)</li>
+<li class="new">                            : getPossession(player, "wield", params[1]);</li>
+<li class="new">      if (weapon != NULL)</li>
+<li class="new">      {</li>
+<li class="new">         dealDamage(player, weapon, victim);</li>
+<li class="new">         return 1;</li>
+<li class="new">      }</li>
+<li class="new">   }</li>
+<li class="new">   return 0;</li>
+<li class="new">}</li>
+</ol>
+</td>
+</tr></table>
+<p>
+TODO.
+</p>
+<table class="code"><tr>
+<th>damage.h</th>
+</tr><tr>
+<td>
+<ol>
+<li class="new">extern void dealDamage(OBJECT *attacker, OBJECT *weapon, OBJECT *victim);</li>
+<li class="new">extern OBJECT *getOptimalWeapon(OBJECT *attacker);</li>
+</ol>
+</td>
+</tr><tr>
+<th>damage.c</th>
+</tr><tr>
+<td>
+<ol>
+<li class="new">#include &lt;stdlib.h&gt;</li>
+<li class="new">#include &lt;stdio.h&gt;</li>
+<li class="new">#include "object.h"</li>
+<li class="new"></li>
+<li class="new">static void describeAttack(OBJECT *attacker, OBJECT *victim,</li>
+<li class="new">                           const char *weaponDescription)</li>
+<li class="new">{</li>
+<li class="new">   if (attacker == player)</li>
+<li class="new">   {</li>
+<li class="new">      printf("You hit %s with %s.\n", victim-&gt;description, weaponDescription);</li>
+<li class="new">   }</li>
+<li class="new">   else if (victim == player)</li>
+<li class="new">   {</li>
+<li class="new">      printf("You are hit by %s, with %s.\n",</li>
+<li class="new">             attacker-&gt;description, weaponDescription);</li>
+<li class="new">   }</li>
+<li class="new">   else</li>
+<li class="new">   {</li>
+<li class="new">      printf("You see %s being hit by %s, with %s.\n",</li>
+<li class="new">             victim-&gt;description, attacker-&gt;description, weaponDescription);</li>
+<li class="new">   }</li>
+<li class="new">}</li>
+<li class="new"></li>
+<li class="new">static void describeDeath(OBJECT *attacker, OBJECT *victim)</li>
+<li class="new">{</li>
+<li class="new">   if (attacker == player)</li>
+<li class="new">   {</li>
+<li class="new">      printf("You have slain %s.\n", victim-&gt;description);</li>
+<li class="new">   }</li>
+<li class="new">   else if (victim == player)</li>
+<li class="new">   {</li>
+<li class="new">      printf("You have been slain by %s.\n", attacker-&gt;description);</li>
+<li class="new">   }</li>
+<li class="new">   else</li>
+<li class="new">   {</li>
+<li class="new">      printf("You see %s being slain by %s.\n",</li>
+<li class="new">             victim-&gt;description, attacker-&gt;description);</li>
+<li class="new">   }</li>
+<li class="new">}</li>
+<li class="new"></li>
+<li class="new">static void describeAlreadyDead(OBJECT *victim)</li>
+<li class="new">{</li>
+<li class="new">   if (victim == player)</li>
+<li class="new">   {</li>
+<li class="new">      printf("It has little effect, since you were already dead.\n");</li>
+<li class="new">   }</li>
+<li class="new">   else</li>
+<li class="new">   {</li>
+<li class="new">      printf("It has little effect, since %s was already dead.\n",</li>
+<li class="new">             victim-&gt;description);</li>
+<li class="new">   }</li>
+<li class="new">}</li>
+<li class="new"></li>
+<li class="new">void dealDamage(OBJECT *attacker, OBJECT *weapon, OBJECT *victim)</li>
+<li class="new">{</li>
+<li class="new">   const char *weaponDescription = weapon == attacker ? "bare hands"</li>
+<li class="new">                                                      : weapon-&gt;description;</li>
+<li class="new">   int damage = (rand() % 6) * weapon-&gt;impact * attacker-&gt;health / 100;</li>
+<li class="new">   if (damage &lt; 0)</li>
+<li class="new">   {</li>
+<li class="new">      describeAttack(attacker, victim, weaponDescription);</li>
+<li class="new">      if (victim-&gt;health &lt;= 0)</li>
+<li class="new">      {</li>
+<li class="new">         describeAlreadyDead(victim);</li>
+<li class="new">      }</li>
+<li class="new">      else</li>
+<li class="new">      {</li>
+<li class="new">         victim-&gt;health += damage;</li>
+<li class="new">         if (victim-&gt;health &lt;= 0)</li>
+<li class="new">         {</li>
+<li class="new">            victim-&gt;health = 0;</li>
+<li class="new">            describeDeath(attacker, victim);</li>
+<li class="new">         }</li>
+<li class="new">         if (attacker == player)</li>
+<li class="new">         {</li>
+<li class="new">            victim-&gt;trust--;</li>
+<li class="new">         }</li>
+<li class="new">      }</li>
+<li class="new">   }</li>
+<li class="new">   else if (attacker == player)</li>
+<li class="new">   {</li>
+<li class="new">      printf("You try to hit %s with %s, but you miss.\n",</li>
+<li class="new">             victim-&gt;description, weaponDescription);</li>
+<li class="new">   }</li>
+<li class="new">}</li>
+<li class="new"></li>
+<li class="new">OBJECT *getOptimalWeapon(OBJECT *attacker)</li>
+<li class="new">{</li>
+<li class="new">   OBJECT *obj, *weapon = attacker;</li>
+<li class="new">   forEachObject(obj)</li>
+<li class="new">   {</li>
+<li class="new">      if (obj-&gt;location == attacker &amp;&amp; obj-&gt;impact &lt; weapon-&gt;impact)</li>
+<li class="new">      {</li>
+<li class="new">         weapon = obj;</li>
+<li class="new">      }</li>
+<li class="new">   }</li>
+<li class="new">   return weapon;</li>
+<li class="new">}</li>
+</ol>
+</td>
+</tr></table>
+<p>
+TODO.
+</p>
 <hr />
 <table class="download"><tr><td>
 <a class="button" href="code20/src.zip">&#x2B73; &nbsp; Download source code</a>

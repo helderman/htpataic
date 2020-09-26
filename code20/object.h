@@ -14,6 +14,8 @@ typedef struct object {
    int            weight;
    int            capacity;
    int            health;
+   int            impact;
+   int            trust;
    const char  *(*open)(void);
    const char  *(*close)(void);
    const char  *(*lock)(void);
@@ -46,8 +48,10 @@ extern OBJECT objs[];
 #define keyForBox	(objs + 21)
 #define lampOff	(objs + 22)
 #define lampOn	(objs + 23)
+#define club	(objs + 24)
+#define dagger	(objs + 25)
 
-#define endOfObjs	(objs + 24)
+#define endOfObjs	(objs + 26)
 
 #define validObject(obj)	((obj) != NULL && (*(obj)->condition)())
 

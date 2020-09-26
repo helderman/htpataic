@@ -1,10 +1,11 @@
-talk with guard
-talk about coin
-talk with guard about forest
-talk about cave
-talk about east
-talk about yourself
-talk about guard
-talk about hamburgers
-talk
+get club
+get dagger
+get lamp
+attack
+attack with club
+drop dagger
+attack guard
+attack with dagger
+attack with lamp
+wait
 quit

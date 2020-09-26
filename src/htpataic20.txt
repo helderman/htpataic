@@ -200,6 +200,54 @@ The return value of parseAndExecute is passed into turn as a parameter.
 <p>
 TODO.
 </p>
+<table class="code"><tr>
+<th>turn.h</th>
+</tr><tr>
+<td>
+#diff turn.h
+</td>
+</tr><tr>
+<th>turn.c</th>
+</tr><tr>
+<td>
+#diff turn.c
+</td>
+</tr></table>
+<p>
+TODO.
+</p>
+<table class="code"><tr>
+<th>attack.h</th>
+</tr><tr>
+<td>
+#diff attack.h
+</td>
+</tr><tr>
+<th>attack.c</th>
+</tr><tr>
+<td>
+#diff attack.c
+</td>
+</tr></table>
+<p>
+TODO.
+</p>
+<table class="code"><tr>
+<th>damage.h</th>
+</tr><tr>
+<td>
+#diff damage.h
+</td>
+</tr><tr>
+<th>damage.c</th>
+</tr><tr>
+<td>
+#diff damage.c
+</td>
+</tr></table>
+<p>
+TODO.
+</p>
 <hr />
 <table class="download"><tr><td>
 #zip

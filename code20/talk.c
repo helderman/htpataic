@@ -49,7 +49,7 @@ int executeTalkTo(void)
       else
       {
          printf("There is no response from %s.\n", to->description);
-	 return 1;
+         return 1;
       }
    }
    return 0;

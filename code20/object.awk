@@ -26,6 +26,8 @@ BEGIN {
    prop["weight"]      = "99";
    prop["capacity"]    = "0";
    prop["health"]      = "0";
+   prop["impact"]      = "0";
+   prop["trust"]      = "0";
    prop["open"]        = "cannotBeOpened";
    prop["close"]       = "cannotBeClosed";
    prop["lock"]        = "cannotBeLocked";
@@ -86,6 +88,8 @@ function outputRecord(separator)
          print "\t\t" prop["weight"] ",";
          print "\t\t" prop["capacity"] ",";
          print "\t\t" prop["health"] ",";
+         print "\t\t" prop["impact"] ",";
+         print "\t\t" prop["trust"] ",";
          print "\t\t" prop["open"] ",";
          print "\t\t" prop["close"] ",";
          print "\t\t" prop["lock"] ",";

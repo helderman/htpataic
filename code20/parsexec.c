@@ -9,6 +9,7 @@
 #include "openclose.h"
 #include "onoff.h"
 #include "talk.h"
+#include "attack.h"
 
 typedef struct
 {
@@ -31,6 +32,12 @@ static int executeNoMatch(void)
       printf("'.\n");
    }
    return 0;
+}
+
+static int executeWait(void)
+{
+   printf("Some time passes...\n");
+   return 1;
 }
 
 int parseAndExecute(const char *input)
@@ -67,6 +74,10 @@ int parseAndExecute(const char *input)
       { "talk about A with B" , executeTalkTo     },
       { "talk about A"        , executeTalk       },
       { "talk A"              , executeTalk       },
+      { "attack with B"       , executeAttack     },
+      { "attack A with B"     , executeAttack     },
+      { "attack A"            , executeAttack     },
+      { "wait"                , executeWait       },
       { "A"                   , executeNoMatch    }
    };
    const COMMAND *cmd;
