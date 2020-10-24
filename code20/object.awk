@@ -27,7 +27,7 @@ BEGIN {
    prop["capacity"]    = "0";
    prop["health"]      = "0";
    prop["impact"]      = "0";
-   prop["trust"]      = "0";
+   prop["trust"]       = "0";
    prop["open"]        = "cannotBeOpened";
    prop["close"]       = "cannotBeClosed";
    prop["lock"]        = "cannotBeLocked";

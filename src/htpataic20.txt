@@ -53,9 +53,13 @@ A combat-related command should use these stats
 in a &lsquo;damage formula&rsquo;
 that determines the impact of the command on the actors involved.
 </p>
+<table><tr>
+<td class="snippet">guard-&gt;health -= calculate_damage(player, guard);
+</td>
+</tr></table>
 <h3>Random</h3>
 <p>
-Traditionally, some uncertainty is built into such a formula.
+Traditionally, some uncertainty is built into a damage formula.
 Tabletop games have
 <a href="https://en.wikipedia.org/wiki/Dice">dice</a>,
 computer games have a
@@ -64,18 +68,23 @@ Please note that &lsquo;randomness&rsquo; may cause trouble with the
 &lsquo;roll-forward&rsquo; savegame technique proposed in chapter 16.
 Roll-forward demands repeatability.
 When saving a game, you expect the exact same game state when restoring.
-But different random number might completely change
+But different random numbers might completely change
 the outcome of battles that took place prior to saving.
 </p>
 <p>
 Fortunately, computers typically use
-<a href="https://en.wikipedia.org/wiki/Pseudorandom_number_generator">Pseudorandom number generators</a>.
+<a href="https://en.wikipedia.org/wiki/Pseudorandom_number_generator">pseudorandom number generators</a>.
 Reproducibility is one of their big advantages.
 Just make sure to seed the PRNG with the same fixed number at the start of every game.
 If you prefer to have a uniquely random game experience for every new game session
 (though I doubt that will be relevant for a text adventure,
 where a player is typically dedicated to a single ongoing session),
 then at least make sure the seed is stored as part of the savegame.
+</p>
+<p>
+This applies not only to combat, but to everything that is random,
+for example objects positioned randomly on the map,
+or NPCs moving randomly between locations.
 </p>
 <h3>Real-time vs turn based</h3>
 <p>
@@ -105,7 +114,7 @@ for a non-player character to respond to the player&rsquo;s actions.
 Turn-based has the advantage of not rushing players,
 giving them all the time in the world to think about their next move,
 while at the same time offering instant feedback
-at every attempt from the player to solve that seemingly unsolvable problem.
+at every attempt from the player to progress through the game.
 </p>
 <p>
 Turn-based does not mean there is no notion of time;
@@ -126,7 +135,7 @@ but that may cost the player so much game time,
 that night will fall halfway through,
 bringing out nasty night crawlers.
 &lsquo;Long&rsquo; commands may also consume more resources, like
-food, water, physical strength, or fuel for any vehicle you may be driving.
+food, water, physical strength, and fuel for a lamp.
 </p>
 <p>
 At the very least, I would recommend to let &lsquo;supportive&rsquo; commands,
@@ -173,8 +182,14 @@ Orc accepts your gift and makes a flower basket out of it.
 Therefore, it is best to implement all actions from &lsquo;the rest of the world&rsquo;
 not as part of any user command, but as a separate step in the main loop.
 Remember the main loop from chapter 2?
-We will just add a new function call there.
+We will just make an additional function call there.
 </p>
+<table class="demo">
+<tr><th>Sample output</th></tr>
+<tr><td>
+#test
+</td></tr>
+</table>
 <table class="code"><tr>
 <th>main.c</th>
 </tr><tr>
@@ -198,7 +213,15 @@ The return value of parseAndExecute is passed into turn as a parameter.
 </ul>
 </div>
 <p>
-TODO.
+Function &lsquo;turn&rsquo; implements
+everything that is going on around the player.
+In a multi-player game, this would include activity of other human players.
+A single-player game only has non-player characters,
+but of course there could be many other processes.
+A typical example is a lamp that is slowly dying.
+Every turn with the lamp being on, it will consume oil or battery power.
+Once everything is consumed, the light will dim.
+Other examples are forces of nature: a storm, a flood, a volcanic eruption.
 </p>
 <table class="code"><tr>
 <th>turn.h</th>
@@ -213,24 +236,87 @@ TODO.
 #diff turn.c
 </td>
 </tr></table>
+<div class="explanation">
 <p>
-TODO.
+Explanation:
 </p>
-<table class="code"><tr>
-<th>attack.h</th>
-</tr><tr>
-<td>
-#diff attack.h
-</td>
-</tr><tr>
-<th>attack.c</th>
-</tr><tr>
-<td>
-#diff attack.c
-</td>
-</tr></table>
+<ul>
+<li>Line 7-19:
+this function gives non-player characters a little bit of
+<a href="https://en.wikipedia.org/wiki/Artificial_intelligence">artificial intelligence</a>.
+An NPC will pick up a more powerful weapon, if any, before attacking.
+This may not be the best tactic
+in situations where a swift attack would be beneficial.
+To make the NPC more intelligent, improve the function
+by making a more complex decision tree involving more attributes.
+</li>
+<li>Line 23:
+non-player characters will only be aggressive
+when their &lsquo;trust&rsquo; towards the player is negative.
+This is a new attribute that is introduced below.
+</li>
+<li>Line 25:
+start off taking the most powerful weapon the NPC is carrying.
+</li>
+<li>Line 26:
+try to find an even more powerful weapon in NPC&rsquo;s surroundings.
+</li>
+<li>Line 27:
+if <i>findBestWeaponAround</i> is unable to find a better weapon,
+then it will simply return the original weapon
+(the one passed in as a parameter).
+</li>
+<li>Line 29:
+the NPC is attacking.
+</li>
+<li>Line 33:
+the NPC picks up the new weapon.
+This ends NPC&rsquo;s turn;
+NPC will have to wait until the next turn to attack.
+</li>
+<li>Line 40, 42, 60:
+time, passed in as a parameter, is typically 1 in this game,
+meaning a single unit of time has passed.
+There are two special values: 0 and -1.
+Zero means the player did not take a turn
+(for example because no valid command was entered),
+so we let the surrounding world skip its turn too.
+A negative number (-1) means the user wants to quit the program.
+</li>
+<li>Line 49:
+when player&rsquo;s health hits zero, player dies.
+</li>
+<li>Line 51-53:
+As explained in chapter 2, I like to give the player another chance.
+Health is restored, and the player is moved to a &lsquo;respawn point&rsquo;.
+I made a dedicated location for that, named &lsquo;little heaven&rsquo;.
+Your quest does not end there;
+I gave heaven a portal that will transport the player back to the field.
+This portal is just a straightforward &lsquo;passage&rsquo; (see chapter 6).
+You can find heaven and portal in <i>object.txt</i>.
+</li>
+<li>Line 54-57:
+Contrary to what the ancient pharaos believed,
+you are going to heaven empty-handed.
+Here, all your possessions are being moved to the field.
+This makes it very easy for the player to reclaim them
+after going through the portal.
+Of course, we could also move each object back to its original location
+(you may want to add an attribute <i>originalLocation</i> to <i>OBJECT</i>),
+or make it even more challenging by moving them to random locations.
+Do be careful with objects that are required to make progress through the game;
+moving a key to a location behind the door it unlocks,
+could make the quest impossible.
+</li>
+</ul>
+</div>
 <p>
-TODO.
+Functions <i>dealDamage</i> and <i>getOptimalWeapon</i>
+are implemented in the following module.
+Separating them from <i>turn.c</i> makes sense,
+because we will need the same functionality once again
+as we implement an &lsquo;attack&rsquo; command
+by the end of this chapter.
 </p>
 <table class="code"><tr>
 <th>damage.h</th>
@@ -245,8 +331,218 @@ TODO.
 #diff damage.c
 </td>
 </tr></table>
+<div class="explanation">
 <p>
-TODO.
+Explanation:
+</p>
+<ul>
+<li>Line 5-22:
+a helper function that generates descriptive text
+about attacks taking place during combat.
+This covers player attacking NPC (line 10),
+NPC attacking player (lines 14-15)
+and even NPC attacking NPC (lines 19-20).
+The latter could be useful in a game
+where the player can team up with friendly NPCs.
+</li>
+<li>Line 24-39:
+another helper function, this time to give descriptive text
+about a character dying in combat.
+As in the previous function,
+attacker and victim can be NPC as well as player.
+</li>
+<li>Line 41-52:
+one more helper function,
+which could be useful in a fight involving three or more characters,
+where a single character might suffer multiple blows within a single turn.
+</li>
+<li>Line 58:
+this is the &lsquo;damage formula&rsquo;.
+By convention, I will let &lsquo;damage&rsquo; be a negative number,
+reserving positive numbers for actions
+that have a positive effect on a character&rsquo;s health
+(e.g. drinking a healing potion).
+</li>
+<li>Line 59:
+damage has a 1 to 6 chance of being zero;
+even more so if attacker and weapon are too weak.
+If damage is zero, then execution will continue on line 80,
+where we will explain the attack had no effect.
+</li>
+<li>Line 74:
+attacking an NPC has a (negative) effect not only on health,
+but also on the NPC&rsquo;s trust towards the player.
+This will have its effect on the NPC&rsquo;s behavior towards the player.
+We already saw an example of this in <i>turn.c</i>.
+</li>
+<li>Line 80:
+we should respond to every command from the player,
+but it is not necessary to apologize
+for every missed opportunity by a NPC to deal damage.
+</li>
+<li>Line 92:
+you may already have noticed the weapon&rsquo;s &lsquo;impact&rsquo;
+(another new attribute)
+as part of the damage formula (line 58).
+As explained, we will be using negative numbers.
+This explains why there is a &lsquo;less than&rsquo; operator here:
+the best weapon is the one with the smallest (most negative) impact.
+</li>
+</ul>
+</div>
+<p>
+Now that we have given other characters the means to attack the player,
+it&rsquo;s time to let the player return the favor!
+</p>
+<table class="code"><tr>
+<th>parsexec.c</th>
+</tr><tr>
+<td>
+#diff parsexec.c
+</td>
+</tr></table>
+<div class="explanation">
+<p>
+Explanation:
+</p>
+<ul>
+<li>Line 17, 20, 25, 43:
+we are changing the return type of the command functions
+from <i>bool</i> to <i>int</i>.
+This is a sweeping change through a lot of modules.
+Unsurprising; for every command, we need to make up ours minds
+how many time unit are being consumed by the execution of that command.
+</li>
+<li>Line 22:
+every command function should return the number of time units consumed.
+<i>Quit</i> is the exception to the rule: it returns -1,
+to signal the main loop that the program should end.
+</li>
+<li>Line 34:
+here you see one of the situations where a command function returns zero.
+The command has not been recognized, either because the player made a typo,
+or because the game&rsquo;s vocabulair is too limited.
+Neither is considered part of the story; no game time passes.
+</li>
+<li>Line 37-41, 80:
+with the introduction of &lsquo;time&rsquo;,
+there should also be a command that allows the player
+to just let time pass without actually doing anything.
+This may seem useless, but it can be fun to have a puzzle in the game
+that actually relies on the execution of this command.
+Patience is a virtue, so why not reward it?
+</li>
+<li>Line 77-79:
+we are introducing a new command &lsquo;attack&rsquo;, with two arguments:
+A represents the victim, B the weapon.
+Both are optional; below we will see how this is handled.
+Of course, you can register as many synonyms as you like:
+<i>hit</i>, <i>kill</i>, <i>slay</i>...
+</li>
+</ul>
+</div>
+<p>
+It is time to implement the command &lsquo;attack&rsquo;.
+</p>
+<table class="code"><tr>
+<th>attack.h</th>
+</tr><tr>
+<td>
+#diff attack.h
+</td>
+</tr><tr>
+<th>attack.c</th>
+</tr><tr>
+<td>
+#diff attack.c
+</td>
+</tr></table>
+<div class="explanation">
+<p>
+Explanation:
+</p>
+<ul>
+<li>Line 9-17:
+a little helper function in case the command is given without a victim.
+It extends upon function <i>actorHere</i>, which is used
+in a similar way for commands <i>ask</i>, <i>give</i> and <i>talk</i>.
+</li>
+<li>Line 27:
+the command can also be given without explicitly specifying a weapon.
+In that case, the best weapon at hand will be used.
+For this, we use the same function <i>getOptimalWeapon</i> that was
+used in <i>turn.c</i> to let non-player characters choose their weapon.
+</li>
+<li>Line 31:
+<i>dealDamage</i> is another function that we were already using
+in <i>turn.c</i> to let non-player character make their move.
+This time, the player is the attacker rather than the victim.
+</li>
+</ul>
+</div>
+<p>
+Finally, here are the new attributes,
+the weapons and the respawn location.
+</p>
+<table class="code"><tr>
+<th>object.txt</th>
+</tr><tr>
+<td>
+#diff object.txt
+</td>
+</tr></table>
+<div class="explanation">
+<p>
+Explanation:
+</p>
+<ul>
+<li>Line 19-20:
+the new attributes &lsquo;impact&rsquo; and &lsquo;trust&rsquo;.
+</li>
+<li>Lines 71, 82:
+most actors can fight without a weapon.
+It basically means the actor <i>is</i> the weapon.
+Here we specify the effect of each actor fighting with bare hands.
+</li>
+<li>Line 236-250:
+a number of weapons.
+</li>
+<li>Line 252-265:
+&lsquo;little heaven&rsquo; and its portal leading back to earth.
+</li>
+</ul>
+</div>
+<p>
+The new attributes demand a change in <i>object.awk</i> as well.
+</p>
+#map
+<table class="code"><tr>
+<th>object.awk</th>
+</tr><tr>
+<td>
+#diff object.awk
+</td>
+</tr></table>
+<div class="explanation">
+<p>
+Explanation:
+</p>
+<ul>
+<li>Line 29-30:
+both attributes have a default value of zero.
+</li>
+</ul>
+</div>
+<p>
+That&rsquo;s about it as far as game logic goes.
+To make it a real game, we need more objects
+(locations, actors, items)
+and more puzzles.
+The latter can be done by
+adding custom code to the various modules we have seen so far.
+</p>
+<p>
+I am still working on extra chapters, covering some technical topics.
 </p>
 <hr />
 <table class="download"><tr><td>

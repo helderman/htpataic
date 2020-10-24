@@ -20,13 +20,13 @@ static OBJECT *findBestWeaponAround(OBJECT *actor, OBJECT *weapon)
 
 static void actorTakingTurn(OBJECT *actor)
 {
-   if (actor->trust < 0)
+   if (getDistance(actor, player) == distHere && actor->trust < 0)
    {
       OBJECT *weapon = getOptimalWeapon(actor);
       OBJECT *best = findBestWeaponAround(actor, weapon);
       if (weapon == best)
       {
-         dealDamage(actor, getOptimalWeapon(actor), player);
+         dealDamage(actor, weapon, player);
       }
       else
       {
@@ -39,20 +39,23 @@ static void actorTakingTurn(OBJECT *actor)
 
 bool turn(int time)
 {
-   if (time <= 0)
-   {
-      return time == 0;
-   }
-   else
+   if (time > 0)
    {
       OBJECT *obj;
       forEachObject(obj)
       {
-         if (getDistance(player, obj) == distHere && obj->health > 0)
+         if (obj->health > 0) actorTakingTurn(obj);
+      }
+      if (player->health <= 0)
+      {
+         printf("You have died and gone to little heaven.\n");
+         player->location = heaven;
+         player->health = 100;
+         forEachObject(obj)
          {
-            actorTakingTurn(obj);
+            if (obj->location == player) obj->location = field;
          }
       }
-      return true;
    }
+   return time >= 0;
 }

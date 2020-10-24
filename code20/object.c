@@ -29,6 +29,8 @@ static const char *tags22[] = { "lamp", NULL};
 static const char *tags23[] = { "lamp", NULL};
 static const char *tags24[] = { "club", "wooden club", NULL};
 static const char *tags25[] = { "dagger", NULL};
+static const char *tags26[] = { "heaven", "little heaven", NULL};
+static const char *tags27[] = { "portal", "respawn portal", NULL};
 
 static bool alwaysTrue(void) { return true; }
 
@@ -575,6 +577,48 @@ OBJECT objs[] = {
 		 -5,
 		0,
 		cannotBeOpened,
+		cannotBeClosed,
+		cannotBeLocked,
+		cannotBeUnlocked
+	},
+	{	/* 26 = heaven */
+		alwaysTrue,
+		 "little heaven",
+		tags26,
+		NULL,
+		NULL,
+		NULL,
+		 "Everything looks so peaceful here.\n",
+		"You see",
+		"You can't get much closer than this.\n",
+		 "It's where all the good adventurers go.",
+		99,
+		 9999,
+		0,
+		0,
+		0,
+		cannotBeOpened,
+		cannotBeClosed,
+		cannotBeLocked,
+		cannotBeUnlocked
+	},
+	{	/* 27 = respawn */
+		alwaysTrue,
+		 "a respawn portal",
+		tags27,
+		 heaven,
+		 field,
+		 field,
+		 "Looks like a gateway into the unknown.\n",
+		"You see",
+		 "A bright flash of light, and you are back in the field.\n",
+		"I know nothing about that.",
+		99,
+		0,
+		0,
+		0,
+		0,
+		 isAlreadyOpen,
 		cannotBeClosed,
 		cannotBeLocked,
 		cannotBeUnlocked

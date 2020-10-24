@@ -248,3 +248,19 @@ extern OBJECT objs[];
      details     "The dagger is very sharp.\n"
      weight      7
      impact      -5
+
+- heaven
+     description "little heaven"
+     tags        "heaven", "little heaven"
+     details     "Everything looks so peaceful here.\n"
+     gossip      "It's where all the good adventurers go."
+     capacity    9999
+
+- respawn
+     description "a respawn portal"
+     tags        "portal", "respawn portal"
+     location    heaven
+     destination field
+     details     "Looks like a gateway into the unknown.\n"
+     textGo      "A bright flash of light, and you are back in the field.\n"
+     open        isAlreadyOpen

@@ -76,9 +76,13 @@ A combat-related command should use these stats
 in a &lsquo;damage formula&rsquo;
 that determines the impact of the command on the actors involved.
 </p>
+<table><tr>
+<td class="snippet">guard-&gt;health -= calculate_damage(player, guard);
+</td>
+</tr></table>
 <h3>Random</h3>
 <p>
-Traditionally, some uncertainty is built into such a formula.
+Traditionally, some uncertainty is built into a damage formula.
 Tabletop games have
 <a href="https://en.wikipedia.org/wiki/Dice">dice</a>,
 computer games have a
@@ -87,18 +91,23 @@ Please note that &lsquo;randomness&rsquo; may cause trouble with the
 &lsquo;roll-forward&rsquo; savegame technique proposed in chapter 16.
 Roll-forward demands repeatability.
 When saving a game, you expect the exact same game state when restoring.
-But different random number might completely change
+But different random numbers might completely change
 the outcome of battles that took place prior to saving.
 </p>
 <p>
 Fortunately, computers typically use
-<a href="https://en.wikipedia.org/wiki/Pseudorandom_number_generator">Pseudorandom number generators</a>.
+<a href="https://en.wikipedia.org/wiki/Pseudorandom_number_generator">pseudorandom number generators</a>.
 Reproducibility is one of their big advantages.
 Just make sure to seed the PRNG with the same fixed number at the start of every game.
 If you prefer to have a uniquely random game experience for every new game session
 (though I doubt that will be relevant for a text adventure,
 where a player is typically dedicated to a single ongoing session),
 then at least make sure the seed is stored as part of the savegame.
+</p>
+<p>
+This applies not only to combat, but to everything that is random,
+for example objects positioned randomly on the map,
+or NPCs moving randomly between locations.
 </p>
 <h3>Real-time vs turn based</h3>
 <p>
@@ -128,7 +137,7 @@ for a non-player character to respond to the player&rsquo;s actions.
 Turn-based has the advantage of not rushing players,
 giving them all the time in the world to think about their next move,
 while at the same time offering instant feedback
-at every attempt from the player to solve that seemingly unsolvable problem.
+at every attempt from the player to progress through the game.
 </p>
 <p>
 Turn-based does not mean there is no notion of time;
@@ -149,7 +158,7 @@ but that may cost the player so much game time,
 that night will fall halfway through,
 bringing out nasty night crawlers.
 &lsquo;Long&rsquo; commands may also consume more resources, like
-food, water, physical strength, or fuel for any vehicle you may be driving.
+food, water, physical strength, and fuel for a lamp.
 </p>
 <p>
 At the very least, I would recommend to let &lsquo;supportive&rsquo; commands,
@@ -196,8 +205,61 @@ Orc accepts your gift and makes a flower basket out of it.
 Therefore, it is best to implement all actions from &lsquo;the rest of the world&rsquo;
 not as part of any user command, but as a separate step in the main loop.
 Remember the main loop from chapter 2?
-We will just add a new function call there.
+We will just make an additional function call there.
 </p>
+<table class="demo">
+<tr><th>Sample output</th></tr>
+<tr><td>
+Welcome to Little Cave Adventure.<br />
+You are in an open field.<br />
+You see:<br />
+a silver coin<br />
+a burly guard<br />
+a cave entrance to the east<br />
+dense forest all around<br />
+a lamp<br />
+a wooden club<br />
+a dagger<br />
+<br />
+--&gt; get club<br />
+You pick up a wooden club.<br />
+<br />
+--&gt; get dagger<br />
+You pick up a dagger.<br />
+<br />
+--&gt; get lamp<br />
+You pick up a lamp.<br />
+<br />
+--&gt; attack<br />
+You hit a burly guard with a dagger.<br />
+You are hit by a burly guard, with bare hands.<br />
+<br />
+--&gt; attack with club<br />
+You hit a burly guard with a wooden club.<br />
+<br />
+--&gt; drop dagger<br />
+You drop a dagger.<br />
+You see a burly guard pick up a dagger.<br />
+<br />
+--&gt; attack guard<br />
+You hit a burly guard with a wooden club.<br />
+You are hit by a burly guard, with a dagger.<br />
+<br />
+--&gt; attack with dagger<br />
+You are not holding any dagger.<br />
+<br />
+--&gt; attack with lamp<br />
+You try to hit a burly guard with a lamp, but you miss.<br />
+<br />
+--&gt; wait<br />
+Some time passes...<br />
+You are hit by a burly guard, with a dagger.<br />
+<br />
+--&gt; quit<br />
+<br />
+Bye!<br />
+</td></tr>
+</table>
 <table class="code"><tr>
 <th>main.c</th>
 </tr><tr>
@@ -282,7 +344,15 @@ The return value of parseAndExecute is passed into turn as a parameter.
 </ul>
 </div>
 <p>
-TODO.
+Function &lsquo;turn&rsquo; implements
+everything that is going on around the player.
+In a multi-player game, this would include activity of other human players.
+A single-player game only has non-player characters,
+but of course there could be many other processes.
+A typical example is a lamp that is slowly dying.
+Every turn with the lamp being on, it will consume oil or battery power.
+Once everything is consumed, the light will dim.
+Other examples are forces of nature: a storm, a flood, a volcanic eruption.
 </p>
 <table class="code"><tr>
 <th>turn.h</th>
@@ -319,13 +389,13 @@ TODO.
 <li class="new"></li>
 <li class="new">static void actorTakingTurn(OBJECT *actor)</li>
 <li class="new">{</li>
-<li class="new">   if (actor-&gt;trust &lt; 0)</li>
+<li class="new">   if (getDistance(actor, player) == distHere &amp;&amp; actor-&gt;trust &lt; 0)</li>
 <li class="new">   {</li>
 <li class="new">      OBJECT *weapon = getOptimalWeapon(actor);</li>
 <li class="new">      OBJECT *best = findBestWeaponAround(actor, weapon);</li>
 <li class="new">      if (weapon == best)</li>
 <li class="new">      {</li>
-<li class="new">         dealDamage(actor, getOptimalWeapon(actor), player);</li>
+<li class="new">         dealDamage(actor, weapon, player);</li>
 <li class="new">      }</li>
 <li class="new">      else</li>
 <li class="new">      {</li>
@@ -338,83 +408,110 @@ TODO.
 <li class="new"></li>
 <li class="new">bool turn(int time)</li>
 <li class="new">{</li>
-<li class="new">   if (time &lt;= 0)</li>
-<li class="new">   {</li>
-<li class="new">      return time == 0;</li>
-<li class="new">   }</li>
-<li class="new">   else</li>
+<li class="new">   if (time &gt; 0)</li>
 <li class="new">   {</li>
 <li class="new">      OBJECT *obj;</li>
 <li class="new">      forEachObject(obj)</li>
 <li class="new">      {</li>
-<li class="new">         if (getDistance(player, obj) == distHere &amp;&amp; obj-&gt;health &gt; 0)</li>
+<li class="new">         if (obj-&gt;health &gt; 0) actorTakingTurn(obj);</li>
+<li class="new">      }</li>
+<li class="new">      if (player-&gt;health &lt;= 0)</li>
+<li class="new">      {</li>
+<li class="new">         printf("You have died and gone to little heaven.\n");</li>
+<li class="new">         player-&gt;location = heaven;</li>
+<li class="new">         player-&gt;health = 100;</li>
+<li class="new">         forEachObject(obj)</li>
 <li class="new">         {</li>
-<li class="new">            actorTakingTurn(obj);</li>
+<li class="new">            if (obj-&gt;location == player) obj-&gt;location = field;</li>
 <li class="new">         }</li>
 <li class="new">      }</li>
-<li class="new">      return true;</li>
 <li class="new">   }</li>
+<li class="new">   return time &gt;= 0;</li>
 <li class="new">}</li>
 </ol>
 </td>
 </tr></table>
+<div class="explanation">
 <p>
-TODO.
+Explanation:
 </p>
-<table class="code"><tr>
-<th>attack.h</th>
-</tr><tr>
-<td>
-<ol>
-<li class="new">extern int executeAttack(void);</li>
-</ol>
-</td>
-</tr><tr>
-<th>attack.c</th>
-</tr><tr>
-<td>
-<ol>
-<li class="new">#include &lt;stdio.h&gt;</li>
-<li class="new">#include "object.h"</li>
-<li class="new">#include "misc.h"</li>
-<li class="new">#include "match.h"</li>
-<li class="new">#include "noun.h"</li>
-<li class="new">#include "reach.h"</li>
-<li class="new">#include "damage.h"</li>
-<li class="new"></li>
-<li class="new">static OBJECT *victimHere()</li>
-<li class="new">{</li>
-<li class="new">   OBJECT *victim = actorHere();</li>
-<li class="new">   if (victim == NULL)</li>
-<li class="new">   {</li>
-<li class="new">      printf("There is nobody here to attack.\n");</li>
-<li class="new">   }</li>
-<li class="new">   return victim;</li>
-<li class="new">}</li>
-<li class="new"></li>
-<li class="new">int executeAttack(void)</li>
-<li class="new">{</li>
-<li class="new">   OBJECT *victim =</li>
-<li class="new">      *params[0] == '\0' ? victimHere()</li>
-<li class="new">                         : reachableObject("who to attack", params[0]);</li>
-<li class="new">   if (victim != NULL)</li>
-<li class="new">   {</li>
-<li class="new">      OBJECT *weapon =</li>
-<li class="new">         *params[1] == '\0' ? getOptimalWeapon(player)</li>
-<li class="new">                            : getPossession(player, "wield", params[1]);</li>
-<li class="new">      if (weapon != NULL)</li>
-<li class="new">      {</li>
-<li class="new">         dealDamage(player, weapon, victim);</li>
-<li class="new">         return 1;</li>
-<li class="new">      }</li>
-<li class="new">   }</li>
-<li class="new">   return 0;</li>
-<li class="new">}</li>
-</ol>
-</td>
-</tr></table>
+<ul>
+<li>Line 7-19:
+this function gives non-player characters a little bit of
+<a href="https://en.wikipedia.org/wiki/Artificial_intelligence">artificial intelligence</a>.
+An NPC will pick up a more powerful weapon, if any, before attacking.
+This may not be the best tactic
+in situations where a swift attack would be beneficial.
+To make the NPC more intelligent, improve the function
+by making a more complex decision tree involving more attributes.
+</li>
+<li>Line 23:
+non-player characters will only be aggressive
+when their &lsquo;trust&rsquo; towards the player is negative.
+This is a new attribute that is introduced below.
+</li>
+<li>Line 25:
+start off taking the most powerful weapon the NPC is carrying.
+</li>
+<li>Line 26:
+try to find an even more powerful weapon in NPC&rsquo;s surroundings.
+</li>
+<li>Line 27:
+if <i>findBestWeaponAround</i> is unable to find a better weapon,
+then it will simply return the original weapon
+(the one passed in as a parameter).
+</li>
+<li>Line 29:
+the NPC is attacking.
+</li>
+<li>Line 33:
+the NPC picks up the new weapon.
+This ends NPC&rsquo;s turn;
+NPC will have to wait until the next turn to attack.
+</li>
+<li>Line 40, 42, 60:
+time, passed in as a parameter, is typically 1 in this game,
+meaning a single unit of time has passed.
+There are two special values: 0 and -1.
+Zero means the player did not take a turn
+(for example because no valid command was entered),
+so we let the surrounding world skip its turn too.
+A negative number (-1) means the user wants to quit the program.
+</li>
+<li>Line 49:
+when player&rsquo;s health hits zero, player dies.
+</li>
+<li>Line 51-53:
+As explained in chapter 2, I like to give the player another chance.
+Health is restored, and the player is moved to a &lsquo;respawn point&rsquo;.
+I made a dedicated location for that, named &lsquo;little heaven&rsquo;.
+Your quest does not end there;
+I gave heaven a portal that will transport the player back to the field.
+This portal is just a straightforward &lsquo;passage&rsquo; (see chapter 6).
+You can find heaven and portal in <i>object.txt</i>.
+</li>
+<li>Line 54-57:
+Contrary to what the ancient pharaos believed,
+you are going to heaven empty-handed.
+Here, all your possessions are being moved to the field.
+This makes it very easy for the player to reclaim them
+after going through the portal.
+Of course, we could also move each object back to its original location
+(you may want to add an attribute <i>originalLocation</i> to <i>OBJECT</i>),
+or make it even more challenging by moving them to random locations.
+Do be careful with objects that are required to make progress through the game;
+moving a key to a location behind the door it unlocks,
+could make the quest impossible.
+</li>
+</ul>
+</div>
 <p>
-TODO.
+Functions <i>dealDamage</i> and <i>getOptimalWeapon</i>
+are implemented in the following module.
+Separating them from <i>turn.c</i> makes sense,
+because we will need the same functionality once again
+as we implement an &lsquo;attack&rsquo; command
+by the end of this chapter.
 </p>
 <table class="code"><tr>
 <th>damage.h</th>
@@ -531,8 +628,714 @@ TODO.
 </ol>
 </td>
 </tr></table>
+<div class="explanation">
 <p>
-TODO.
+Explanation:
+</p>
+<ul>
+<li>Line 5-22:
+a helper function that generates descriptive text
+about attacks taking place during combat.
+This covers player attacking NPC (line 10),
+NPC attacking player (lines 14-15)
+and even NPC attacking NPC (lines 19-20).
+The latter could be useful in a game
+where the player can team up with friendly NPCs.
+</li>
+<li>Line 24-39:
+another helper function, this time to give descriptive text
+about a character dying in combat.
+As in the previous function,
+attacker and victim can be NPC as well as player.
+</li>
+<li>Line 41-52:
+one more helper function,
+which could be useful in a fight involving three or more characters,
+where a single character might suffer multiple blows within a single turn.
+</li>
+<li>Line 58:
+this is the &lsquo;damage formula&rsquo;.
+By convention, I will let &lsquo;damage&rsquo; be a negative number,
+reserving positive numbers for actions
+that have a positive effect on a character&rsquo;s health
+(e.g. drinking a healing potion).
+</li>
+<li>Line 59:
+damage has a 1 to 6 chance of being zero;
+even more so if attacker and weapon are too weak.
+If damage is zero, then execution will continue on line 80,
+where we will explain the attack had no effect.
+</li>
+<li>Line 74:
+attacking an NPC has a (negative) effect not only on health,
+but also on the NPC&rsquo;s trust towards the player.
+This will have its effect on the NPC&rsquo;s behavior towards the player.
+We already saw an example of this in <i>turn.c</i>.
+</li>
+<li>Line 80:
+we should respond to every command from the player,
+but it is not necessary to apologize
+for every missed opportunity by a NPC to deal damage.
+</li>
+<li>Line 92:
+you may already have noticed the weapon&rsquo;s &lsquo;impact&rsquo;
+(another new attribute)
+as part of the damage formula (line 58).
+As explained, we will be using negative numbers.
+This explains why there is a &lsquo;less than&rsquo; operator here:
+the best weapon is the one with the smallest (most negative) impact.
+</li>
+</ul>
+</div>
+<p>
+Now that we have given other characters the means to attack the player,
+it&rsquo;s time to let the player return the favor!
+</p>
+<table class="code"><tr>
+<th>parsexec.c</th>
+</tr><tr>
+<td>
+<ol>
+<li class="old">#include &lt;ctype.h&gt;</li>
+<li class="old">#include &lt;stdio.h&gt;</li>
+<li class="old">#include "object.h"</li>
+<li class="old">#include "misc.h"</li>
+<li class="old">#include "match.h"</li>
+<li class="old">#include "location.h"</li>
+<li class="old">#include "inventory.h"</li>
+<li class="old">#include "inventory2.h"</li>
+<li class="old">#include "openclose.h"</li>
+<li class="old">#include "onoff.h"</li>
+<li class="old">#include "talk.h"</li>
+<li class="new">#include "attack.h"</li>
+<li class="old"></li>
+<li class="old">typedef struct</li>
+<li class="old">{</li>
+<li class="old">   const char *pattern;</li>
+<li class="new"><span class="old">   </span>int<span class="old"> (*function)(void);</span></li>
+<li class="old">} COMMAND;</li>
+<li class="old"></li>
+<li class="new"><span class="old">static </span>int<span class="old"> executeQuit(void)</span></li>
+<li class="old">{</li>
+<li class="new"><span class="old">   return </span>-1;</li>
+<li class="old">}</li>
+<li class="old"></li>
+<li class="new"><span class="old">static </span>int<span class="old"> executeNoMatch(void)</span></li>
+<li class="old">{</li>
+<li class="old">   const char *src = *params;</li>
+<li class="old">   if (*src != '\0')</li>
+<li class="old">   {</li>
+<li class="old">      printf("I don't know how to '");</li>
+<li class="old">      while (*src != '\0' &amp;&amp; !isspace(*src)) putchar(*src++);</li>
+<li class="old">      printf("'.\n");</li>
+<li class="old">   }</li>
+<li class="new"><span class="old">   return </span>0;</li>
+<li class="old">}</li>
+<li class="old"></li>
+<li class="new">static int executeWait(void)</li>
+<li class="new">{</li>
+<li class="new">   printf("Some time passes...\n");</li>
+<li class="new">   return 1;</li>
+<li class="new">}</li>
+<li class="new"></li>
+<li class="new">int<span class="old"> parseAndExecute(const char *input)</span></li>
+<li class="old">{</li>
+<li class="old">   static const COMMAND commands[] =</li>
+<li class="old">   {</li>
+<li class="old">      { "quit"                , executeQuit       },</li>
+<li class="old">      { "look"                , executeLookAround },</li>
+<li class="old">      { "look around"         , executeLookAround },</li>
+<li class="old">      { "look at A"           , executeLook       },</li>
+<li class="old">      { "look A"              , executeLook       },</li>
+<li class="old">      { "examine A"           , executeLook       },</li>
+<li class="old">      { "go to A"             , executeGo         },</li>
+<li class="old">      { "go A"                , executeGo         },</li>
+<li class="old">      { "get A from B"        , executeGetFrom    },</li>
+<li class="old">      { "get A"               , executeGet        },</li>
+<li class="old">      { "put A in B"          , executePutIn      },</li>
+<li class="old">      { "drop A in B"         , executePutIn      },</li>
+<li class="old">      { "drop A"              , executeDrop       },</li>
+<li class="old">      { "ask A from B"        , executeAskFrom    },</li>
+<li class="old">      { "ask A"               , executeAsk        },</li>
+<li class="old">      { "give A to B"         , executeGiveTo     },</li>
+<li class="old">      { "give A"              , executeGive       },</li>
+<li class="old">      { "inventory"           , executeInventory  },</li>
+<li class="old">      { "open A"              , executeOpen       },</li>
+<li class="old">      { "close A"             , executeClose      },</li>
+<li class="old">      { "lock A"              , executeLock       },</li>
+<li class="old">      { "unlock A"            , executeUnlock     },</li>
+<li class="old">      { "turn on A"           , executeTurnOn     },</li>
+<li class="old">      { "turn off A"          , executeTurnOff    },</li>
+<li class="old">      { "turn A on"           , executeTurnOn     },</li>
+<li class="old">      { "turn A off"          , executeTurnOff    },</li>
+<li class="old">      { "talk with B about A" , executeTalkTo     },</li>
+<li class="old">      { "talk about A with B" , executeTalkTo     },</li>
+<li class="old">      { "talk about A"        , executeTalk       },</li>
+<li class="new"><span class="old">      { "talk A"              , executeTalk       </span>},</li>
+<li class="new">      { "attack with B"       , executeAttack     },</li>
+<li class="new">      { "attack A with B"     , executeAttack     },</li>
+<li class="new">      { "attack A"            , executeAttack     },</li>
+<li class="new">      { "wait"                , executeWait<span class="old">       },</span></li>
+<li class="old">      { "A"                   , executeNoMatch    }</li>
+<li class="old">   };</li>
+<li class="old">   const COMMAND *cmd;</li>
+<li class="old">   for (cmd = commands; !matchCommand(input, cmd-&gt;pattern); cmd++);</li>
+<li class="old">   return (*cmd-&gt;function)();</li>
+<li class="old">}</li>
+</ol>
+</td>
+</tr></table>
+<div class="explanation">
+<p>
+Explanation:
+</p>
+<ul>
+<li>Line 17, 20, 25, 43:
+we are changing the return type of the command functions
+from <i>bool</i> to <i>int</i>.
+This is a sweeping change through a lot of modules.
+Unsurprising; for every command, we need to make up ours minds
+how many time unit are being consumed by the execution of that command.
+</li>
+<li>Line 22:
+every command function should return the number of time units consumed.
+<i>Quit</i> is the exception to the rule: it returns -1,
+to signal the main loop that the program should end.
+</li>
+<li>Line 34:
+here you see one of the situations where a command function returns zero.
+The command has not been recognized, either because the player made a typo,
+or because the game&rsquo;s vocabulair is too limited.
+Neither is considered part of the story; no game time passes.
+</li>
+<li>Line 37-41, 80:
+with the introduction of &lsquo;time&rsquo;,
+there should also be a command that allows the player
+to just let time pass without actually doing anything.
+This may seem useless, but it can be fun to have a puzzle in the game
+that actually relies on the execution of this command.
+Patience is a virtue, so why not reward it?
+</li>
+<li>Line 77-79:
+we are introducing a new command &lsquo;attack&rsquo;, with two arguments:
+A represents the victim, B the weapon.
+Both are optional; below we will see how this is handled.
+Of course, you can register as many synonyms as you like:
+<i>hit</i>, <i>kill</i>, <i>slay</i>...
+</li>
+</ul>
+</div>
+<p>
+It is time to implement the command &lsquo;attack&rsquo;.
+</p>
+<table class="code"><tr>
+<th>attack.h</th>
+</tr><tr>
+<td>
+<ol>
+<li class="new">extern int executeAttack(void);</li>
+</ol>
+</td>
+</tr><tr>
+<th>attack.c</th>
+</tr><tr>
+<td>
+<ol>
+<li class="new">#include &lt;stdio.h&gt;</li>
+<li class="new">#include "object.h"</li>
+<li class="new">#include "misc.h"</li>
+<li class="new">#include "match.h"</li>
+<li class="new">#include "noun.h"</li>
+<li class="new">#include "reach.h"</li>
+<li class="new">#include "damage.h"</li>
+<li class="new"></li>
+<li class="new">static OBJECT *victimHere()</li>
+<li class="new">{</li>
+<li class="new">   OBJECT *victim = actorHere();</li>
+<li class="new">   if (victim == NULL)</li>
+<li class="new">   {</li>
+<li class="new">      printf("There is nobody here to attack.\n");</li>
+<li class="new">   }</li>
+<li class="new">   return victim;</li>
+<li class="new">}</li>
+<li class="new"></li>
+<li class="new">int executeAttack(void)</li>
+<li class="new">{</li>
+<li class="new">   OBJECT *victim =</li>
+<li class="new">      *params[0] == '\0' ? victimHere()</li>
+<li class="new">                         : reachableObject("who to attack", params[0]);</li>
+<li class="new">   if (victim != NULL)</li>
+<li class="new">   {</li>
+<li class="new">      OBJECT *weapon =</li>
+<li class="new">         *params[1] == '\0' ? getOptimalWeapon(player)</li>
+<li class="new">                            : getPossession(player, "wield", params[1]);</li>
+<li class="new">      if (weapon != NULL)</li>
+<li class="new">      {</li>
+<li class="new">         dealDamage(player, weapon, victim);</li>
+<li class="new">         return 1;</li>
+<li class="new">      }</li>
+<li class="new">   }</li>
+<li class="new">   return 0;</li>
+<li class="new">}</li>
+</ol>
+</td>
+</tr></table>
+<div class="explanation">
+<p>
+Explanation:
+</p>
+<ul>
+<li>Line 9-17:
+a little helper function in case the command is given without a victim.
+It extends upon function <i>actorHere</i>, which is used
+in a similar way for commands <i>ask</i>, <i>give</i> and <i>talk</i>.
+</li>
+<li>Line 27:
+the command can also be given without explicitly specifying a weapon.
+In that case, the best weapon at hand will be used.
+For this, we use the same function <i>getOptimalWeapon</i> that was
+used in <i>turn.c</i> to let non-player characters choose their weapon.
+</li>
+<li>Line 31:
+<i>dealDamage</i> is another function that we were already using
+in <i>turn.c</i> to let non-player character make their move.
+This time, the player is the attacker rather than the victim.
+</li>
+</ul>
+</div>
+<p>
+Finally, here are the new attributes,
+the weapons and the respawn location.
+</p>
+<table class="code"><tr>
+<th>object.txt</th>
+</tr><tr>
+<td>
+<ol>
+<li class="old">#include &lt;stdio.h&gt;</li>
+<li class="old">#include "object.h"</li>
+<li class="old">#include "toggle.h"</li>
+<li class="old"></li>
+<li class="old">typedef struct object {</li>
+<li class="old">   bool         (*condition)(void);</li>
+<li class="old">   const char    *description;</li>
+<li class="old">   const char   **tags;</li>
+<li class="old">   struct object *location;</li>
+<li class="old">   struct object *destination;</li>
+<li class="old">   struct object *prospect;</li>
+<li class="old">   const char    *details;</li>
+<li class="old">   const char    *contents;</li>
+<li class="old">   const char    *textGo;</li>
+<li class="old">   const char    *gossip;</li>
+<li class="old">   int            weight;</li>
+<li class="old">   int            capacity;</li>
+<li class="old">   int            health;</li>
+<li class="new">   int            impact;</li>
+<li class="new">   int            trust;</li>
+<li class="old">   const char  *(*open)(void);</li>
+<li class="old">   const char  *(*close)(void);</li>
+<li class="old">   const char  *(*lock)(void);</li>
+<li class="old">   const char  *(*unlock)(void);</li>
+<li class="old">} OBJECT;</li>
+<li class="old"></li>
+<li class="old">extern OBJECT objs[];</li>
+<li class="old"></li>
+<li class="old">- gossipEWNS</li>
+<li class="old">     tags        "east", "west", "north", "south"</li>
+<li class="old">     gossip      "It's just a compass direction."</li>
+<li class="old"></li>
+<li class="old">- field</li>
+<li class="old">     description "an open field"</li>
+<li class="old">     tags        "field"</li>
+<li class="old">     details     "The field is a nice and quiet place under a clear blue sky.\n"</li>
+<li class="old">     gossip      "A lot of tourists go there."</li>
+<li class="old">     capacity    9999</li>
+<li class="old"></li>
+<li class="old">- cave</li>
+<li class="old">     description "a little cave"</li>
+<li class="old">     tags        "cave"</li>
+<li class="old">     details     "The cave is just a cold, damp, rocky chamber.\n"</li>
+<li class="old">     gossip      "It's dark in there; bring a lamp!"</li>
+<li class="old">     capacity    9999</li>
+<li class="old"></li>
+<li class="old">- silver</li>
+<li class="old">     description "a silver coin"</li>
+<li class="old">     tags        "silver", "coin", "silver coin"</li>
+<li class="old">     location    field</li>
+<li class="old">     details     "The coin has an eagle on the obverse.\n"</li>
+<li class="old">     gossip      "Money makes the world go round..."</li>
+<li class="old">     weight      1</li>
+<li class="old"></li>
+<li class="old">- gold</li>
+<li class="old">     description "a gold coin"</li>
+<li class="old">     tags        "gold", "coin", "gold coin"</li>
+<li class="old">     location    openBox</li>
+<li class="old">     details     "The shiny coin seems to be a rare and priceless artefact.\n"</li>
+<li class="old">     gossip      "Money makes the world go round..."</li>
+<li class="old">     weight      1</li>
+<li class="old"></li>
+<li class="old">- guard</li>
+<li class="old">     description "a burly guard"</li>
+<li class="old">     tags        "guard", "burly guard"</li>
+<li class="old">     location    field</li>
+<li class="old">     details     "The guard is a really big fellow.\n"</li>
+<li class="old">     gossip      "Easy to bribe..."</li>
+<li class="old">     contents    "He has"</li>
+<li class="old">     health      100</li>
+<li class="new">     impact      -1</li>
+<li class="old">     capacity    20</li>
+<li class="old"></li>
+<li class="old">- player</li>
+<li class="old">     description "yourself"</li>
+<li class="old">     tags        "yourself"</li>
+<li class="old">     location    field</li>
+<li class="old">     details     "You would need a mirror to look at yourself.\n"</li>
+<li class="old">     gossip      "You're not from around here, are you?"</li>
+<li class="old">     contents    "You have"</li>
+<li class="old">     health      100</li>
+<li class="new">     impact      -1</li>
+<li class="old">     capacity    20</li>
+<li class="old"></li>
+<li class="old">- intoCave</li>
+<li class="old">     condition   { return guard-&gt;health == 0 || silver-&gt;location == guard; }</li>
+<li class="old">     description "a cave entrance to the east"</li>
+<li class="old">     tags        "east", "entrance"</li>
+<li class="old">     location    field</li>
+<li class="old">     destination cave</li>
+<li class="old">     details     "The entrance is just a narrow opening in a small outcrop.\n"</li>
+<li class="old">     textGo      "You walk into the cave.\n"</li>
+<li class="old">     open        isAlreadyOpen</li>
+<li class="old"></li>
+<li class="old">- intoCaveBlocked</li>
+<li class="old">     condition   { return guard-&gt;health &gt; 0 &amp;&amp; silver-&gt;location != guard; }</li>
+<li class="old">     description "a cave entrance to the east"</li>
+<li class="old">     tags        "east", "entrance"</li>
+<li class="old">     location    field</li>
+<li class="old">     prospect    cave</li>
+<li class="old">     details     "The entrance is just a narrow opening in a small outcrop.\n"</li>
+<li class="old">     textGo      "The guard stops you from walking into the cave.\n"</li>
+<li class="old">     open        isAlreadyOpen</li>
+<li class="old"></li>
+<li class="old">- exitCave</li>
+<li class="old">     description "an exit to the west"</li>
+<li class="old">     tags        "west", "exit"</li>
+<li class="old">     location    cave</li>
+<li class="old">     destination field</li>
+<li class="old">     details     "Sunlight pours in through an opening in the cave's wall.\n"</li>
+<li class="old">     textGo      "You walk out of the cave.\n"</li>
+<li class="old">     open        isAlreadyOpen</li>
+<li class="old"></li>
+<li class="old">- wallField</li>
+<li class="old">     description "dense forest all around"</li>
+<li class="old">     tags        "west", "north", "south", "forest"</li>
+<li class="old">     location    field</li>
+<li class="old">     details     "The field is surrounded by trees and undergrowth.\n"</li>
+<li class="old">     textGo      "Dense forest is blocking the way.\n"</li>
+<li class="old">     gossip      "You cannot go there, it is impenetrable."</li>
+<li class="old"></li>
+<li class="old">- wallCave</li>
+<li class="old">     description "solid rock all around"</li>
+<li class="old">     tags        "east", "north", "rock"</li>
+<li class="old">     location    cave</li>
+<li class="old">     details     "Carved in stone is a secret password 'abccb'.\n"</li>
+<li class="old">     textGo      "Solid rock is blocking the way.\n"</li>
+<li class="old"></li>
+<li class="old">- backroom</li>
+<li class="old">     description "a backroom"</li>
+<li class="old">     tags        "backroom"</li>
+<li class="old">     details     "The room is dusty and messy.\n"</li>
+<li class="old">     gossip      "There is something of value to be found there."</li>
+<li class="old">     capacity    9999</li>
+<li class="old"></li>
+<li class="old">- wallBackroom</li>
+<li class="old">     description "solid rock all around"</li>
+<li class="old">     tags        "east", "west", "south", "rock"</li>
+<li class="old">     location    backroom</li>
+<li class="old">     details     "Trendy wallpaper covers the rock walls.\n"</li>
+<li class="old">     textGo      "Solid rock is blocking the way.\n"</li>
+<li class="old"></li>
+<li class="old">- openDoorToBackroom</li>
+<li class="old">     description "an open door to the south"</li>
+<li class="old">     tags        "south", "door", "doorway"</li>
+<li class="old">     destination backroom</li>
+<li class="old">     details     "The door is open.\n"</li>
+<li class="old">     textGo      "You walk through the door into a backroom.\n"</li>
+<li class="old">     open        isAlreadyOpen</li>
+<li class="old">     close       toggleBackdoor</li>
+<li class="old"></li>
+<li class="old">- closedDoorToBackroom</li>
+<li class="old">     description "a closed door to the south"</li>
+<li class="old">     tags        "south", "door", "doorway"</li>
+<li class="old">     location    cave</li>
+<li class="old">     prospect    backroom</li>
+<li class="old">     details     "The door is closed.\n"</li>
+<li class="old">     textGo      "The door is closed.\n"</li>
+<li class="old">     open        toggleBackdoor</li>
+<li class="old">     close       isAlreadyClosed</li>
+<li class="old"></li>
+<li class="old">- openDoorToCave</li>
+<li class="old">     description "an open door to the north"</li>
+<li class="old">     tags        "north", "door", "doorway"</li>
+<li class="old">     destination cave</li>
+<li class="old">     details     "The door is open.\n"</li>
+<li class="old">     textGo      "You walk through the door into the cave.\n"</li>
+<li class="old">     open        isAlreadyOpen</li>
+<li class="old">     close       toggleBackdoor</li>
+<li class="old"></li>
+<li class="old">- closedDoorToCave</li>
+<li class="old">     description "a closed door to the north"</li>
+<li class="old">     tags        "north", "door", "doorway"</li>
+<li class="old">     location    backroom</li>
+<li class="old">     prospect    cave</li>
+<li class="old">     details     "The door is closed.\n"</li>
+<li class="old">     textGo      "The door is closed.\n"</li>
+<li class="old">     open        toggleBackdoor</li>
+<li class="old">     close       isAlreadyClosed</li>
+<li class="old"></li>
+<li class="old">- openBox</li>
+<li class="old">     description "a wooden box"</li>
+<li class="old">     tags        "box", "wooden box"</li>
+<li class="old">     details     "The box is open.\n"</li>
+<li class="old">     gossip      "You need a key to open it."</li>
+<li class="old">     weight      5</li>
+<li class="old">     capacity    10</li>
+<li class="old">     open        isAlreadyOpen</li>
+<li class="old">     close       toggleBox</li>
+<li class="old">     lock        isStillOpen</li>
+<li class="old">     unlock      isAlreadyOpen</li>
+<li class="old"></li>
+<li class="old">- closedBox</li>
+<li class="old">     description "a wooden box"</li>
+<li class="old">     tags        "box", "wooden box"</li>
+<li class="old">     details     "The box is closed.\n"</li>
+<li class="old">     weight      5</li>
+<li class="old">     open        toggleBox</li>
+<li class="old">     close       isAlreadyClosed</li>
+<li class="old">     lock        toggleBoxLock</li>
+<li class="old">     unlock      isAlreadyUnlocked</li>
+<li class="old"></li>
+<li class="old">- lockedBox</li>
+<li class="old">     description "a wooden box"</li>
+<li class="old">     tags        "box", "wooden box"</li>
+<li class="old">     location    backroom</li>
+<li class="old">     details     "The box is closed.\n"</li>
+<li class="old">     weight      5</li>
+<li class="old">     open        isStillLocked</li>
+<li class="old">     close       isAlreadyClosed</li>
+<li class="old">     lock        isAlreadyLocked</li>
+<li class="old">     unlock      toggleBoxLock</li>
+<li class="old"></li>
+<li class="old">- keyForBox</li>
+<li class="old">     description "a tiny key"</li>
+<li class="old">     tags        "key", "tiny key"</li>
+<li class="old">     location    cave</li>
+<li class="old">     details     "The key is really small and shiny.\n"</li>
+<li class="old">     gossip      "A small key opens a small lock."</li>
+<li class="old">     weight      1</li>
+<li class="old"></li>
+<li class="old">- lampOff</li>
+<li class="old">     description "a lamp"</li>
+<li class="old">     tags        "lamp"</li>
+<li class="old">     location    field</li>
+<li class="old">     details     "The lamp is off.\n"</li>
+<li class="old">     gossip      "Essential in dark areas."</li>
+<li class="old">     weight      5</li>
+<li class="old"></li>
+<li class="old">- lampOn</li>
+<li class="old">     description "a lamp"</li>
+<li class="old">     tags        "lamp"</li>
+<li class="old">     details     "The lamp is on.\n"</li>
+<li class="old">     weight      5</li>
+<li class="new"></li>
+<li class="new">- club</li>
+<li class="new">     description "a wooden club"</li>
+<li class="new">     tags        "club", "wooden club"</li>
+<li class="new">     location    field</li>
+<li class="new">     details     "Two feet of solid wood.\n"</li>
+<li class="new">     weight      5</li>
+<li class="new">     impact      -2</li>
+<li class="new"></li>
+<li class="new">- dagger</li>
+<li class="new">     description "a dagger"</li>
+<li class="new">     tags        "dagger"</li>
+<li class="new">     location    field</li>
+<li class="new">     details     "The dagger is very sharp.\n"</li>
+<li class="new">     weight      7</li>
+<li class="new">     impact      -5</li>
+<li class="new"></li>
+<li class="new">- heaven</li>
+<li class="new">     description "little heaven"</li>
+<li class="new">     tags        "heaven", "little heaven"</li>
+<li class="new">     details     "Everything looks so peaceful here.\n"</li>
+<li class="new">     gossip      "It's where all the good adventurers go."</li>
+<li class="new">     capacity    9999</li>
+<li class="new"></li>
+<li class="new">- respawn</li>
+<li class="new">     description "a respawn portal"</li>
+<li class="new">     tags        "portal", "respawn portal"</li>
+<li class="new">     location    heaven</li>
+<li class="new">     destination field</li>
+<li class="new">     details     "Looks like a gateway into the unknown.\n"</li>
+<li class="new">     textGo      "A bright flash of light, and you are back in the field.\n"</li>
+<li class="new">     open        isAlreadyOpen</li>
+</ol>
+</td>
+</tr></table>
+<div class="explanation">
+<p>
+Explanation:
+</p>
+<ul>
+<li>Line 19-20:
+the new attributes &lsquo;impact&rsquo; and &lsquo;trust&rsquo;.
+</li>
+<li>Lines 71, 82:
+most actors can fight without a weapon.
+It basically means the actor <i>is</i> the weapon.
+Here we specify the effect of each actor fighting with bare hands.
+</li>
+<li>Line 236-250:
+a number of weapons.
+</li>
+<li>Line 252-265:
+&lsquo;little heaven&rsquo; and its portal leading back to earth.
+</li>
+</ul>
+</div>
+<p>
+The new attributes demand a change in <i>object.awk</i> as well.
+</p>
+<img class="genmap" src="code20/map.png" />
+<table class="code"><tr>
+<th>object.awk</th>
+</tr><tr>
+<td>
+<ol>
+<li class="old">BEGIN {</li>
+<li class="old">   count = 0;</li>
+<li class="old">   obj = "";</li>
+<li class="old">   if (pass == "h") {</li>
+<li class="old">      print "#include &lt;stdbool.h&gt;";</li>
+<li class="old">   }</li>
+<li class="old">   if (pass == "c2") {</li>
+<li class="old">      print "\nstatic bool alwaysTrue(void) { return true; }";</li>
+<li class="old">      print "\nOBJECT objs[] = {";</li>
+<li class="old">   }</li>
+<li class="old">}</li>
+<li class="old"></li>
+<li class="old">/^- / {</li>
+<li class="old">   outputRecord(",");</li>
+<li class="old">   obj = $2;</li>
+<li class="old">   prop["condition"]   = "alwaysTrue";</li>
+<li class="old">   prop["description"] = "NULL";</li>
+<li class="old">   prop["tags"]        = "";</li>
+<li class="old">   prop["location"]    = "NULL";</li>
+<li class="old">   prop["destination"] = "NULL";</li>
+<li class="old">   prop["prospect"]    = "";</li>
+<li class="old">   prop["details"]     = "\"You see nothing special.\\n\"";</li>
+<li class="old">   prop["contents"]    = "\"You see\"";</li>
+<li class="old">   prop["textGo"]      = "\"You can't get much closer than this.\\n\"";</li>
+<li class="old">   prop["gossip"]      = "\"I know nothing about that.\"";</li>
+<li class="old">   prop["weight"]      = "99";</li>
+<li class="old">   prop["capacity"]    = "0";</li>
+<li class="old">   prop["health"]      = "0";</li>
+<li class="new">   prop["impact"]      = "0";</li>
+<li class="new">   prop["trust"]       = "0";</li>
+<li class="old">   prop["open"]        = "cannotBeOpened";</li>
+<li class="old">   prop["close"]       = "cannotBeClosed";</li>
+<li class="old">   prop["lock"]        = "cannotBeLocked";</li>
+<li class="old">   prop["unlock"]      = "cannotBeUnlocked";</li>
+<li class="old">}</li>
+<li class="old"></li>
+<li class="old">obj &amp;&amp; /^[ \t]+[a-z]/ {</li>
+<li class="old">   name = $1;</li>
+<li class="old">   $1 = "";</li>
+<li class="old">   if (name in prop) {</li>
+<li class="old">      prop[name] = $0;</li>
+<li class="old">      if (/^[ \t]*\{/) {</li>
+<li class="old">         prop[name] = name count;</li>
+<li class="old">         if (pass == "c1") print "static bool " prop[name] "(void) " $0;</li>
+<li class="old">      }</li>
+<li class="old">   }</li>
+<li class="old">   else if (pass == "c2") {</li>
+<li class="old">      print "#error \"" FILENAME " line " NR ": unknown attribute '" name "'\"";</li>
+<li class="old">   }</li>
+<li class="old">}</li>
+<li class="old"></li>
+<li class="old">!obj &amp;&amp; pass == (/^#include/ ? "c1" : "h") {</li>
+<li class="old">   print;</li>
+<li class="old">}</li>
+<li class="old"></li>
+<li class="old">END {</li>
+<li class="old">   outputRecord("\n};");</li>
+<li class="old">   if (pass == "h") {</li>
+<li class="old">      print "\n#define endOfObjs\t(objs + " count ")";</li>
+<li class="old">      print "\n#define validObject(obj)\t" \</li>
+<li class="old">            "((obj) != NULL &amp;&amp; (*(obj)-&gt;condition)())";</li>
+<li class="old">      print "\n#define forEachObject(obj)\t" \</li>
+<li class="old">            "for (obj = objs; obj &lt; endOfObjs; obj++) if (validObject(obj))";</li>
+<li class="old">   }</li>
+<li class="old">}</li>
+<li class="old"></li>
+<li class="old">function outputRecord(separator)</li>
+<li class="old">{</li>
+<li class="old">   if (obj) {</li>
+<li class="old">      if (pass == "h") {</li>
+<li class="old">         print "#define " obj "\t(objs + " count ")";</li>
+<li class="old">      }</li>
+<li class="old">      else if (pass == "c1") {</li>
+<li class="old">         print "static const char *tags" count "[] = {" prop["tags"] ", NULL};";</li>
+<li class="old">      }</li>
+<li class="old">      else if (pass == "c2") {</li>
+<li class="old">         print "\t{\t/* " count " = " obj " */";</li>
+<li class="old">         print "\t\t" prop["condition"] ",";</li>
+<li class="old">         print "\t\t" prop["description"] ",";</li>
+<li class="old">         print "\t\ttags" count ",";</li>
+<li class="old">         print "\t\t" prop["location"] ",";</li>
+<li class="old">         print "\t\t" prop["destination"] ",";</li>
+<li class="old">         print "\t\t" prop[prop["prospect"] ? "prospect" : "destination"] ",";</li>
+<li class="old">         print "\t\t" prop["details"] ",";</li>
+<li class="old">         print "\t\t" prop["contents"] ",";</li>
+<li class="old">         print "\t\t" prop["textGo"] ",";</li>
+<li class="old">         print "\t\t" prop["gossip"] ",";</li>
+<li class="old">         print "\t\t" prop["weight"] ",";</li>
+<li class="old">         print "\t\t" prop["capacity"] ",";</li>
+<li class="old">         print "\t\t" prop["health"] ",";</li>
+<li class="new">         print "\t\t" prop["impact"] ",";</li>
+<li class="new">         print "\t\t" prop["trust"] ",";</li>
+<li class="old">         print "\t\t" prop["open"] ",";</li>
+<li class="old">         print "\t\t" prop["close"] ",";</li>
+<li class="old">         print "\t\t" prop["lock"] ",";</li>
+<li class="old">         print "\t\t" prop["unlock"];</li>
+<li class="old">         print "\t}" separator;</li>
+<li class="old">         delete prop;</li>
+<li class="old">      }</li>
+<li class="old">      count++;</li>
+<li class="old">   }</li>
+<li class="old">}</li>
+</ol>
+</td>
+</tr></table>
+<div class="explanation">
+<p>
+Explanation:
+</p>
+<ul>
+<li>Line 29-30:
+both attributes have a default value of zero.
+</li>
+</ul>
+</div>
+<p>
+That&rsquo;s about it as far as game logic goes.
+To make it a real game, we need more objects
+(locations, actors, items)
+and more puzzles.
+The latter can be done by
+adding custom code to the various modules we have seen so far.
+</p>
+<p>
+I am still working on extra chapters, covering some technical topics.
 </p>
 <hr />
 <table class="download"><tr><td>

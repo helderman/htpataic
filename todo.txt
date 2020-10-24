@@ -1,3 +1,5 @@
+- ch15: attribute 'light' instead of whitelist, so that we can deplete the lamp in ch20
+  - don't forget map.awk!
 - stdbool not included everywhere; is it even necessary?
 - ch17: do a serious performance test!
 - noun.c getPossession: getting/asking from actor or from dead object

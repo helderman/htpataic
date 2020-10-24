@@ -50,8 +50,10 @@ extern OBJECT objs[];
 #define lampOn	(objs + 23)
 #define club	(objs + 24)
 #define dagger	(objs + 25)
+#define heaven	(objs + 26)
+#define respawn	(objs + 27)
 
-#define endOfObjs	(objs + 26)
+#define endOfObjs	(objs + 28)
 
 #define validObject(obj)	((obj) != NULL && (*(obj)->condition)())
 
