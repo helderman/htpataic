@@ -1,26 +1,50 @@
+#include <stdbool.h>
 #include <stdio.h>
 #include "object.h"
 #include "misc.h"
 
-static OBJECT *getLocation(OBJECT *obj)
+bool isHolding(OBJECT *container, OBJECT *obj)
 {
-   while (obj->location != NULL) obj = obj->location;
-   return obj;
+   return validObject(obj) && obj->location == container;
 }
 
-bool isLit(OBJECT *location)
+bool isLit(OBJECT *target)
 {
-   return location == field || location == getLocation(lampOn);
+   OBJECT *obj;
+   if (validObject(target))
+   {
+      if (target->light > 0)
+      {
+         return true;
+      }
+      for (obj = objs; obj < endOfObjs; obj++)
+      {
+         if (validObject(obj) && obj->light > 0 &&
+             (isHolding(target, obj) || isHolding(target, obj->location)))
+         {
+            return true;
+         }
+      }
+   }
+   return false;
+}
+
+static bool isIlluminated(OBJECT *obj)
+{
+   return isLit(obj) || isLit(obj->prospect) || isLit(player->location);
 }
 
 OBJECT *getPassage(OBJECT *from, OBJECT *to)
 {
-   OBJECT *obj;
-   forEachObject(obj)
+   if (from != NULL && to != NULL)
    {
-      if (from != NULL && obj->location == from && obj->prospect == to)
+      OBJECT *obj;
+      for (obj = objs; obj < endOfObjs; obj++)
       {
-         return obj;
+         if (isHolding(from, obj) && obj->prospect == to)
+         {
+            return obj;
+         }
       }
    }
    return NULL;
@@ -28,26 +52,26 @@ OBJECT *getPassage(OBJECT *from, OBJECT *to)
 
 DISTANCE getDistance(OBJECT *from, OBJECT *to)
 {
-   return !validObject(to)                         ? distUnknownObject :
+   return to == NULL                               ? distUnknownObject :
+          !validObject(to)                         ? distNotHere :
           to == from                               ? distSelf :
-          to->location == from                     ? distHeld :
-          !isLit(from->location) &&
-          !isLit(to) && !isLit(to->prospect)       ? distNotHere :
-          to == from->location                     ? distLocation :
-          to->location == from->location           ? distHere :
+          isHolding(from, to)                      ? distHeld :
+          !isIlluminated(to)                       ? distNotHere :
+          isHolding(to, from)                      ? distLocation :
+          isHolding(from->location, to)            ? distHere :
+          isHolding(from, to->location)            ? distHeldContained :
+          isHolding(from->location, to->location)  ? distHereContained :
           getPassage(from->location, to) != NULL   ? distOverthere :
-          !validObject(to->location)               ? distNotHere :
-          to->location->location == from           ? distHeldContained :
-          to->location->location == from->location ? distHereContained :
                                                      distNotHere;
 }
 
 OBJECT *actorHere(void)
 {
    OBJECT *obj;
-   forEachObject(obj)
+   for (obj = objs; obj < endOfObjs; obj++)
    {
-      if (getDistance(player, obj) == distHere && obj->health > 0)
+      if (isHolding(player->location, obj) && obj != player &&
+          isIlluminated(obj) && obj->health > 0)
       {
          return obj;
       }
@@ -59,10 +83,9 @@ int listObjectsAtLocation(OBJECT *location)
 {
    int count = 0;
    OBJECT *obj;
-   forEachObject(obj)
+   for (obj = objs; obj < endOfObjs; obj++)
    {
-      if (obj != player && obj->location == location &&
-          getDistance(player, obj) < distNotHere)
+      if (obj != player && isHolding(location, obj) && isIlluminated(obj))
       {
          if (count++ == 0)
          {
@@ -72,15 +95,4 @@ int listObjectsAtLocation(OBJECT *location)
       }
    }
    return count;
-}
-
-int weightOfContents(OBJECT *container)
-{
-   int sum = 0;
-   OBJECT *obj;
-   forEachObject(obj)
-   {
-      if (obj->location == container) sum += obj->weight;
-   }
-   return sum;
 }

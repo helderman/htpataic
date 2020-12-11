@@ -707,8 +707,6 @@ The necessary modifications to <i>object.awk</i> are very straightforward:
 <li class="old">      print "\n#define endOfObjs\t(objs + " count ")";</li>
 <li class="old">      print "\n#define validObject(obj)\t" \</li>
 <li class="old">            "((obj) != NULL &amp;&amp; (*(obj)-&gt;condition)())";</li>
-<li class="old">      print "\n#define forEachObject(obj)\t" \</li>
-<li class="old">            "for (obj = objs; obj &lt; endOfObjs; obj++) if (validObject(obj))";</li>
 <li class="old">   }</li>
 <li class="old">}</li>
 <li class="old"></li>

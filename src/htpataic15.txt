@@ -73,17 +73,16 @@ It is defined (and used some more) in <i>misc.c</i>.
 Explanation:
 </p>
 <ul>
-<li>Line 13:
-we are using whitelists to identify
-the locations that are naturally lit (the field)
-and any objects that produce light (the lamp).
-In a big adventure with more locations
-(and maybe more lamps, torches, glowsticks),
-it would be wise to introduce an attribute for this;
-similar to how we replaced the whitelist of actors
-with a &lsquo;health&rsquo; attribute in chapter 10.
+<li>Line 11-30:
+<i>isLit</i> will be used to check if a given location is light or dark.
+Note: it is not enough to simply check attribute <i>light</i> of the location;
+the location could be lit by a lamp.
 </li>
-<li>Lines 35 and 65:
+<li>Line 32-35:
+<i>isIlluminated</i> takes it one step further;
+it works for every object, not just locations and lamps.
+</li>
+<li>Line 59:
 nearby objects that remain hidden in the dark,
 are being treated as &lsquo;not here&rsquo;.
 This naturally prevents the game from leaking information

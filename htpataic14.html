@@ -387,9 +387,21 @@ So we will make a special exception for that particular combination of objects.
 </tr><tr>
 <td>
 <ol>
+<li class="old">#include &lt;stdbool.h&gt;</li>
 <li class="old">#include &lt;stdio.h&gt;</li>
 <li class="old">#include "object.h"</li>
 <li class="old">#include "misc.h"</li>
+<li class="old"></li>
+<li class="old">static int weightOfContents(OBJECT *container)</li>
+<li class="old">{</li>
+<li class="old">   int sum = 0;</li>
+<li class="old">   OBJECT *obj;</li>
+<li class="old">   for (obj = objs; obj &lt; endOfObjs; obj++)</li>
+<li class="old">   {</li>
+<li class="old">      if (isHolding(container, obj)) sum += obj-&gt;weight;</li>
+<li class="old">   }</li>
+<li class="old">   return sum;</li>
+<li class="old">}</li>
 <li class="old"></li>
 <li class="old">void moveObject(OBJECT *obj, OBJECT *to)</li>
 <li class="old">{</li>

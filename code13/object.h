@@ -46,5 +46,3 @@ extern OBJECT objs[];
 #define endOfObjs	(objs + 21)
 
 #define validObject(obj)	((obj) != NULL && (*(obj)->condition)())
-
-#define forEachObject(obj)	for (obj = objs; obj < endOfObjs; obj++) if (validObject(obj))

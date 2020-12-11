@@ -1,12 +1,15 @@
-BEGIN               { print "digraph map {"; }
-/^- /               { outputEdge(); location = destination = prospect = ""; }
-$1 == "location"    { location = $2; }
-$1 == "destination" { destination = $2; }
-$1 == "prospect"    { prospect = $2; }
-END                 { outputEdge(); print "}"; }
+BEGIN     { print "digraph map {"; }
+/^- /     { outputEdges(); delete a; }
+/^[ \t]/  { a[$1] = $2; }
+END       { outputEdges(); print "}"; }
 
-function outputEdge()
+function outputEdges()
 {
-   if (location && destination) print "\t" location " -> " destination;
-   if (location && prospect) print "\t" location " -> " prospect " [style=dashed]";
+   outputEdge(a["location"], a["destination"], "");
+   outputEdge(a["location"], a["prospect"], " [style=dashed]");
+}
+
+function outputEdge(from, to, style)
+{
+   if (from && to) print "\t" from " -> " to style;
 }

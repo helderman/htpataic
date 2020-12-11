@@ -25,6 +25,7 @@ BEGIN {
    prop["weight"]      = "99";
    prop["capacity"]    = "0";
    prop["health"]      = "0";
+   prop["light"]       = "0";
    prop["open"]        = "cannotBeOpened";
    prop["close"]       = "cannotBeClosed";
    prop["lock"]        = "cannotBeLocked";
@@ -56,8 +57,6 @@ END {
       print "\n#define endOfObjs\t(objs + " count ")";
       print "\n#define validObject(obj)\t" \
             "((obj) != NULL && (*(obj)->condition)())";
-      print "\n#define forEachObject(obj)\t" \
-            "for (obj = objs; obj < endOfObjs; obj++) if (validObject(obj))";
    }
 }
 
@@ -84,6 +83,7 @@ function outputRecord(separator)
          print "\t\t" prop["weight"] ",";
          print "\t\t" prop["capacity"] ",";
          print "\t\t" prop["health"] ",";
+         print "\t\t" prop["light"] ",";
          print "\t\t" prop["open"] ",";
          print "\t\t" prop["close"] ",";
          print "\t\t" prop["lock"] ",";

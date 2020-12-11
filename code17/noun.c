@@ -22,7 +22,7 @@ static OBJECT ambiguousNoun;
 static OBJECT *getObject(const char *noun, OBJECT *from, DISTANCE maxDistance)
 {
    OBJECT *obj, *res = NULL;
-   forEachObject(obj)
+   for (obj = objs; obj < endOfObjs; obj++)
    {
       if (objectHasTag(obj, noun) && getDistance(from, obj) <= maxDistance)
       {

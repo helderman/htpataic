@@ -382,6 +382,7 @@ Bye!<br />
 </tr><tr>
 <td>
 <ol>
+<li class="old">#include &lt;stdbool.h&gt;</li>
 <li class="old">#include &lt;stdio.h&gt;</li>
 <li class="old">#include &lt;string.h&gt;</li>
 <li class="old">#include "object.h"</li>
@@ -461,9 +462,21 @@ And a <b>health</b> check replaces the hard-coded whitelist of actors.
 </tr><tr>
 <td>
 <ol>
-<li class="old">#include &lt;stdio.h&gt;</li>
+<li class="new"><span class="old">#include </span>&lt;stdbool.h&gt;</li>
+<li class="new">#include<span class="old"> &lt;stdio.h&gt;</span></li>
 <li class="old">#include "object.h"</li>
 <li class="new">#include "misc.h"</li>
+<li class="new"></li>
+<li class="new">static int weightOfContents(OBJECT *container)</li>
+<li class="new">{</li>
+<li class="new">   int sum = 0;</li>
+<li class="new">   OBJECT *obj;</li>
+<li class="new">   for (obj = objs; obj &lt; endOfObjs; obj++)</li>
+<li class="new">   {</li>
+<li class="new">      if (isHolding(container, obj)) sum += obj-&gt;weight;</li>
+<li class="new">   }</li>
+<li class="new">   return sum;</li>
+<li class="new">}</li>
 <li class="old"></li>
 <li class="old">void moveObject(OBJECT *obj, OBJECT *to)</li>
 <li class="old">{</li>
@@ -518,6 +531,7 @@ Here is one more module that can use <b>health</b> to identify actors.
 </tr><tr>
 <td>
 <ol>
+<li class="old">#include &lt;stdbool.h&gt;</li>
 <li class="old">#include &lt;stdio.h&gt;</li>
 <li class="old">#include "object.h"</li>
 <li class="old">#include "misc.h"</li>
@@ -618,11 +632,11 @@ a &lsquo;passage with a twist.&rsquo;
 <li class="old">   distUnknownObject</li>
 <li class="old">} DISTANCE;</li>
 <li class="old"></li>
+<li class="old">extern bool isHolding(OBJECT *container, OBJECT *obj);</li>
 <li class="old">extern OBJECT *getPassage(OBJECT *from, OBJECT *to);</li>
 <li class="old">extern DISTANCE getDistance(OBJECT *from, OBJECT *to);</li>
 <li class="old">extern OBJECT *actorHere(void);</li>
 <li class="old">extern int listObjectsAtLocation(OBJECT *location);</li>
-<li class="new">extern int weightOfContents(OBJECT *container);</li>
 </ol>
 </td>
 </tr><tr>
@@ -630,18 +644,27 @@ a &lsquo;passage with a twist.&rsquo;
 </tr><tr>
 <td>
 <ol>
+<li class="old">#include &lt;stdbool.h&gt;</li>
 <li class="old">#include &lt;stdio.h&gt;</li>
 <li class="old">#include "object.h"</li>
 <li class="old">#include "misc.h"</li>
 <li class="old"></li>
+<li class="old">bool isHolding(OBJECT *container, OBJECT *obj)</li>
+<li class="old">{</li>
+<li class="old">   return obj != NULL &amp;&amp; obj-&gt;location == container;</li>
+<li class="old">}</li>
+<li class="old"></li>
 <li class="old">OBJECT *getPassage(OBJECT *from, OBJECT *to)</li>
 <li class="old">{</li>
-<li class="old">   OBJECT *obj;</li>
-<li class="old">   for (obj = objs; obj &lt; endOfObjs; obj++)</li>
+<li class="old">   if (from != NULL &amp;&amp; to != NULL)</li>
 <li class="old">   {</li>
-<li class="new"><span class="old">      if (obj-&gt;location == from &amp;&amp; </span>obj-&gt;prospect<span class="old"> == to)</span></li>
+<li class="old">      OBJECT *obj;</li>
+<li class="old">      for (obj = objs; obj &lt; endOfObjs; obj++)</li>
 <li class="old">      {</li>
-<li class="old">         return obj;</li>
+<li class="new"><span class="old">         if (isHolding(from, obj) &amp;&amp; </span>obj-&gt;prospect<span class="old"> == to)</span></li>
+<li class="old">         {</li>
+<li class="old">            return obj;</li>
+<li class="old">         }</li>
 <li class="old">      }</li>
 <li class="old">   }</li>
 <li class="old">   return NULL;</li>
@@ -651,13 +674,12 @@ a &lsquo;passage with a twist.&rsquo;
 <li class="old">{</li>
 <li class="old">   return to == NULL                               ? distUnknownObject :</li>
 <li class="old">          to == from                               ? distSelf :</li>
-<li class="old">          to-&gt;location == from                     ? distHeld :</li>
-<li class="old">          to == from-&gt;location                     ? distLocation :</li>
-<li class="old">          to-&gt;location == from-&gt;location           ? distHere :</li>
+<li class="old">          isHolding(from, to)                      ? distHeld :</li>
+<li class="old">          isHolding(to, from)                      ? distLocation :</li>
+<li class="old">          isHolding(from-&gt;location, to)            ? distHere :</li>
+<li class="old">          isHolding(from, to-&gt;location)            ? distHeldContained :</li>
+<li class="old">          isHolding(from-&gt;location, to-&gt;location)  ? distHereContained :</li>
 <li class="old">          getPassage(from-&gt;location, to) != NULL   ? distOverthere :</li>
-<li class="old">          to-&gt;location == NULL                     ? distNotHere :</li>
-<li class="old">          to-&gt;location-&gt;location == from           ? distHeldContained :</li>
-<li class="old">          to-&gt;location-&gt;location == from-&gt;location ? distHereContained :</li>
 <li class="old">                                                     distNotHere;</li>
 <li class="old">}</li>
 <li class="old"></li>
@@ -666,7 +688,8 @@ a &lsquo;passage with a twist.&rsquo;
 <li class="old">   OBJECT *obj;</li>
 <li class="old">   for (obj = objs; obj &lt; endOfObjs; obj++)</li>
 <li class="old">   {</li>
-<li class="new"><span class="old">      if (getDistance(player, obj) == distHere &amp;&amp; </span>obj-&gt;health &gt; 0)</li>
+<li class="new"><span class="old">      if (isHolding(player-&gt;location, obj) &amp;&amp; obj </span>!= player &amp;&amp;</li>
+<li class="new">          obj-&gt;health &gt; 0)</li>
 <li class="old">      {</li>
 <li class="old">         return obj;</li>
 <li class="old">      }</li>
@@ -680,7 +703,7 @@ a &lsquo;passage with a twist.&rsquo;
 <li class="old">   OBJECT *obj;</li>
 <li class="old">   for (obj = objs; obj &lt; endOfObjs; obj++)</li>
 <li class="old">   {</li>
-<li class="old">      if (obj != player &amp;&amp; obj-&gt;location == location)</li>
+<li class="old">      if (obj != player &amp;&amp; isHolding(location, obj))</li>
 <li class="old">      {</li>
 <li class="old">         if (count++ == 0)</li>
 <li class="old">         {</li>
@@ -690,17 +713,6 @@ a &lsquo;passage with a twist.&rsquo;
 <li class="old">      }</li>
 <li class="old">   }</li>
 <li class="old">   return count;</li>
-<li class="new">}</li>
-<li class="new"></li>
-<li class="new">int weightOfContents(OBJECT *container)</li>
-<li class="new">{</li>
-<li class="new">   int sum = 0;</li>
-<li class="new">   OBJECT *obj;</li>
-<li class="new">   for (obj = objs; obj &lt; endOfObjs; obj++)</li>
-<li class="new">   {</li>
-<li class="new">      if (obj-&gt;location == container) sum += obj-&gt;weight;</li>
-<li class="new">   }</li>
-<li class="new">   return sum;</li>
 <li class="old">}</li>
 </ol>
 </td>
@@ -717,17 +729,20 @@ with dashed lines for the &lsquo;apparent&rsquo; passages
 </tr><tr>
 <td>
 <ol>
-<li class="old">BEGIN               { print "digraph map {"; }</li>
-<li class="new"><span class="old">/^- /               { outputEdge(); location = destination = </span>prospect =<span class="old"> ""; }</span></li>
-<li class="old">$1 == "location"    { location = $2; }</li>
-<li class="old">$1 == "destination" { destination = $2; }</li>
-<li class="new">$1 == "prospect"    { prospect = $2; }</li>
-<li class="old">END                 { outputEdge(); print "}"; }</li>
+<li class="old">BEGIN     { print "digraph map {"; }</li>
+<li class="old">/^- /     { outputEdges(); delete a; }</li>
+<li class="old">/^[ \t]/  { a[$1] = $2; }</li>
+<li class="old">END       { outputEdges(); print "}"; }</li>
 <li class="old"></li>
-<li class="old">function outputEdge()</li>
+<li class="old">function outputEdges()</li>
 <li class="old">{</li>
-<li class="old">   if (location &amp;&amp; destination) print "\t" location " -&gt; " destination;</li>
-<li class="new"><span class="old">   </span>if (location &amp;&amp; prospect) print "\t" location " -&gt; " prospect " [style=dashed]";</li>
+<li class="new"><span class="old">   outputEdge(a["location"], </span>a["destination"], "");</li>
+<li class="new">   outputEdge(a["location"], a["prospect"], " [style=dashed]");</li>
+<li class="old">}</li>
+<li class="old"></li>
+<li class="new"><span class="old">function outputEdge(from, </span>to, style)</li>
+<li class="old">{</li>
+<li class="new"><span class="old">   if (from &amp;&amp; to) print "\t" from " -&gt; " </span>to style;</li>
 <li class="old">}</li>
 </ol>
 </td>

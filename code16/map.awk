@@ -1,13 +1,29 @@
-BEGIN               { print "digraph map {\n\tnode [style=filled, fillcolor=grey]"; }
-/^- field$/         { print "\t" $2 " [fillcolor=white]"; }
-/^- /               { outputEdge(); location = destination = prospect = ""; }
-$1 == "location"    { location = $2; }
-$1 == "destination" { destination = $2; }
-$1 == "prospect"    { prospect = $2; }
-END                 { outputEdge(); print "}"; }
+BEGIN     { print "digraph map {\n\tnode [style=filled]"; }
+/^- /     { outputEdges(); obj = $2; delete a; }
+/^[ \t]/  { a[$1] = $2; }
+END       { outputEdges(); outputNodes(); print "}"; }
 
-function outputEdge()
+function outputEdges()
 {
-   if (location && destination) print "\t" location " -> " destination;
-   if (location && prospect) print "\t" location " -> " prospect " [style=dashed]";
+   color[obj] = a["light"] ? "white" : "grey";
+   outputEdge(a["location"], a["destination"], "");
+   outputEdge(a["location"], a["prospect"], " [style=dashed]");
+}
+
+function outputEdge(from, to, style)
+{
+   if (to)
+   {
+      nodes[to] = 1;
+      if (from)
+      {
+         nodes[from] = 1;
+         print "\t" from " -> " to style;
+      }
+   }
+}
+
+function outputNodes()
+{
+   for (n in nodes) print "\t" n " [fillcolor=" color[n] "]";
 }

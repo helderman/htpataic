@@ -3,12 +3,15 @@
 
 OBJECT *getPassage(OBJECT *from, OBJECT *to)
 {
-   OBJECT *obj;
-   for (obj = objs; obj < endOfObjs; obj++)
+   if (from != NULL && to != NULL)
    {
-      if (obj->location == from && obj->destination == to)
+      OBJECT *obj;
+      for (obj = objs; obj < endOfObjs; obj++)
       {
-         return obj;
+         if (obj->location == from && obj->destination == to)
+         {
+            return obj;
+         }
       }
    }
    return NULL;

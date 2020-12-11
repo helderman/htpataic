@@ -7,10 +7,9 @@
 static OBJECT *findBestWeaponAround(OBJECT *actor, OBJECT *weapon)
 {
    OBJECT *obj;
-   forEachObject(obj)
+   for (obj = objs; obj < endOfObjs; obj++)
    {
-      if (getDistance(actor, obj) == distHere &&
-          obj->impact < weapon->impact)
+      if (isHolding(actor->location, obj) && obj->impact < weapon->impact)
       {
          weapon = obj;
       }
@@ -20,7 +19,7 @@ static OBJECT *findBestWeaponAround(OBJECT *actor, OBJECT *weapon)
 
 static void actorTakingTurn(OBJECT *actor)
 {
-   if (getDistance(actor, player) == distHere && actor->trust < 0)
+   if (isHolding(player->location, actor) && actor->trust < 0)
    {
       OBJECT *weapon = getOptimalWeapon(actor);
       OBJECT *best = findBestWeaponAround(actor, weapon);
@@ -42,16 +41,16 @@ bool turn(int time)
    if (time > 0)
    {
       OBJECT *obj;
-      forEachObject(obj)
+      for (obj = objs; obj < endOfObjs; obj++)
       {
-         if (obj->health > 0) actorTakingTurn(obj);
+         if (validObject(obj) && obj->health > 0) actorTakingTurn(obj);
       }
       if (player->health <= 0)
       {
          printf("You have died and gone to little heaven.\n");
          player->location = heaven;
          player->health = 100;
-         forEachObject(obj)
+         for (obj = objs; obj < endOfObjs; obj++)
          {
             if (obj->location == player) obj->location = field;
          }

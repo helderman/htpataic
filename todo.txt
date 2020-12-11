@@ -1,7 +1,17 @@
-- ch15: attribute 'light' instead of whitelist, so that we can deplete the lamp in ch20
-  - don't forget map.awk!
+- ch20: add diff of inventory.c , location.c , move.c
+- ch20: deplete the lamp!
+- ch20: make isHolding static; it's used in ch20 in turn.c and damage.c, but they are similar; move to misc.c
+  - hmm, misc.c is already 98 lines
+  - turn.c includes damage.h; put the common code in damage.c!
+
+- a chapter about multiplayer
+
+- ch19: noun.c is 109 lines
+
 - stdbool not included everywhere; is it even necessary?
 - ch17: do a serious performance test!
+  - ch10 already mentions ch17 to cover performance
+  - and mention loops --> getDistance --> overthere loop
 - noun.c getPossession: getting/asking from actor or from dead object
 - move.c reachableObject: eliminate 'default:'
 

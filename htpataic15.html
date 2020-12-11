@@ -62,6 +62,7 @@ Alright; so first of all, in darkness you cannot see your surroundings.
 </tr><tr>
 <td>
 <ol>
+<li class="old">#include &lt;stdbool.h&gt;</li>
 <li class="old">#include &lt;stdio.h&gt;</li>
 <li class="old">#include "object.h"</li>
 <li class="old">#include "misc.h"</li>
@@ -171,7 +172,7 @@ Secondly, in darkness you cannot see or use nearby objects.
 <li class="old">static OBJECT *getObject(const char *noun, OBJECT *from, DISTANCE maxDistance)</li>
 <li class="old">{</li>
 <li class="old">   OBJECT *obj, *res = NULL;</li>
-<li class="old">   forEachObject(obj)</li>
+<li class="old">   for (obj = objs; obj &lt; endOfObjs; obj++)</li>
 <li class="old">   {</li>
 <li class="old">      if (objectHasTag(obj, noun) &amp;&amp; getDistance(from, obj) &lt;= maxDistance)</li>
 <li class="old">      {</li>
@@ -267,12 +268,12 @@ It is defined (and used some more) in <i>misc.c</i>.
 <li class="old">   distUnknownObject</li>
 <li class="old">} DISTANCE;</li>
 <li class="old"></li>
+<li class="old">extern bool isHolding(OBJECT *container, OBJECT *obj);</li>
 <li class="new">extern bool isLit(OBJECT *location);</li>
 <li class="old">extern OBJECT *getPassage(OBJECT *from, OBJECT *to);</li>
 <li class="old">extern DISTANCE getDistance(OBJECT *from, OBJECT *to);</li>
 <li class="old">extern OBJECT *actorHere(void);</li>
 <li class="old">extern int listObjectsAtLocation(OBJECT *location);</li>
-<li class="old">extern int weightOfContents(OBJECT *container);</li>
 </ol>
 </td>
 </tr><tr>
@@ -280,29 +281,53 @@ It is defined (and used some more) in <i>misc.c</i>.
 </tr><tr>
 <td>
 <ol>
+<li class="old">#include &lt;stdbool.h&gt;</li>
 <li class="old">#include &lt;stdio.h&gt;</li>
 <li class="old">#include "object.h"</li>
 <li class="old">#include "misc.h"</li>
 <li class="old"></li>
-<li class="new">static OBJECT *getLocation(OBJECT *obj)</li>
+<li class="old">bool isHolding(OBJECT *container, OBJECT *obj)</li>
+<li class="old">{</li>
+<li class="old">   return validObject(obj) &amp;&amp; obj-&gt;location == container;</li>
+<li class="old">}</li>
+<li class="old"></li>
+<li class="new">bool isLit(OBJECT *target)</li>
 <li class="new">{</li>
-<li class="new">   while (obj-&gt;location != NULL) obj = obj-&gt;location;</li>
-<li class="new">   return obj;</li>
+<li class="new">   OBJECT *obj;</li>
+<li class="new">   if (validObject(target))</li>
+<li class="new">   {</li>
+<li class="new">      if (target-&gt;light &gt; 0)</li>
+<li class="new">      {</li>
+<li class="new">         return true;</li>
+<li class="new">      }</li>
+<li class="new">      for (obj = objs; obj &lt; endOfObjs; obj++)</li>
+<li class="new">      {</li>
+<li class="new">         if (validObject(obj) &amp;&amp; obj-&gt;light &gt; 0 &amp;&amp;</li>
+<li class="new">             (isHolding(target, obj) || isHolding(target, obj-&gt;location)))</li>
+<li class="new">         {</li>
+<li class="new">            return true;</li>
+<li class="new">         }</li>
+<li class="new">      }</li>
+<li class="new">   }</li>
+<li class="new">   return false;</li>
 <li class="new">}</li>
 <li class="new"></li>
-<li class="new">bool isLit(OBJECT *location)</li>
+<li class="new">static bool isIlluminated(OBJECT *obj)</li>
 <li class="new">{</li>
-<li class="new">   return location == field || location == getLocation(lampOn);</li>
+<li class="new">   return isLit(obj) || isLit(obj-&gt;prospect) || isLit(player-&gt;location);</li>
 <li class="new">}</li>
 <li class="old"></li>
 <li class="old">OBJECT *getPassage(OBJECT *from, OBJECT *to)</li>
 <li class="old">{</li>
-<li class="old">   OBJECT *obj;</li>
-<li class="old">   forEachObject(obj)</li>
+<li class="old">   if (from != NULL &amp;&amp; to != NULL)</li>
 <li class="old">   {</li>
-<li class="new"><span class="old">      if </span>(from != NULL &amp;&amp; obj-&gt;location<span class="old"> == from &amp;&amp; obj-&gt;prospect == to)</span></li>
+<li class="old">      OBJECT *obj;</li>
+<li class="old">      for (obj = objs; obj &lt; endOfObjs; obj++)</li>
 <li class="old">      {</li>
-<li class="old">         return obj;</li>
+<li class="old">         if (isHolding(from, obj) &amp;&amp; obj-&gt;prospect == to)</li>
+<li class="old">         {</li>
+<li class="old">            return obj;</li>
+<li class="old">         }</li>
 <li class="old">      }</li>
 <li class="old">   }</li>
 <li class="old">   return NULL;</li>
@@ -310,26 +335,26 @@ It is defined (and used some more) in <i>misc.c</i>.
 <li class="old"></li>
 <li class="old">DISTANCE getDistance(OBJECT *from, OBJECT *to)</li>
 <li class="old">{</li>
-<li class="old">   return !validObject(to)                         ? distUnknownObject :</li>
+<li class="old">   return to == NULL                               ? distUnknownObject :</li>
+<li class="old">          !validObject(to)                         ? distNotHere :</li>
 <li class="old">          to == from                               ? distSelf :</li>
-<li class="old">          to-&gt;location == from                     ? distHeld :</li>
-<li class="new"><span class="old">          </span>!isLit(from-&gt;location) &amp;&amp;</li>
-<li class="new">          !isLit(to) &amp;&amp; !isLit(to-&gt;prospect)       ? distNotHere :</li>
-<li class="old">          to == from-&gt;location                     ? distLocation :</li>
-<li class="old">          to-&gt;location == from-&gt;location           ? distHere :</li>
+<li class="old">          isHolding(from, to)                      ? distHeld :</li>
+<li class="new"><span class="old">          </span>!isIlluminated(to)                       ? distNotHere :</li>
+<li class="old">          isHolding(to, from)                      ? distLocation :</li>
+<li class="old">          isHolding(from-&gt;location, to)            ? distHere :</li>
+<li class="old">          isHolding(from, to-&gt;location)            ? distHeldContained :</li>
+<li class="old">          isHolding(from-&gt;location, to-&gt;location)  ? distHereContained :</li>
 <li class="old">          getPassage(from-&gt;location, to) != NULL   ? distOverthere :</li>
-<li class="old">          !validObject(to-&gt;location)               ? distNotHere :</li>
-<li class="old">          to-&gt;location-&gt;location == from           ? distHeldContained :</li>
-<li class="old">          to-&gt;location-&gt;location == from-&gt;location ? distHereContained :</li>
 <li class="old">                                                     distNotHere;</li>
 <li class="old">}</li>
 <li class="old"></li>
 <li class="old">OBJECT *actorHere(void)</li>
 <li class="old">{</li>
 <li class="old">   OBJECT *obj;</li>
-<li class="old">   forEachObject(obj)</li>
+<li class="old">   for (obj = objs; obj &lt; endOfObjs; obj++)</li>
 <li class="old">   {</li>
-<li class="old">      if (getDistance(player, obj) == distHere &amp;&amp; obj-&gt;health &gt; 0)</li>
+<li class="old">      if (isHolding(player-&gt;location, obj) &amp;&amp; obj != player &amp;&amp;</li>
+<li class="new"><span class="old">          </span>isIlluminated(obj) &amp;&amp;<span class="old"> obj-&gt;health &gt; 0)</span></li>
 <li class="old">      {</li>
 <li class="old">         return obj;</li>
 <li class="old">      }</li>
@@ -341,10 +366,9 @@ It is defined (and used some more) in <i>misc.c</i>.
 <li class="old">{</li>
 <li class="old">   int count = 0;</li>
 <li class="old">   OBJECT *obj;</li>
-<li class="old">   forEachObject(obj)</li>
+<li class="old">   for (obj = objs; obj &lt; endOfObjs; obj++)</li>
 <li class="old">   {</li>
-<li class="new"><span class="old">      if (obj != player &amp;&amp; obj-&gt;location == </span>location &amp;&amp;</li>
-<li class="new">          getDistance(player, obj) &lt; distNotHere)</li>
+<li class="new"><span class="old">      if (obj != player &amp;&amp; isHolding(location, </span>obj) &amp;&amp; isIlluminated(obj))</li>
 <li class="old">      {</li>
 <li class="old">         if (count++ == 0)</li>
 <li class="old">         {</li>
@@ -355,17 +379,6 @@ It is defined (and used some more) in <i>misc.c</i>.
 <li class="old">   }</li>
 <li class="old">   return count;</li>
 <li class="old">}</li>
-<li class="old"></li>
-<li class="old">int weightOfContents(OBJECT *container)</li>
-<li class="old">{</li>
-<li class="old">   int sum = 0;</li>
-<li class="old">   OBJECT *obj;</li>
-<li class="old">   forEachObject(obj)</li>
-<li class="old">   {</li>
-<li class="old">      if (obj-&gt;location == container) sum += obj-&gt;weight;</li>
-<li class="old">   }</li>
-<li class="old">   return sum;</li>
-<li class="old">}</li>
 </ol>
 </td>
 </tr></table>
@@ -374,17 +387,16 @@ It is defined (and used some more) in <i>misc.c</i>.
 Explanation:
 </p>
 <ul>
-<li>Line 13:
-we are using whitelists to identify
-the locations that are naturally lit (the field)
-and any objects that produce light (the lamp).
-In a big adventure with more locations
-(and maybe more lamps, torches, glowsticks),
-it would be wise to introduce an attribute for this;
-similar to how we replaced the whitelist of actors
-with a &lsquo;health&rsquo; attribute in chapter 10.
+<li>Line 11-30:
+<i>isLit</i> will be used to check if a given location is light or dark.
+Note: it is not enough to simply check attribute <i>light</i> of the location;
+the location could be lit by a lamp.
 </li>
-<li>Lines 35 and 65:
+<li>Line 32-35:
+<i>isIlluminated</i> takes it one step further;
+it works for every object, not just locations and lamps.
+</li>
+<li>Line 59:
 nearby objects that remain hidden in the dark,
 are being treated as &lsquo;not here&rsquo;.
 This naturally prevents the game from leaking information
@@ -417,6 +429,7 @@ We will add a lamp the player can carry to get through the dark locations.
 <li class="old">   int            weight;</li>
 <li class="old">   int            capacity;</li>
 <li class="old">   int            health;</li>
+<li class="new">   int            light;</li>
 <li class="old">   const char  *(*open)(void);</li>
 <li class="old">   const char  *(*close)(void);</li>
 <li class="old">   const char  *(*lock)(void);</li>
@@ -430,6 +443,7 @@ We will add a lamp the player can carry to get through the dark locations.
 <li class="old">     tags        "field"</li>
 <li class="old">     details     "The field is a nice and quiet place under a clear blue sky.\n"</li>
 <li class="old">     capacity    9999</li>
+<li class="new">     light       100</li>
 <li class="old"></li>
 <li class="old">- cave</li>
 <li class="old">     description "a little cave"</li>
@@ -614,6 +628,7 @@ We will add a lamp the player can carry to get through the dark locations.
 <li class="new">     tags        "lamp"</li>
 <li class="new">     details     "The lamp is on.\n"</li>
 <li class="new">     weight      5</li>
+<li class="new">     light       100</li>
 </ol>
 </td>
 </tr></table>
@@ -972,18 +987,34 @@ Finally, we will mark the dark locations in our generated map.
 </tr><tr>
 <td>
 <ol>
-<li class="new"><span class="old">BEGIN               { print "digraph map </span>{\n\tnode [style=filled, fillcolor=grey]"; }</li>
-<li class="new">/^- field$/         { print "\t" $2 " [fillcolor=white]";<span class="old"> }</span></li>
-<li class="old">/^- /               { outputEdge(); location = destination = prospect = ""; }</li>
-<li class="old">$1 == "location"    { location = $2; }</li>
-<li class="old">$1 == "destination" { destination = $2; }</li>
-<li class="old">$1 == "prospect"    { prospect = $2; }</li>
-<li class="old">END                 { outputEdge(); print "}"; }</li>
+<li class="new"><span class="old">BEGIN     { print "digraph map </span>{\n\tnode [style=filled]";<span class="old"> }</span></li>
+<li class="new"><span class="old">/^- /     { outputEdges(); </span>obj = $2;<span class="old"> delete a; }</span></li>
+<li class="old">/^[ \t]/  { a[$1] = $2; }</li>
+<li class="new"><span class="old">END       { outputEdges(); </span>outputNodes();<span class="old"> print "}"; }</span></li>
 <li class="old"></li>
-<li class="old">function outputEdge()</li>
+<li class="old">function outputEdges()</li>
 <li class="old">{</li>
-<li class="old">   if (location &amp;&amp; destination) print "\t" location " -&gt; " destination;</li>
-<li class="old">   if (location &amp;&amp; prospect) print "\t" location " -&gt; " prospect " [style=dashed]";</li>
+<li class="new"><span class="old">   </span>color[obj] = a["light"] ? "white" : "grey";</li>
+<li class="old">   outputEdge(a["location"], a["destination"], "");</li>
+<li class="old">   outputEdge(a["location"], a["prospect"], " [style=dashed]");</li>
+<li class="old">}</li>
+<li class="old"></li>
+<li class="old">function outputEdge(from, to, style)</li>
+<li class="old">{</li>
+<li class="new"><span class="old">   if </span>(to)</li>
+<li class="new">   {</li>
+<li class="new">      nodes[to] = 1;</li>
+<li class="new">      if (from)</li>
+<li class="new">      {</li>
+<li class="new">         nodes[from] = 1;</li>
+<li class="old">         print "\t" from " -&gt; " to style;</li>
+<li class="new"><span class="old">      </span>}</li>
+<li class="new">   }</li>
+<li class="new">}</li>
+<li class="new"></li>
+<li class="new">function outputNodes()</li>
+<li class="new">{</li>
+<li class="new">   for (n in nodes) print "\t" n " [fillcolor=" color[n] "]";</li>
 <li class="old">}</li>
 </ol>
 </td>

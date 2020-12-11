@@ -126,14 +126,14 @@ to determine whether a passage exists between two given locations.
 Explanation:
 </p>
 <ul>
-<li>Lines 7 and 9:
+<li>Lines 9 and 11:
 we scan through all objects until we encounter a passage running
 from location &lsquo;from&rsquo; to location &lsquo;to&rsquo;.
 </li>
-<li>Line 11:
+<li>Line 13:
 if a matching passage is found, we return a pointer to the passage object.
 </li>
-<li>Line 14:
+<li>Line 17:
 if no such passage exists, we return NULL.
 </li>
 </ul>

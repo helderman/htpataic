@@ -182,17 +182,7 @@ an anonymous function (anything starting with a curly brace)
 is replaced by a function with a generated name;
 the name is the attribute name (in this case <i>condition</i>)
 followed by a number (the object count).
-This technique is similar to the way we handle tags (lines 67 and 73).
-</li>
-<li>Line 55-56:
-so far, our program contains five
-<a href="http://en.wikipedia.org/wiki/For_loop">for loops</a>,
-each of which needs to be expanded with an embedded condition check.
-To avoid having to write (and maintain) the same code many times, I defined
-a macro that encapsulates the <i>for</i> statement and the condition check.
-It replaces the original <i>for</i> statement in a transparent way;
-there is no need for an additional pair of curly braces
-surrounding the loop&rsquo;s body, despite the additional <i>if</i> statement.
+This technique is similar to the way we handle tags (lines 65 and 71).
 </li>
 </ul>
 </div>
@@ -208,24 +198,14 @@ as explained earlier.
 </td>
 </tr></table>
 <p>
-To make the conditions work, we need to adjust function <i>getDistance</i>,
-plus every loop that scans through objects.
+To make the conditions work, we need to adjust functions
+<i>isHolding</i> and <i>getDistance</i>.
 </p>
 <table class="code"><tr>
 <th>misc.c</th>
 </tr><tr>
 <td>
 #diff misc.c
-</td>
-</tr></table>
-<p>
-There is one more object loop to be fixed, in <i>noun.c</i>:
-</p>
-<table class="code"><tr>
-<th>noun.c</th>
-</tr><tr>
-<td>
-#diff noun.c
 </td>
 </tr></table>
 <p>

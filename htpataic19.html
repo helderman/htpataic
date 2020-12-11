@@ -299,6 +299,7 @@ Bye!<br />
 <li class="old">   int            weight;</li>
 <li class="old">   int            capacity;</li>
 <li class="old">   int            health;</li>
+<li class="old">   int            light;</li>
 <li class="old">   const char  *(*open)(void);</li>
 <li class="old">   const char  *(*close)(void);</li>
 <li class="old">   const char  *(*lock)(void);</li>
@@ -317,6 +318,7 @@ Bye!<br />
 <li class="old">     details     "The field is a nice and quiet place under a clear blue sky.\n"</li>
 <li class="new">     gossip      "A lot of tourists go there."</li>
 <li class="old">     capacity    9999</li>
+<li class="old">     light       100</li>
 <li class="old"></li>
 <li class="old">- cave</li>
 <li class="old">     description "a little cave"</li>
@@ -511,6 +513,7 @@ Bye!<br />
 <li class="old">     tags        "lamp"</li>
 <li class="old">     details     "The lamp is on.\n"</li>
 <li class="old">     weight      5</li>
+<li class="old">     light       100</li>
 </ol>
 </td>
 </tr></table>
@@ -522,7 +525,7 @@ Explanation:
 <li>Line 15:
 the new property.
 </li>
-<li>Line 27-29:
+<li>Line 28-30:
 introducing a dummy object to prevent generic tags
 (in this case east, west, north, south) to be handled by a specific object
 (for example the forest).
@@ -750,7 +753,7 @@ The implementation of <i>getTopic</i>:
 <li class="old">static OBJECT *getObject(const char *noun, OBJECT *from, DISTANCE maxDistance)</li>
 <li class="old">{</li>
 <li class="old">   OBJECT *obj, *res = NULL;</li>
-<li class="old">   forEachObject(obj)</li>
+<li class="old">   for (obj = objs; obj &lt; endOfObjs; obj++)</li>
 <li class="old">   {</li>
 <li class="old">      if (objectHasTag(obj, noun) &amp;&amp; getDistance(from, obj) &lt;= maxDistance)</li>
 <li class="old">      {</li>
@@ -826,7 +829,7 @@ The implementation of <i>getTopic</i>:
 <li class="new">OBJECT *getTopic(const char *noun)</li>
 <li class="new">{</li>
 <li class="new">   OBJECT *obj;</li>
-<li class="new">   forEachObject(obj)</li>
+<li class="new">   for (obj = objs; obj &lt; endOfObjs; obj++)</li>
 <li class="new">   {</li>
 <li class="new">      if (objectHasTag(obj, noun)) return obj;</li>
 <li class="new">   }</li>
@@ -848,6 +851,11 @@ It will return whatever object it can find with the given tag.
 </li>
 </ul>
 </div>
+<p>
+And if you cannot talk your way out of a difficult situation,
+then there is always the option to use physical force.
+More on that in the following chapter.
+</p>
 <hr />
 <table class="download"><tr><td>
 <a class="button" href="code19/src.zip">&#x2B73; &nbsp; Download source code</a>

@@ -1,15 +1,24 @@
+#include <stdbool.h>
 #include <stdio.h>
 #include "object.h"
 #include "misc.h"
 
+bool isHolding(OBJECT *container, OBJECT *obj)
+{
+   return obj != NULL && obj->location == container;
+}
+
 OBJECT *getPassage(OBJECT *from, OBJECT *to)
 {
-   OBJECT *obj;
-   for (obj = objs; obj < endOfObjs; obj++)
+   if (from != NULL && to != NULL)
    {
-      if (obj->location == from && obj->prospect == to)
+      OBJECT *obj;
+      for (obj = objs; obj < endOfObjs; obj++)
       {
-         return obj;
+         if (isHolding(from, obj) && obj->prospect == to)
+         {
+            return obj;
+         }
       }
    }
    return NULL;
@@ -19,13 +28,12 @@ DISTANCE getDistance(OBJECT *from, OBJECT *to)
 {
    return to == NULL                               ? distUnknownObject :
           to == from                               ? distSelf :
-          to->location == from                     ? distHeld :
-          to == from->location                     ? distLocation :
-          to->location == from->location           ? distHere :
+          isHolding(from, to)                      ? distHeld :
+          isHolding(to, from)                      ? distLocation :
+          isHolding(from->location, to)            ? distHere :
+          isHolding(from, to->location)            ? distHeldContained :
+          isHolding(from->location, to->location)  ? distHereContained :
           getPassage(from->location, to) != NULL   ? distOverthere :
-          to->location == NULL                     ? distNotHere :
-          to->location->location == from           ? distHeldContained :
-          to->location->location == from->location ? distHereContained :
                                                      distNotHere;
 }
 
@@ -34,7 +42,8 @@ OBJECT *actorHere(void)
    OBJECT *obj;
    for (obj = objs; obj < endOfObjs; obj++)
    {
-      if (getDistance(player, obj) == distHere && obj->health > 0)
+      if (isHolding(player->location, obj) && obj != player &&
+          obj->health > 0)
       {
          return obj;
       }
@@ -48,7 +57,7 @@ int listObjectsAtLocation(OBJECT *location)
    OBJECT *obj;
    for (obj = objs; obj < endOfObjs; obj++)
    {
-      if (obj != player && obj->location == location)
+      if (obj != player && isHolding(location, obj))
       {
          if (count++ == 0)
          {
@@ -58,15 +67,4 @@ int listObjectsAtLocation(OBJECT *location)
       }
    }
    return count;
-}
-
-int weightOfContents(OBJECT *container)
-{
-   int sum = 0;
-   OBJECT *obj;
-   for (obj = objs; obj < endOfObjs; obj++)
-   {
-      if (obj->location == container) sum += obj->weight;
-   }
-   return sum;
 }

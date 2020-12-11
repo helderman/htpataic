@@ -216,12 +216,15 @@ to determine whether a passage exists between two given locations.
 <li class="old"></li>
 <li class="new">OBJECT *getPassage(OBJECT *from, OBJECT *to)</li>
 <li class="new">{</li>
-<li class="new">   OBJECT *obj;</li>
-<li class="new">   for (obj = objs; obj &lt; endOfObjs; obj++)</li>
+<li class="new">   if (from != NULL &amp;&amp; to != NULL)</li>
 <li class="new">   {</li>
-<li class="new">      if (obj-&gt;location == from &amp;&amp; obj-&gt;destination == to)</li>
+<li class="new">      OBJECT *obj;</li>
+<li class="new">      for (obj = objs; obj &lt; endOfObjs; obj++)</li>
 <li class="new">      {</li>
-<li class="new">         return obj;</li>
+<li class="new">         if (obj-&gt;location == from &amp;&amp; obj-&gt;destination == to)</li>
+<li class="new">         {</li>
+<li class="new">            return obj;</li>
+<li class="new">         }</li>
 <li class="new">      }</li>
 <li class="new">   }</li>
 <li class="new">   return NULL;</li>
@@ -265,14 +268,14 @@ to determine whether a passage exists between two given locations.
 Explanation:
 </p>
 <ul>
-<li>Lines 7 and 9:
+<li>Lines 9 and 11:
 we scan through all objects until we encounter a passage running
 from location &lsquo;from&rsquo; to location &lsquo;to&rsquo;.
 </li>
-<li>Line 11:
+<li>Line 13:
 if a matching passage is found, we return a pointer to the passage object.
 </li>
-<li>Line 14:
+<li>Line 17:
 if no such passage exists, we return NULL.
 </li>
 </ul>

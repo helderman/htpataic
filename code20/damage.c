@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include "object.h"
+#include "misc.h"
 
 static void describeAttack(OBJECT *attacker, OBJECT *victim,
                            const char *weaponDescription)
@@ -87,9 +88,9 @@ void dealDamage(OBJECT *attacker, OBJECT *weapon, OBJECT *victim)
 OBJECT *getOptimalWeapon(OBJECT *attacker)
 {
    OBJECT *obj, *weapon = attacker;
-   forEachObject(obj)
+   for (obj = objs; obj < endOfObjs; obj++)
    {
-      if (obj->location == attacker && obj->impact < weapon->impact)
+      if (isHolding(attacker, obj) && obj->impact < weapon->impact)
       {
          weapon = obj;
       }

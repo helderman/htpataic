@@ -230,7 +230,7 @@ Explanation:
 <li>Line 15:
 the new property.
 </li>
-<li>Line 27-29:
+<li>Line 28-30:
 introducing a dummy object to prevent generic tags
 (in this case east, west, north, south) to be handled by a specific object
 (for example the forest).
@@ -312,6 +312,11 @@ It will return whatever object it can find with the given tag.
 </li>
 </ul>
 </div>
+<p>
+And if you cannot talk your way out of a difficult situation,
+then there is always the option to use physical force.
+More on that in the following chapter.
+</p>
 <hr />
 <table class="download"><tr><td>
 #zip

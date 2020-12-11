@@ -430,7 +430,7 @@ But as you can see below, that too can be done in less than 100 lines of code.
 <li class="new">{</li>
 <li class="new">   const char *restOfSrc = loose ? src + strlen(src) : NULL;</li>
 <li class="new">   OBJECT *obj;</li>
-<li class="new">   forEachObject(obj)</li>
+<li class="new">   for (obj = objs; obj &lt; endOfObjs; obj++)</li>
 <li class="new">   {</li>
 <li class="new">      const char **tag;</li>
 <li class="new">      for (tag = obj-&gt;tags; *tag != NULL; tag++)</li>
@@ -603,6 +603,7 @@ Bye!<br />
 </tr><tr>
 <td>
 <ol>
+<li class="old">#include &lt;stdbool.h&gt;</li>
 <li class="old">#include &lt;stdio.h&gt;</li>
 <li class="old">#include "object.h"</li>
 <li class="old">#include "misc.h"</li>
@@ -743,6 +744,7 @@ separate from the <i>look</i> command to inspect specific objects
 </tr><tr>
 <td>
 <ol>
+<li class="old">#include &lt;stdbool.h&gt;</li>
 <li class="old">#include &lt;stdio.h&gt;</li>
 <li class="old">#include "object.h"</li>
 <li class="old">#include "misc.h"</li>

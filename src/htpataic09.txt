@@ -214,14 +214,38 @@ a map of your virtual world by
 #diff map.awk
 </td>
 </tr></table>
+<div class="explanation">
+<p>
+Explanation:
+</p>
+<ul>
+<li>Line 2:
+at the start of every object in <i>object.txt</i>,
+first finish the output for the previous object (<i>outputEdges</i>),
+then make a fresh start by clearing the collection of attributes
+(array <i>a</i>).
+The delete statement may not work on older
+<a href="https://en.wikipedia.org/wiki/AWK">AWK</a>
+implementations.
+A more portable (but less readable) alternative is:
+<code>split("", a);</code>
+</li>
+<li>Line 3:
+every attribute in <i>object.txt</i> is added to array <i>a</i>.
+The key of the array element is the attribute name (e.g. <i>location</i>).
+</li>
+<li>Line 4:
+at the end of <i>object.txt</i>, we finish the output for the final object.
+</li>
+</ul>
+</div>
 <p>
 Execute this script with the commands below,
 and <i>object.txt</i> will be converted into <i>map.png</i>;
 the picture you see on the right.
 Please note that this picture is not part of the game;
-it is not something the player will (should) ever see.
-It is merely a developer&rsquo;s tool,
-making it easier to spot mistakes in <i>object.txt</i>.
+it is a spoiler and should not be revealed to the player.
+It&lsquo;s here to help the developer spot mistakes in <i>object.txt</i>.
 </p>
 <table><tr>
 <td class="snippet">awk -f map.awk object.txt &gt; map.gv

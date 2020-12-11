@@ -37,7 +37,7 @@ static const char *matchParam(const char *src, const char **par, bool loose)
 {
    const char *restOfSrc = loose ? src + strlen(src) : NULL;
    OBJECT *obj;
-   forEachObject(obj)
+   for (obj = objs; obj < endOfObjs; obj++)
    {
       const char **tag;
       for (tag = obj->tags; *tag != NULL; tag++)

@@ -16,6 +16,7 @@ typedef struct object {
    int            weight;
    int            capacity;
    int            health;
+   int            light;
    const char  *(*open)(void);
    const char  *(*close)(void);
    const char  *(*lock)(void);
@@ -34,6 +35,7 @@ extern OBJECT objs[];
      details     "The field is a nice and quiet place under a clear blue sky.\n"
      gossip      "A lot of tourists go there."
      capacity    9999
+     light       100
 
 - cave
      description "a little cave"
@@ -228,3 +230,4 @@ extern OBJECT objs[];
      tags        "lamp"
      details     "The lamp is on.\n"
      weight      5
+     light       100

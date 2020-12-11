@@ -1,6 +1,18 @@
+#include <stdbool.h>
 #include <stdio.h>
 #include "object.h"
 #include "misc.h"
+
+static int weightOfContents(OBJECT *container)
+{
+   int sum = 0;
+   OBJECT *obj;
+   for (obj = objs; obj < endOfObjs; obj++)
+   {
+      if (isHolding(container, obj)) sum += obj->weight;
+   }
+   return sum;
+}
 
 void moveObject(OBJECT *obj, OBJECT *to)
 {

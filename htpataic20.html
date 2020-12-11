@@ -376,10 +376,9 @@ Other examples are forces of nature: a storm, a flood, a volcanic eruption.
 <li class="new">static OBJECT *findBestWeaponAround(OBJECT *actor, OBJECT *weapon)</li>
 <li class="new">{</li>
 <li class="new">   OBJECT *obj;</li>
-<li class="new">   forEachObject(obj)</li>
+<li class="new">   for (obj = objs; obj &lt; endOfObjs; obj++)</li>
 <li class="new">   {</li>
-<li class="new">      if (getDistance(actor, obj) == distHere &amp;&amp;</li>
-<li class="new">          obj-&gt;impact &lt; weapon-&gt;impact)</li>
+<li class="new">      if (isHolding(actor-&gt;location, obj) &amp;&amp; obj-&gt;impact &lt; weapon-&gt;impact)</li>
 <li class="new">      {</li>
 <li class="new">         weapon = obj;</li>
 <li class="new">      }</li>
@@ -389,7 +388,7 @@ Other examples are forces of nature: a storm, a flood, a volcanic eruption.
 <li class="new"></li>
 <li class="new">static void actorTakingTurn(OBJECT *actor)</li>
 <li class="new">{</li>
-<li class="new">   if (getDistance(actor, player) == distHere &amp;&amp; actor-&gt;trust &lt; 0)</li>
+<li class="new">   if (isHolding(player-&gt;location, actor) &amp;&amp; actor-&gt;trust &lt; 0)</li>
 <li class="new">   {</li>
 <li class="new">      OBJECT *weapon = getOptimalWeapon(actor);</li>
 <li class="new">      OBJECT *best = findBestWeaponAround(actor, weapon);</li>
@@ -411,16 +410,16 @@ Other examples are forces of nature: a storm, a flood, a volcanic eruption.
 <li class="new">   if (time &gt; 0)</li>
 <li class="new">   {</li>
 <li class="new">      OBJECT *obj;</li>
-<li class="new">      forEachObject(obj)</li>
+<li class="new">      for (obj = objs; obj &lt; endOfObjs; obj++)</li>
 <li class="new">      {</li>
-<li class="new">         if (obj-&gt;health &gt; 0) actorTakingTurn(obj);</li>
+<li class="new">         if (validObject(obj) &amp;&amp; obj-&gt;health &gt; 0) actorTakingTurn(obj);</li>
 <li class="new">      }</li>
 <li class="new">      if (player-&gt;health &lt;= 0)</li>
 <li class="new">      {</li>
 <li class="new">         printf("You have died and gone to little heaven.\n");</li>
 <li class="new">         player-&gt;location = heaven;</li>
 <li class="new">         player-&gt;health = 100;</li>
-<li class="new">         forEachObject(obj)</li>
+<li class="new">         for (obj = objs; obj &lt; endOfObjs; obj++)</li>
 <li class="new">         {</li>
 <li class="new">            if (obj-&gt;location == player) obj-&gt;location = field;</li>
 <li class="new">         }</li>
@@ -436,7 +435,7 @@ Other examples are forces of nature: a storm, a flood, a volcanic eruption.
 Explanation:
 </p>
 <ul>
-<li>Line 7-19:
+<li>Line 7-20:
 this function gives non-player characters a little bit of
 <a href="https://en.wikipedia.org/wiki/Artificial_intelligence">artificial intelligence</a>.
 An NPC will pick up a more powerful weapon, if any, before attacking.
@@ -445,31 +444,31 @@ in situations where a swift attack would be beneficial.
 To make the NPC more intelligent, improve the function
 by making a more complex decision tree involving more attributes.
 </li>
-<li>Line 23:
+<li>Line 22:
 non-player characters will only be aggressive
 when their &lsquo;trust&rsquo; towards the player is negative.
 This is a new attribute that is introduced below.
 </li>
-<li>Line 25:
+<li>Line 24:
 start off taking the most powerful weapon the NPC is carrying.
 </li>
-<li>Line 26:
+<li>Line 25:
 try to find an even more powerful weapon in NPC&rsquo;s surroundings.
 </li>
-<li>Line 27:
+<li>Line 26:
 if <i>findBestWeaponAround</i> is unable to find a better weapon,
 then it will simply return the original weapon
 (the one passed in as a parameter).
 </li>
-<li>Line 29:
+<li>Line 28:
 the NPC is attacking.
 </li>
-<li>Line 33:
+<li>Line 32:
 the NPC picks up the new weapon.
 This ends NPC&rsquo;s turn;
 NPC will have to wait until the next turn to attack.
 </li>
-<li>Line 40, 42, 60:
+<li>Line 39, 41, 59:
 time, passed in as a parameter, is typically 1 in this game,
 meaning a single unit of time has passed.
 There are two special values: 0 and -1.
@@ -478,10 +477,10 @@ Zero means the player did not take a turn
 so we let the surrounding world skip its turn too.
 A negative number (-1) means the user wants to quit the program.
 </li>
-<li>Line 49:
+<li>Line 48:
 when player&rsquo;s health hits zero, player dies.
 </li>
-<li>Line 51-53:
+<li>Line 50-52:
 As explained in chapter 2, I like to give the player another chance.
 Health is restored, and the player is moved to a &lsquo;respawn point&rsquo;.
 I made a dedicated location for that, named &lsquo;little heaven&rsquo;.
@@ -490,14 +489,14 @@ I gave heaven a portal that will transport the player back to the field.
 This portal is just a straightforward &lsquo;passage&rsquo; (see chapter 6).
 You can find heaven and portal in <i>object.txt</i>.
 </li>
-<li>Line 54-57:
+<li>Line 53-56:
 Contrary to what the ancient pharaos believed,
 you are going to heaven empty-handed.
 Here, all your possessions are being moved to the field.
 This makes it very easy for the player to reclaim them
 after going through the portal.
 Of course, we could also move each object back to its original location
-(you may want to add an attribute <i>originalLocation</i> to <i>OBJECT</i>),
+(you may want to add an attribute <i>home</i> to <i>OBJECT</i>),
 or make it even more challenging by moving them to random locations.
 Do be careful with objects that are required to make progress through the game;
 moving a key to a location behind the door it unlocks,
@@ -530,6 +529,7 @@ by the end of this chapter.
 <li class="new">#include &lt;stdlib.h&gt;</li>
 <li class="new">#include &lt;stdio.h&gt;</li>
 <li class="new">#include "object.h"</li>
+<li class="new">#include "misc.h"</li>
 <li class="new"></li>
 <li class="new">static void describeAttack(OBJECT *attacker, OBJECT *victim,</li>
 <li class="new">                           const char *weaponDescription)</li>
@@ -616,9 +616,9 @@ by the end of this chapter.
 <li class="new">OBJECT *getOptimalWeapon(OBJECT *attacker)</li>
 <li class="new">{</li>
 <li class="new">   OBJECT *obj, *weapon = attacker;</li>
-<li class="new">   forEachObject(obj)</li>
+<li class="new">   for (obj = objs; obj &lt; endOfObjs; obj++)</li>
 <li class="new">   {</li>
-<li class="new">      if (obj-&gt;location == attacker &amp;&amp; obj-&gt;impact &lt; weapon-&gt;impact)</li>
+<li class="new">      if (isHolding(attacker, obj) &amp;&amp; obj-&gt;impact &lt; weapon-&gt;impact)</li>
 <li class="new">      {</li>
 <li class="new">         weapon = obj;</li>
 <li class="new">      }</li>
@@ -633,51 +633,51 @@ by the end of this chapter.
 Explanation:
 </p>
 <ul>
-<li>Line 5-22:
+<li>Line 6-23:
 a helper function that generates descriptive text
 about attacks taking place during combat.
-This covers player attacking NPC (line 10),
-NPC attacking player (lines 14-15)
-and even NPC attacking NPC (lines 19-20).
+This covers player attacking NPC (line 11),
+NPC attacking player (lines 15-16)
+and even NPC attacking NPC (lines 20-21).
 The latter could be useful in a game
 where the player can team up with friendly NPCs.
 </li>
-<li>Line 24-39:
+<li>Line 25-40:
 another helper function, this time to give descriptive text
 about a character dying in combat.
 As in the previous function,
 attacker and victim can be NPC as well as player.
 </li>
-<li>Line 41-52:
+<li>Line 42-53:
 one more helper function,
 which could be useful in a fight involving three or more characters,
 where a single character might suffer multiple blows within a single turn.
 </li>
-<li>Line 58:
+<li>Line 59:
 this is the &lsquo;damage formula&rsquo;.
 By convention, I will let &lsquo;damage&rsquo; be a negative number,
 reserving positive numbers for actions
 that have a positive effect on a character&rsquo;s health
 (e.g. drinking a healing potion).
 </li>
-<li>Line 59:
+<li>Line 60:
 damage has a 1 to 6 chance of being zero;
 even more so if attacker and weapon are too weak.
 If damage is zero, then execution will continue on line 80,
 where we will explain the attack had no effect.
 </li>
-<li>Line 74:
+<li>Line 77:
 attacking an NPC has a (negative) effect not only on health,
 but also on the NPC&rsquo;s trust towards the player.
 This will have its effect on the NPC&rsquo;s behavior towards the player.
 We already saw an example of this in <i>turn.c</i>.
 </li>
-<li>Line 80:
+<li>Line 81:
 we should respond to every command from the player,
 but it is not necessary to apologize
 for every missed opportunity by a NPC to deal damage.
 </li>
-<li>Line 92:
+<li>Line 93:
 you may already have noticed the weapon&rsquo;s &lsquo;impact&rsquo;
 (another new attribute)
 as part of the damage formula (line 58).
@@ -821,7 +821,7 @@ we are introducing a new command &lsquo;attack&rsquo;, with two arguments:
 A represents the victim, B the weapon.
 Both are optional; below we will see how this is handled.
 Of course, you can register as many synonyms as you like:
-<i>hit</i>, <i>kill</i>, <i>slay</i>...
+<i>hit</i>, <i>kill</i>, <i>stab</i>, <i>slay</i>...
 </li>
 </ul>
 </div>
@@ -930,6 +930,7 @@ the weapons and the respawn location.
 <li class="old">   int            weight;</li>
 <li class="old">   int            capacity;</li>
 <li class="old">   int            health;</li>
+<li class="old">   int            light;</li>
 <li class="new">   int            impact;</li>
 <li class="new">   int            trust;</li>
 <li class="old">   const char  *(*open)(void);</li>
@@ -950,6 +951,7 @@ the weapons and the respawn location.
 <li class="old">     details     "The field is a nice and quiet place under a clear blue sky.\n"</li>
 <li class="old">     gossip      "A lot of tourists go there."</li>
 <li class="old">     capacity    9999</li>
+<li class="old">     light       100</li>
 <li class="old"></li>
 <li class="old">- cave</li>
 <li class="old">     description "a little cave"</li>
@@ -1146,6 +1148,7 @@ the weapons and the respawn location.
 <li class="old">     tags        "lamp"</li>
 <li class="old">     details     "The lamp is on.\n"</li>
 <li class="old">     weight      5</li>
+<li class="old">     light       100</li>
 <li class="new"></li>
 <li class="new">- club</li>
 <li class="new">     description "a wooden club"</li>
@@ -1169,6 +1172,7 @@ the weapons and the respawn location.
 <li class="new">     details     "Everything looks so peaceful here.\n"</li>
 <li class="new">     gossip      "It's where all the good adventurers go."</li>
 <li class="new">     capacity    9999</li>
+<li class="new">     light       100</li>
 <li class="new"></li>
 <li class="new">- respawn</li>
 <li class="new">     description "a respawn portal"</li>
@@ -1186,18 +1190,18 @@ the weapons and the respawn location.
 Explanation:
 </p>
 <ul>
-<li>Line 19-20:
+<li>Line 20-21:
 the new attributes &lsquo;impact&rsquo; and &lsquo;trust&rsquo;.
 </li>
-<li>Lines 71, 82:
+<li>Lines 73, 84:
 most actors can fight without a weapon.
 It basically means the actor <i>is</i> the weapon.
 Here we specify the effect of each actor fighting with bare hands.
 </li>
-<li>Line 236-250:
+<li>Line 239-253:
 a number of weapons.
 </li>
-<li>Line 252-265:
+<li>Line 255-270:
 &lsquo;little heaven&rsquo; and its portal leading back to earth.
 </li>
 </ul>
@@ -1239,6 +1243,7 @@ The new attributes demand a change in <i>object.awk</i> as well.
 <li class="old">   prop["weight"]      = "99";</li>
 <li class="old">   prop["capacity"]    = "0";</li>
 <li class="old">   prop["health"]      = "0";</li>
+<li class="old">   prop["light"]       = "0";</li>
 <li class="new">   prop["impact"]      = "0";</li>
 <li class="new">   prop["trust"]       = "0";</li>
 <li class="old">   prop["open"]        = "cannotBeOpened";</li>
@@ -1272,8 +1277,6 @@ The new attributes demand a change in <i>object.awk</i> as well.
 <li class="old">      print "\n#define endOfObjs\t(objs + " count ")";</li>
 <li class="old">      print "\n#define validObject(obj)\t" \</li>
 <li class="old">            "((obj) != NULL &amp;&amp; (*(obj)-&gt;condition)())";</li>
-<li class="old">      print "\n#define forEachObject(obj)\t" \</li>
-<li class="old">            "for (obj = objs; obj &lt; endOfObjs; obj++) if (validObject(obj))";</li>
 <li class="old">   }</li>
 <li class="old">}</li>
 <li class="old"></li>
@@ -1301,6 +1304,7 @@ The new attributes demand a change in <i>object.awk</i> as well.
 <li class="old">         print "\t\t" prop["weight"] ",";</li>
 <li class="old">         print "\t\t" prop["capacity"] ",";</li>
 <li class="old">         print "\t\t" prop["health"] ",";</li>
+<li class="old">         print "\t\t" prop["light"] ",";</li>
 <li class="new">         print "\t\t" prop["impact"] ",";</li>
 <li class="new">         print "\t\t" prop["trust"] ",";</li>
 <li class="old">         print "\t\t" prop["open"] ",";</li>
@@ -1321,7 +1325,7 @@ The new attributes demand a change in <i>object.awk</i> as well.
 Explanation:
 </p>
 <ul>
-<li>Line 29-30:
+<li>Line 30-31:
 both attributes have a default value of zero.
 </li>
 </ul>

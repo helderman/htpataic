@@ -22,7 +22,7 @@ static OBJECT ambiguousNoun;
 static OBJECT *getObject(const char *noun, OBJECT *from, DISTANCE maxDistance)
 {
    OBJECT *obj, *res = NULL;
-   forEachObject(obj)
+   for (obj = objs; obj < endOfObjs; obj++)
    {
       if (objectHasTag(obj, noun) && getDistance(from, obj) <= maxDistance)
       {
@@ -98,7 +98,7 @@ OBJECT *getPossession(OBJECT *from, const char *verb, const char *noun)
 OBJECT *getTopic(const char *noun)
 {
    OBJECT *obj;
-   forEachObject(obj)
+   for (obj = objs; obj < endOfObjs; obj++)
    {
       if (objectHasTag(obj, noun)) return obj;
    }

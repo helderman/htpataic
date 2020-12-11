@@ -259,9 +259,9 @@ since we will be using them in more than one module.
 Explanation:
 </p>
 <ul>
-<li>Line 37:
-here is our first opportunity to use the new function <i>getDistance</i>.
-More will follow below!
+<li>Line 6-9:
+a little helper function <i>isHolding</i>
+which we will be using in various places.
 </li>
 </ul>
 </div>
@@ -285,7 +285,7 @@ we can replace most of the <i>if</i> conditions by a check on distance.
 <th>location.c</th>
 </tr><tr>
 <td>
-#diff location.c
+#ldiff location.c
 </td>
 </tr></table>
 <p>

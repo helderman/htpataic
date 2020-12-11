@@ -13,6 +13,7 @@ typedef struct object {
    int            weight;
    int            capacity;
    int            health;
+   int            light;
    const char  *(*open)(void);
    const char  *(*close)(void);
    const char  *(*lock)(void);
@@ -48,5 +49,3 @@ extern OBJECT objs[];
 #define endOfObjs	(objs + 23)
 
 #define validObject(obj)	((obj) != NULL && (*(obj)->condition)())
-
-#define forEachObject(obj)	for (obj = objs; obj < endOfObjs; obj++) if (validObject(obj))

@@ -56,8 +56,6 @@ END {
       print "\n#define endOfObjs\t(objs + " count ")";
       print "\n#define validObject(obj)\t" \
             "((obj) != NULL && (*(obj)->condition)())";
-      print "\n#define forEachObject(obj)\t" \
-            "for (obj = objs; obj < endOfObjs; obj++) if (validObject(obj))";
    }
 }
 

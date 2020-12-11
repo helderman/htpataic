@@ -1,10 +1,14 @@
-BEGIN               { print "digraph map {"; }
-/^- /               { outputEdge(); location = destination = ""; }
-$1 == "location"    { location = $2; }
-$1 == "destination" { destination = $2; }
-END                 { outputEdge(); print "}"; }
+BEGIN     { print "digraph map {"; }
+/^- /     { outputEdges(); delete a; }
+/^[ \t]/  { a[$1] = $2; }
+END       { outputEdges(); print "}"; }
 
-function outputEdge()
+function outputEdges()
 {
-   if (location && destination) print "\t" location " -> " destination;
+   outputEdge(a["location"], a["destination"]);
+}
+
+function outputEdge(from, to)
+{
+   if (from && to) print "\t" from " -> " to;
 }
