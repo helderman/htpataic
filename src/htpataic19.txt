@@ -259,7 +259,7 @@ As explained in chapter 14, the order of the patterns is important.
 </ul>
 </div>
 <p>
-The implementation of the command:
+As many times before, we introduce a new module to implement the new command:
 </p>
 <table class="code"><tr>
 <th>talk.h</th>
@@ -274,17 +274,8 @@ The implementation of the command:
 #diff talk.c
 </td>
 </tr></table>
-<div class="explanation">
 <p>
-Explanation:
-</p>
-<ul>
-<li>Line TODO:
-</li>
-</ul>
-</div>
-<p>
-The implementation of <i>getTopic</i>:
+Function <i>getTopic</i> is implemented in one of the existing modules:
 </p>
 <table class="code"><tr>
 <th>noun.h</th>

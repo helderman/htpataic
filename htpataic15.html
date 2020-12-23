@@ -405,7 +405,118 @@ about objects the player is not supposed to be aware of.
 </ul>
 </div>
 <p>
-We will add a lamp the player can carry to get through the dark locations.
+The implementation of <i>isLit</i> uses a new attribute <i>light</i>.
+</p>
+<table class="code"><tr>
+<th>object.awk</th>
+</tr><tr>
+<td>
+<ol>
+<li class="old">BEGIN {</li>
+<li class="old">   count = 0;</li>
+<li class="old">   obj = "";</li>
+<li class="old">   if (pass == "h") {</li>
+<li class="old">      print "#include &lt;stdbool.h&gt;";</li>
+<li class="old">   }</li>
+<li class="old">   if (pass == "c2") {</li>
+<li class="old">      print "\nstatic bool alwaysTrue(void) { return true; }";</li>
+<li class="old">      print "\nOBJECT objs[] = {";</li>
+<li class="old">   }</li>
+<li class="old">}</li>
+<li class="old"></li>
+<li class="old">/^- / {</li>
+<li class="old">   outputRecord(",");</li>
+<li class="old">   obj = $2;</li>
+<li class="old">   prop["condition"]   = "alwaysTrue";</li>
+<li class="old">   prop["description"] = "NULL";</li>
+<li class="old">   prop["tags"]        = "";</li>
+<li class="old">   prop["location"]    = "NULL";</li>
+<li class="old">   prop["destination"] = "NULL";</li>
+<li class="old">   prop["prospect"]    = "";</li>
+<li class="old">   prop["details"]     = "\"You see nothing special.\\n\"";</li>
+<li class="old">   prop["contents"]    = "\"You see\"";</li>
+<li class="old">   prop["textGo"]      = "\"You can't get much closer than this.\\n\"";</li>
+<li class="old">   prop["weight"]      = "99";</li>
+<li class="old">   prop["capacity"]    = "0";</li>
+<li class="old">   prop["health"]      = "0";</li>
+<li class="new">   prop["light"]       = "0";</li>
+<li class="old">   prop["open"]        = "cannotBeOpened";</li>
+<li class="old">   prop["close"]       = "cannotBeClosed";</li>
+<li class="old">   prop["lock"]        = "cannotBeLocked";</li>
+<li class="old">   prop["unlock"]      = "cannotBeUnlocked";</li>
+<li class="old">}</li>
+<li class="old"></li>
+<li class="old">obj &amp;&amp; /^[ \t]+[a-z]/ {</li>
+<li class="old">   name = $1;</li>
+<li class="old">   $1 = "";</li>
+<li class="old">   if (name in prop) {</li>
+<li class="old">      prop[name] = $0;</li>
+<li class="old">      if (/^[ \t]*\{/) {</li>
+<li class="old">         prop[name] = name count;</li>
+<li class="old">         if (pass == "c1") print "static bool " prop[name] "(void) " $0;</li>
+<li class="old">      }</li>
+<li class="old">   }</li>
+<li class="old">   else if (pass == "c2") {</li>
+<li class="old">      print "#error \"" FILENAME " line " NR ": unknown attribute '" name "'\"";</li>
+<li class="old">   }</li>
+<li class="old">}</li>
+<li class="old"></li>
+<li class="old">!obj &amp;&amp; pass == (/^#include/ ? "c1" : "h") {</li>
+<li class="old">   print;</li>
+<li class="old">}</li>
+<li class="old"></li>
+<li class="old">END {</li>
+<li class="old">   outputRecord("\n};");</li>
+<li class="old">   if (pass == "h") {</li>
+<li class="old">      print "\n#define endOfObjs\t(objs + " count ")";</li>
+<li class="old">      print "\n#define validObject(obj)\t" \</li>
+<li class="old">            "((obj) != NULL &amp;&amp; (*(obj)-&gt;condition)())";</li>
+<li class="old">   }</li>
+<li class="old">}</li>
+<li class="old"></li>
+<li class="old">function outputRecord(separator)</li>
+<li class="old">{</li>
+<li class="old">   if (obj) {</li>
+<li class="old">      if (pass == "h") {</li>
+<li class="old">         print "#define " obj "\t(objs + " count ")";</li>
+<li class="old">      }</li>
+<li class="old">      else if (pass == "c1") {</li>
+<li class="old">         print "static const char *tags" count "[] = {" prop["tags"] ", NULL};";</li>
+<li class="old">      }</li>
+<li class="old">      else if (pass == "c2") {</li>
+<li class="old">         print "\t{\t/* " count " = " obj " */";</li>
+<li class="old">         print "\t\t" prop["condition"] ",";</li>
+<li class="old">         print "\t\t" prop["description"] ",";</li>
+<li class="old">         print "\t\ttags" count ",";</li>
+<li class="old">         print "\t\t" prop["location"] ",";</li>
+<li class="old">         print "\t\t" prop["destination"] ",";</li>
+<li class="old">         print "\t\t" prop[prop["prospect"] ? "prospect" : "destination"] ",";</li>
+<li class="old">         print "\t\t" prop["details"] ",";</li>
+<li class="old">         print "\t\t" prop["contents"] ",";</li>
+<li class="old">         print "\t\t" prop["textGo"] ",";</li>
+<li class="old">         print "\t\t" prop["weight"] ",";</li>
+<li class="old">         print "\t\t" prop["capacity"] ",";</li>
+<li class="old">         print "\t\t" prop["health"] ",";</li>
+<li class="new">         print "\t\t" prop["light"] ",";</li>
+<li class="old">         print "\t\t" prop["open"] ",";</li>
+<li class="old">         print "\t\t" prop["close"] ",";</li>
+<li class="old">         print "\t\t" prop["lock"] ",";</li>
+<li class="old">         print "\t\t" prop["unlock"];</li>
+<li class="old">         print "\t}" separator;</li>
+<li class="old">         delete prop;</li>
+<li class="old">      }</li>
+<li class="old">      count++;</li>
+<li class="old">   }</li>
+<li class="old">}</li>
+</ol>
+</td>
+</tr></table>
+<p>
+By default, <i>light</i> is zero, meaning an object does not emit light.
+Every location in broad daylight (typically all but the underground ones)
+will be given a positive <i>light</i> value.
+It doesn&rsquo;t really matter what value that is; as long as it&rsquo;s not zero.
+We will also add a lamp the player can carry to traverse dark areas.
 </p>
 <table class="code"><tr>
 <th>object.txt</th>
@@ -632,6 +743,25 @@ We will add a lamp the player can carry to get through the dark locations.
 </ol>
 </td>
 </tr></table>
+<div class="explanation">
+<p>
+Explanation:
+</p>
+<ul>
+<li>Line 18:
+the new attribute.
+</li>
+<li>Line 32:
+so far, the field is the only location with &lsquo;natural&rsquo; light.
+</li>
+<li>Line 205-217:
+for the lamp we actually have two objects:
+the lamp being off and the lamp being on.
+But the player will only get to see one at a time;
+together they act as a single item.
+</li>
+</ul>
+</div>
 <p>
 We will add some commands we can use to turn the lamp on and off.
 </p>
@@ -1020,8 +1150,9 @@ Finally, we will mark the dark locations in our generated map.
 </td>
 </tr></table>
 <p>
-Do be careful not to turn off the lamp after dropping it;
-in the dark, you will never be able to find it back!
+Players, please be careful not to turn off the lamp and drop it.
+In the dark, you will never be able to find it back. You will be stuck!
+Fortunately, the next chapter will provide a way to undo clumsy actions.
 </p>
 <hr />
 <table class="download"><tr><td>

@@ -241,7 +241,7 @@ Other examples are forces of nature: a storm, a flood, a volcanic eruption.
 Explanation:
 </p>
 <ul>
-<li>Line 7-20:
+<li>Line 8-19:
 this function gives non-player characters a little bit of
 <a href="https://en.wikipedia.org/wiki/Artificial_intelligence">artificial intelligence</a>.
 An NPC will pick up a more powerful weapon, if any, before attacking.
@@ -250,31 +250,41 @@ in situations where a swift attack would be beneficial.
 To make the NPC more intelligent, improve the function
 by making a more complex decision tree involving more attributes.
 </li>
-<li>Line 22:
+<li>Line 23:
 non-player characters will only be aggressive
 when their &lsquo;trust&rsquo; towards the player is negative.
 This is a new attribute that is introduced below.
 </li>
-<li>Line 24:
+<li>Line 25:
 start off taking the most powerful weapon the NPC is carrying.
 </li>
-<li>Line 25:
+<li>Line 26:
 try to find an even more powerful weapon in NPC&rsquo;s surroundings.
 </li>
-<li>Line 26:
+<li>Line 27:
 if <i>findBestWeaponAround</i> is unable to find a better weapon,
 then it will simply return the original weapon
 (the one passed in as a parameter).
 </li>
-<li>Line 28:
+<li>Line 29:
 the NPC is attacking.
 </li>
-<li>Line 32:
+<li>Line 33:
 the NPC picks up the new weapon.
 This ends NPC&rsquo;s turn;
 NPC will have to wait until the next turn to attack.
 </li>
-<li>Line 39, 41, 59:
+<li>Line 42-46:
+each lamp in the game, when lit, will slowly consume its fuel.
+Every turn, property <i>light</i> is decreased by an amount
+that equals the time passed.
+This will happen regardless of where the lamp is.
+The player will be notified once all fuel has been consumed,
+but this only happens if the lamp is present at player&rsquo;s location.
+Of course, it is also possible to give an early warning, for example
+&ldquo;the lamp flickers&rdquo; when <i>light</i> drops below 10.
+</li>
+<li>Line 49, 51, 79:
 time, passed in as a parameter, is typically 1 in this game,
 meaning a single unit of time has passed.
 There are two special values: 0 and -1.
@@ -283,10 +293,17 @@ Zero means the player did not take a turn
 so we let the surrounding world skip its turn too.
 A negative number (-1) means the user wants to quit the program.
 </li>
-<li>Line 48:
+<li>Line 55-62:
+give every object a chance to do its thing.
+But <i>only</i> if that object exists,
+i.e. its <i>condition</i> function returns true (see chapter 11),
+and its location is not NULL (see chapter 12 and 15).
+This helps prevent the lamp from burning fuel while it&rsquo;s off.
+</li>
+<li>Line 63:
 when player&rsquo;s health hits zero, player dies.
 </li>
-<li>Line 50-52:
+<li>Line 65-67:
 As explained in chapter 2, I like to give the player another chance.
 Health is restored, and the player is moved to a &lsquo;respawn point&rsquo;.
 I made a dedicated location for that, named &lsquo;little heaven&rsquo;.
@@ -295,7 +312,7 @@ I gave heaven a portal that will transport the player back to the field.
 This portal is just a straightforward &lsquo;passage&rsquo; (see chapter 6).
 You can find heaven and portal in <i>object.txt</i>.
 </li>
-<li>Line 53-56:
+<li>Line 68-71:
 Contrary to what the ancient pharaos believed,
 you are going to heaven empty-handed.
 Here, all your possessions are being moved to the field.
@@ -307,6 +324,13 @@ or make it even more challenging by moving them to random locations.
 Do be careful with objects that are required to make progress through the game;
 moving a key to a location behind the door it unlocks,
 could make the quest impossible.
+</li>
+<li>Line 73-77:
+It is possible player&rsquo;s surroundings change
+due to circumstances beyond player&rsquo;s control.
+For example, player may be transported to a different location (line 66),
+or it may suddenly become dark (line 45).
+That warrants the game automatically giving an updated look around.
 </li>
 </ul>
 </div>
@@ -409,7 +433,9 @@ Explanation:
 <li>Line 17, 20, 25, 43:
 we are changing the return type of the command functions
 from <i>bool</i> to <i>int</i>.
-This is a sweeping change through a lot of modules.
+This is a sweeping change through a lot of modules
+(<i>inventory.c</i>, <i>inventory2.c</i>, <i>location.c</i>,
+<i>move.c</i>, <i>onoff.c</i>, <i>openclose.c</i>, <i>talk.c</i>).
 Unsurprising; for every command, we need to make up ours minds
 how many time unit are being consumed by the execution of that command.
 </li>
