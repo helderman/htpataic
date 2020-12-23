@@ -258,6 +258,7 @@ Each pattern is tied to a function that executes the appropriate command.
 <td>
 <ol>
 <li class="new">#include &lt;ctype.h&gt;</li>
+<li class="new">#include &lt;stdbool.h&gt;</li>
 <li class="new">#include &lt;stdio.h&gt;</li>
 <li class="new">#include "object.h"</li>
 <li class="new">#include "misc.h"</li>
@@ -326,7 +327,7 @@ Explanation:
 <ul>
 <li>Line 1:
 from <a href="http://en.wikipedia.org/wiki/Ctype.h">ctype.h</a>,
-we will be using <i>isspace</i> (line 27),
+we will be using <i>isspace</i> (line 28),
 which provides a more complete
 <a href="http://en.wikipedia.org/wiki/Whitespace_(computer_science)">whitespace</a>
 test than a simple comparison with
@@ -335,35 +336,35 @@ test than a simple comparison with
 <a href="http://en.wikipedia.org/wiki/Tab_character">tab</a>,
 among others).
 </li>
-<li>Line 10-14:
+<li>Line 11-15:
 type <i>COMMAND</i> is a structure that combines a pattern with a function.
 </li>
-<li>Line 16-31:
+<li>Line 17-32:
 a few generic handlers.
 </li>
-<li>Line 27:
+<li>Line 28:
 this loop prints the first word entered by the player;
 we assume this is supposed to be the (unrecognized) verb.
 </li>
-<li>Line 35-55:
+<li>Line 36-56:
 the array of patterns.
 </li>
-<li>Line 40-42:
+<li>Line 41-43:
 <a href="https://en.wikipedia.org/wiki/Synonym">synonyms</a>
 are simple: just map different patterns to the same function.
 </li>
-<li>Line 54:
+<li>Line 55:
 the last pattern should always be &ldquo;A&rdquo;;
 this pattern matches <i>anything</i> and so it will pick up
 everything that hasn&rsquo;t been matched by preceding patterns.
 </li>
-<li>Line 57:
+<li>Line 58:
 this loop scans though all patterns from top to bottom;
 it stops at the first pattern that matches.
-The &lsquo;sure match&rsquo; on line 54 ensures
+The &lsquo;sure match&rsquo; on line 55 ensures
 the loop will never pass the end of the array.
 </li>
-<li>Line 58:
+<li>Line 59:
 the function that belongs to the matching pattern is called.
 </li>
 </ul>
@@ -689,6 +690,7 @@ Same thing for the module we added in the previous chapter.
 </tr><tr>
 <td>
 <ol>
+<li class="old">#include &lt;stdbool.h&gt;</li>
 <li class="old">#include &lt;stdio.h&gt;</li>
 <li class="old">#include "object.h"</li>
 <li class="new"><span class="old">#include </span>"match.h"</li>

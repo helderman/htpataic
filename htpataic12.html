@@ -230,6 +230,7 @@ for each of the commands we wish to support:
 </tr><tr>
 <td>
 <ol>
+<li class="old">#include &lt;stdbool.h&gt;</li>
 <li class="old">#include &lt;stdio.h&gt;</li>
 <li class="old">#include "object.h"</li>
 <li class="new">#include "toggle.h"</li>
@@ -439,12 +440,12 @@ for each of the commands we wish to support:
 Explanation:
 </p>
 <ul>
-<li>Line 88:
+<li>Line 89:
 at first sight, <i>isAlreadyOpen</i> may seem inappropriate here;
 technically, <i>intoCaveBlocked</i> is a closed passage.
 But storywise, it is still an opening.
 </li>
-<li>Line 168, 179, 190:
+<li>Line 169, 180, 191:
 If you prefer a heavy treasure chest instead of a box,
 then all you have to do is increase the weight
 (and adjust the relevant text and tags accordingly).
@@ -485,6 +486,7 @@ Instead, we will implement the necessary logic in a separate module.
 </tr><tr>
 <td>
 <ol>
+<li class="new">#include &lt;stdbool.h&gt;</li>
 <li class="new">#include "object.h"</li>
 <li class="new"></li>
 <li class="new">static void swapLocations(OBJECT *obj1, OBJECT *obj2)</li>
@@ -556,6 +558,7 @@ are totally generic.
 </tr><tr>
 <td>
 <ol>
+<li class="new">#include &lt;stdbool.h&gt;</li>
 <li class="new">#include &lt;stdio.h&gt;</li>
 <li class="new">#include "object.h"</li>
 <li class="new">#include "reach.h"</li>
@@ -608,6 +611,7 @@ these will benefit from the same function.
 </tr><tr>
 <td>
 <ol>
+<li class="new">#include &lt;stdbool.h&gt;</li>
 <li class="new">#include &lt;stdio.h&gt;</li>
 <li class="new">#include "object.h"</li>
 <li class="new">#include "misc.h"</li>
@@ -652,9 +656,6 @@ The necessary modifications to <i>object.awk</i> are very straightforward:
 <li class="old">BEGIN {</li>
 <li class="old">   count = 0;</li>
 <li class="old">   obj = "";</li>
-<li class="old">   if (pass == "h") {</li>
-<li class="old">      print "#include &lt;stdbool.h&gt;";</li>
-<li class="old">   }</li>
 <li class="old">   if (pass == "c2") {</li>
 <li class="old">      print "\nstatic bool alwaysTrue(void) { return true; }";</li>
 <li class="old">      print "\nOBJECT objs[] = {";</li>
@@ -818,8 +819,8 @@ The additions to <i>parsexec.c</i> are equally straightforward.
 </tr><tr>
 <td>
 <ol>
-<li class="old">#include &lt;stdio.h&gt;</li>
 <li class="old">#include &lt;stdbool.h&gt;</li>
+<li class="old">#include &lt;stdio.h&gt;</li>
 <li class="old">#include &lt;string.h&gt;</li>
 <li class="old">#include "location.h"</li>
 <li class="old">#include "inventory.h"</li>

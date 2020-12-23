@@ -1,3 +1,4 @@
+#include <stdbool.h>
 #include <stdio.h>
 #include "object.h"
 static const char *tags0[] = { "field", NULL};

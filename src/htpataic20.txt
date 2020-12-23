@@ -360,54 +360,53 @@ by the end of this chapter.
 Explanation:
 </p>
 <ul>
-<li>Line 6-23:
+<li>Line 7-24:
 a helper function that generates descriptive text
 about attacks taking place during combat.
-This covers player attacking NPC (line 11),
-NPC attacking player (lines 15-16)
-and even NPC attacking NPC (lines 20-21).
+This covers player attacking NPC (line 12),
+NPC attacking player (lines 16-17)
+and even NPC attacking NPC (lines 21-22).
 The latter could be useful in a game
 where the player can team up with friendly NPCs.
 </li>
-<li>Line 25-40:
+<li>Line 26-41:
 another helper function, this time to give descriptive text
 about a character dying in combat.
 As in the previous function,
 attacker and victim can be NPC as well as player.
 </li>
-<li>Line 42-53:
+<li>Line 43-54:
 one more helper function,
 which could be useful in a fight involving three or more characters,
 where a single character might suffer multiple blows within a single turn.
 </li>
-<li>Line 59:
+<li>Line 60:
 this is the &lsquo;damage formula&rsquo;.
 By convention, I will let &lsquo;damage&rsquo; be a negative number,
 reserving positive numbers for actions
 that have a positive effect on a character&rsquo;s health
 (e.g. drinking a healing potion).
 </li>
-<li>Line 60:
+<li>Line 61:
 damage has a 1 to 6 chance of being zero;
 even more so if attacker and weapon are too weak.
-If damage is zero, then execution will continue on line 80,
+If damage is zero, then execution will continue on line 82,
 where we will explain the attack had no effect.
 </li>
-<li>Line 77:
+<li>Line 78:
 attacking an NPC has a (negative) effect not only on health,
 but also on the NPC&rsquo;s trust towards the player.
 This will have its effect on the NPC&rsquo;s behavior towards the player.
 We already saw an example of this in <i>turn.c</i>.
 </li>
-<li>Line 81:
+<li>Line 82:
 we should respond to every command from the player,
 but it is not necessary to apologize
 for every missed opportunity by a NPC to deal damage.
 </li>
-<li>Line 93:
+<li>Line 94:
 you may already have noticed the weapon&rsquo;s &lsquo;impact&rsquo;
-(another new attribute)
-as part of the damage formula (line 58).
+(another new attribute) as part of the damage formula (line 60).
 As explained, we will be using negative numbers.
 This explains why there is a &lsquo;less than&rsquo; operator here:
 the best weapon is the one with the smallest (most negative) impact.
@@ -430,7 +429,7 @@ it&rsquo;s time to let the player return the favor!
 Explanation:
 </p>
 <ul>
-<li>Line 17, 20, 25, 43:
+<li>Line 18, 21, 26, 44:
 we are changing the return type of the command functions
 from <i>bool</i> to <i>int</i>.
 This is a sweeping change through a lot of modules
@@ -439,18 +438,18 @@ This is a sweeping change through a lot of modules
 Unsurprising; for every command, we need to make up ours minds
 how many time unit are being consumed by the execution of that command.
 </li>
-<li>Line 22:
+<li>Line 23:
 every command function should return the number of time units consumed.
 <i>Quit</i> is the exception to the rule: it returns -1,
 to signal the main loop that the program should end.
 </li>
-<li>Line 34:
+<li>Line 35:
 here you see one of the situations where a command function returns zero.
 The command has not been recognized, either because the player made a typo,
 or because the game&rsquo;s vocabulair is too limited.
 Neither is considered part of the story; no game time passes.
 </li>
-<li>Line 37-41, 80:
+<li>Line 38-42, 81:
 with the introduction of &lsquo;time&rsquo;,
 there should also be a command that allows the player
 to just let time pass without actually doing anything.
@@ -458,7 +457,7 @@ This may seem useless, but it can be fun to have a puzzle in the game
 that actually relies on the execution of this command.
 Patience is a virtue, so why not reward it?
 </li>
-<li>Line 77-79:
+<li>Line 78-80:
 we are introducing a new command &lsquo;attack&rsquo;, with two arguments:
 A represents the victim, B the weapon.
 Both are optional; below we will see how this is handled.
@@ -488,18 +487,18 @@ It is time to implement the command &lsquo;attack&rsquo;.
 Explanation:
 </p>
 <ul>
-<li>Line 9-17:
+<li>Lines 10-18, 23:
 a little helper function in case the command is given without a victim.
 It extends upon function <i>actorHere</i>, which is used
 in a similar way for commands <i>ask</i>, <i>give</i> and <i>talk</i>.
 </li>
-<li>Line 27:
+<li>Line 28:
 the command can also be given without explicitly specifying a weapon.
 In that case, the best weapon at hand will be used.
 For this, we use the same function <i>getOptimalWeapon</i> that was
 used in <i>turn.c</i> to let non-player characters choose their weapon.
 </li>
-<li>Line 31:
+<li>Line 32:
 <i>dealDamage</i> is another function that we were already using
 in <i>turn.c</i> to let non-player character make their move.
 This time, the player is the attacker rather than the victim.
@@ -522,18 +521,18 @@ the weapons and the respawn location.
 Explanation:
 </p>
 <ul>
-<li>Line 20-21:
+<li>Line 21-22:
 the new attributes &lsquo;impact&rsquo; and &lsquo;trust&rsquo;.
 </li>
-<li>Lines 73, 84:
+<li>Lines 74, 85:
 most actors can fight without a weapon.
 It basically means the actor <i>is</i> the weapon.
 Here we specify the effect of each actor fighting with bare hands.
 </li>
-<li>Line 239-253:
+<li>Line 240-254:
 a number of weapons.
 </li>
-<li>Line 255-270:
+<li>Line 256-271:
 &lsquo;little heaven&rsquo; and its portal leading back to earth.
 </li>
 </ul>
@@ -554,7 +553,7 @@ The new attributes demand a change in <i>object.awk</i> as well.
 Explanation:
 </p>
 <ul>
-<li>Line 30-31:
+<li>Line 27-28:
 both attributes have a default value of zero.
 </li>
 </ul>

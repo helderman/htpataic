@@ -227,16 +227,27 @@ given by any actor the player will talk to about that object.
 Explanation:
 </p>
 <ul>
-<li>Line 15:
+<li>Line 16:
 the new property.
 </li>
-<li>Line 28-30:
+<li>Line 29-31:
 introducing a dummy object to prevent generic tags
 (in this case east, west, north, south) to be handled by a specific object
 (for example the forest).
 </li>
 </ul>
 </div>
+<p>
+As always, we also need to make <i>object.awk</i> aware of the new property,
+and specify a default value.
+</p>
+<table class="code"><tr>
+<th>object.awk</th>
+</tr><tr>
+<td>
+#diff object.awk
+</td>
+</tr></table>
 <p>
 Adding a new command &lsquo;talk&rsquo; to the parser:
 </p>
@@ -252,7 +263,7 @@ Adding a new command &lsquo;talk&rsquo; to the parser:
 Explanation:
 </p>
 <ul>
-<li>Line 66-69:
+<li>Line 67-70:
 four new patterns for one new verb.
 As explained in chapter 14, the order of the patterns is important.
 </li>

@@ -220,9 +220,6 @@ The following adjustments to <i>object.awk</i> will do just that.
 <li class="old">BEGIN {</li>
 <li class="old">   count = 0;</li>
 <li class="old">   obj = "";</li>
-<li class="new">   if (pass == "h") {</li>
-<li class="new">      print "#include &lt;stdbool.h&gt;";</li>
-<li class="new">   }</li>
 <li class="old">   if (pass == "c2") {</li>
 <li class="new">      print "\nstatic bool alwaysTrue(void) { return true; }";</li>
 <li class="old">      print "\nOBJECT objs[] = {";</li>
@@ -311,16 +308,16 @@ The following adjustments to <i>object.awk</i> will do just that.
 Explanation:
 </p>
 <ul>
-<li>Line 8, 16:
+<li>Line 5, 13:
 most objects are unconditional;
 their condition is a trivial function that always returns <i>true</i>.
 </li>
-<li>Line 35-38:
+<li>Line 32-35:
 an anonymous function (anything starting with a curly brace)
 is replaced by a function with a generated name;
 the name is the attribute name (in this case <i>condition</i>)
 followed by a number (the object count).
-This technique is similar to the way we handle tags (lines 65 and 71).
+This technique is similar to the way we handle tags (lines 62 and 68).
 </li>
 </ul>
 </div>
@@ -333,6 +330,7 @@ as explained earlier.
 </tr><tr>
 <td>
 <ol>
+<li class="new">#include &lt;stdbool.h&gt;</li>
 <li class="old">#include &lt;stdio.h&gt;</li>
 <li class="old">#include "object.h"</li>
 <li class="old"></li>
@@ -465,7 +463,7 @@ To make the conditions work, we need to adjust functions
 <li class="old">      OBJECT *obj;</li>
 <li class="old">      for (obj = objs; obj &lt; endOfObjs; obj++)</li>
 <li class="old">      {</li>
-<li class="new"><span class="old">         if </span>(isHolding(from, obj)<span class="old"> &amp;&amp; obj-&gt;prospect == to)</span></li>
+<li class="old">         if (isHolding(from, obj) &amp;&amp; obj-&gt;prospect == to)</li>
 <li class="old">         {</li>
 <li class="old">            return obj;</li>
 <li class="old">         }</li>
@@ -476,11 +474,11 @@ To make the conditions work, we need to adjust functions
 <li class="old"></li>
 <li class="old">DISTANCE getDistance(OBJECT *from, OBJECT *to)</li>
 <li class="old">{</li>
-<li class="old">   return to == NULL                               ? distUnknownObject :</li>
-<li class="new"><span class="old">          </span>!validObject(to)                         ? distNotHere :</li>
+<li class="new"><span class="old">   return to == NULL                               ? distUnknownObject </span>:</li>
+<li class="new">          !validObject(to)                         ? distNotHere<span class="old"> :</span></li>
 <li class="old">          to == from                               ? distSelf :</li>
 <li class="old">          isHolding(from, to)                      ? distHeld :</li>
-<li class="new"><span class="old">          </span>isHolding(to, from)<span class="old">                      ? distLocation :</span></li>
+<li class="old">          isHolding(to, from)                      ? distLocation :</li>
 <li class="old">          isHolding(from-&gt;location, to)            ? distHere :</li>
 <li class="old">          isHolding(from, to-&gt;location)            ? distHeldContained :</li>
 <li class="old">          isHolding(from-&gt;location, to-&gt;location)  ? distHereContained :</li>
@@ -508,7 +506,7 @@ To make the conditions work, we need to adjust functions
 <li class="old">   OBJECT *obj;</li>
 <li class="old">   for (obj = objs; obj &lt; endOfObjs; obj++)</li>
 <li class="old">   {</li>
-<li class="new"><span class="old">      if (obj != player &amp;&amp; </span>isHolding(location, obj))</li>
+<li class="old">      if (obj != player &amp;&amp; isHolding(location, obj))</li>
 <li class="old">      {</li>
 <li class="old">         if (count++ == 0)</li>
 <li class="old">         {</li>

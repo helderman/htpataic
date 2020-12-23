@@ -1,3 +1,4 @@
+#include <stdbool.h>
 #include "object.h"
 
 static void swapLocations(OBJECT *obj1, OBJECT *obj2)

@@ -119,13 +119,13 @@ We will also add a lamp the player can carry to traverse dark areas.
 Explanation:
 </p>
 <ul>
-<li>Line 18:
+<li>Line 19:
 the new attribute.
 </li>
-<li>Line 32:
+<li>Line 33:
 so far, the field is the only location with &lsquo;natural&rsquo; light.
 </li>
-<li>Line 205-217:
+<li>Line 206-218:
 for the lamp we actually have two objects:
 the lamp being off and the lamp being on.
 But the player will only get to see one at a time;
@@ -188,13 +188,13 @@ we will use the same trick we used to open and close the door and the box
 Explanation:
 </p>
 <ul>
-<li>Line 55:
+<li>Line 56:
 we are doing the exact same trick
 as used in chapter 12 to open and close objects.
 Just swap between two different objects:
 one for the lamp turned on, the other for the lamp turned off.
 </li>
-<li>Lines 57-61:
+<li>Lines 58-62:
 when turning on the light in a dark area,
 we immediately give players a look at their surroundings.
 This is consistent with the behavior of the &lsquo;go&rsquo; command:

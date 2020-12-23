@@ -415,9 +415,6 @@ The implementation of <i>isLit</i> uses a new attribute <i>light</i>.
 <li class="old">BEGIN {</li>
 <li class="old">   count = 0;</li>
 <li class="old">   obj = "";</li>
-<li class="old">   if (pass == "h") {</li>
-<li class="old">      print "#include &lt;stdbool.h&gt;";</li>
-<li class="old">   }</li>
 <li class="old">   if (pass == "c2") {</li>
 <li class="old">      print "\nstatic bool alwaysTrue(void) { return true; }";</li>
 <li class="old">      print "\nOBJECT objs[] = {";</li>
@@ -523,6 +520,7 @@ We will also add a lamp the player can carry to traverse dark areas.
 </tr><tr>
 <td>
 <ol>
+<li class="old">#include &lt;stdbool.h&gt;</li>
 <li class="old">#include &lt;stdio.h&gt;</li>
 <li class="old">#include "object.h"</li>
 <li class="old">#include "toggle.h"</li>
@@ -748,13 +746,13 @@ We will also add a lamp the player can carry to traverse dark areas.
 Explanation:
 </p>
 <ul>
-<li>Line 18:
+<li>Line 19:
 the new attribute.
 </li>
-<li>Line 32:
+<li>Line 33:
 so far, the field is the only location with &lsquo;natural&rsquo; light.
 </li>
-<li>Line 205-217:
+<li>Line 206-218:
 for the lamp we actually have two objects:
 the lamp being off and the lamp being on.
 But the player will only get to see one at a time;
@@ -771,6 +769,7 @@ We will add some commands we can use to turn the lamp on and off.
 <td>
 <ol>
 <li class="old">#include &lt;ctype.h&gt;</li>
+<li class="old">#include &lt;stdbool.h&gt;</li>
 <li class="old">#include &lt;stdio.h&gt;</li>
 <li class="old">#include "object.h"</li>
 <li class="old">#include "misc.h"</li>
@@ -935,6 +934,7 @@ Bye!<br />
 </tr><tr>
 <td>
 <ol>
+<li class="new">#include &lt;stdbool.h&gt;</li>
 <li class="new">#include &lt;stdio.h&gt;</li>
 <li class="new">#include "object.h"</li>
 <li class="new">#include "match.h"</li>
@@ -1014,6 +1014,7 @@ we will use the same trick we used to open and close the door and the box
 </tr><tr>
 <td>
 <ol>
+<li class="old">#include &lt;stdbool.h&gt;</li>
 <li class="new">#include &lt;stdio.h&gt;</li>
 <li class="old">#include "object.h"</li>
 <li class="new">#include "misc.h"</li>
@@ -1084,13 +1085,13 @@ we will use the same trick we used to open and close the door and the box
 Explanation:
 </p>
 <ul>
-<li>Line 55:
+<li>Line 56:
 we are doing the exact same trick
 as used in chapter 12 to open and close objects.
 Just swap between two different objects:
 one for the lamp turned on, the other for the lamp turned off.
 </li>
-<li>Lines 57-61:
+<li>Lines 58-62:
 when turning on the light in a dark area,
 we immediately give players a look at their surroundings.
 This is consistent with the behavior of the &lsquo;go&rsquo; command:

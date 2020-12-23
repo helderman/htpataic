@@ -60,8 +60,8 @@ which takes care of calling the other two functions repeatedly.</li>
 </tr><tr>
 <td>
 <ol>
-<li class="old">#include &lt;stdio.h&gt;</li>
 <li class="new">#include &lt;stdbool.h&gt;</li>
+<li class="old">#include &lt;stdio.h&gt;</li>
 <li class="new">#include "parsexec.h"</li>
 <li class="new"></li>
 <li class="new">static char input[100] = "look around";</li>
@@ -75,7 +75,7 @@ which takes care of calling the other two functions repeatedly.</li>
 <li class="old">int main()</li>
 <li class="old">{</li>
 <li class="old">   printf("Welcome to Little Cave Adventure.\n");</li>
-<li class="new"><span class="old">   </span>while (parseAndExecute(input) &amp;&amp; getInput());</li>
+<li class="new">   while (parseAndExecute(input) &amp;&amp; getInput());</li>
 <li class="old">   printf("\nBye!\n");</li>
 <li class="old">   return 0;</li>
 <li class="old">}</li>
@@ -87,7 +87,7 @@ which takes care of calling the other two functions repeatedly.</li>
 Explanation:
 </p>
 <ul>
-<li>Line 2:
+<li>Line 1:
 in case some legacy compiler does not support <i>stdbool.h</i>
 (it was introduced with
 <a href="https://en.wikipedia.org/wiki/C99">C99</a>),
@@ -143,8 +143,8 @@ as it is the function that is subject to change in chapters to come.
 </tr><tr>
 <td>
 <ol>
-<li class="new">#include &lt;stdio.h&gt;</li>
 <li class="new">#include &lt;stdbool.h&gt;</li>
+<li class="new">#include &lt;stdio.h&gt;</li>
 <li class="new">#include &lt;string.h&gt;</li>
 <li class="new"></li>
 <li class="new"></li>

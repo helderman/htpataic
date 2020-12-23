@@ -173,16 +173,16 @@ The following adjustments to <i>object.awk</i> will do just that.
 Explanation:
 </p>
 <ul>
-<li>Line 8, 16:
+<li>Line 5, 13:
 most objects are unconditional;
 their condition is a trivial function that always returns <i>true</i>.
 </li>
-<li>Line 35-38:
+<li>Line 32-35:
 an anonymous function (anything starting with a curly brace)
 is replaced by a function with a generated name;
 the name is the attribute name (in this case <i>condition</i>)
 followed by a number (the object count).
-This technique is similar to the way we handle tags (lines 65 and 71).
+This technique is similar to the way we handle tags (lines 62 and 68).
 </li>
 </ul>
 </div>
