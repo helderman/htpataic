@@ -15,3 +15,8 @@ Source code is included,
 making it easy to follow the progress of the program with each chapter.
 
 [![Run on Repl.it](https://repl.it/badge/github/helderman/htpataic)](https://repl.it/github/helderman/htpataic)
+
+Ruud Helderman <r.helderman@hccnet.nl>
+
+Licensed under
+[MIT License](https://github.com/helderman/htpataic/blob/master/LICENSE)

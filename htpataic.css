@@ -89,7 +89,7 @@ img.genmap {
 
 .code td ol li {
 	font-family: monospace;
-	text-indent: 1em;
+	padding: 0 1em;
 	white-space: pre;
 }
 
