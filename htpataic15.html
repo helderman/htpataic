@@ -547,10 +547,10 @@ We will also add a lamp the player can carry to traverse dark areas.
 <li class="old">   int            capacity;</li>
 <li class="old">   int            health;</li>
 <li class="new">   int            light;</li>
-<li class="old">   const char  *(*open)(void);</li>
-<li class="old">   const char  *(*close)(void);</li>
-<li class="old">   const char  *(*lock)(void);</li>
-<li class="old">   const char  *(*unlock)(void);</li>
+<li class="old">   void         (*open)(void);</li>
+<li class="old">   void         (*close)(void);</li>
+<li class="old">   void         (*lock)(void);</li>
+<li class="old">   void         (*unlock)(void);</li>
 <li class="old">} OBJECT;</li>
 <li class="old"></li>
 <li class="old">extern OBJECT objs[];</li>
@@ -663,7 +663,7 @@ We will also add a lamp the player can carry to traverse dark areas.
 <li class="old">     details     "The door is open.\n"</li>
 <li class="old">     textGo      "You walk through the door into a backroom.\n"</li>
 <li class="old">     open        isAlreadyOpen</li>
-<li class="old">     close       toggleBackdoor</li>
+<li class="old">     close       toggleDoorToBackroom</li>
 <li class="old"></li>
 <li class="old">- closedDoorToBackroom</li>
 <li class="old">     description "a closed door to the south"</li>
@@ -672,7 +672,7 @@ We will also add a lamp the player can carry to traverse dark areas.
 <li class="old">     prospect    backroom</li>
 <li class="old">     details     "The door is closed.\n"</li>
 <li class="old">     textGo      "The door is closed.\n"</li>
-<li class="old">     open        toggleBackdoor</li>
+<li class="old">     open        toggleDoorToBackroom</li>
 <li class="old">     close       isAlreadyClosed</li>
 <li class="old"></li>
 <li class="old">- openDoorToCave</li>
@@ -682,7 +682,7 @@ We will also add a lamp the player can carry to traverse dark areas.
 <li class="old">     details     "The door is open.\n"</li>
 <li class="old">     textGo      "You walk through the door into the cave.\n"</li>
 <li class="old">     open        isAlreadyOpen</li>
-<li class="old">     close       toggleBackdoor</li>
+<li class="old">     close       toggleDoorToCave</li>
 <li class="old"></li>
 <li class="old">- closedDoorToCave</li>
 <li class="old">     description "a closed door to the north"</li>
@@ -691,7 +691,7 @@ We will also add a lamp the player can carry to traverse dark areas.
 <li class="old">     prospect    cave</li>
 <li class="old">     details     "The door is closed.\n"</li>
 <li class="old">     textGo      "The door is closed.\n"</li>
-<li class="old">     open        toggleBackdoor</li>
+<li class="old">     open        toggleDoorToCave</li>
 <li class="old">     close       isAlreadyClosed</li>
 <li class="old"></li>
 <li class="old">- openBox</li>
@@ -891,7 +891,7 @@ It's too dark.<br />
 It's too dark.<br />
 <br />
 --&gt; turn lamp on<br />
-OK.<br />
+You turn on a lamp.<br />
 <br />
 You are in a little cave.<br />
 You see:<br />
@@ -912,7 +912,7 @@ a tiny key<br />
 You pick up a tiny key.<br />
 <br />
 --&gt; open door<br />
-OK.<br />
+You open a closed door to the south.<br />
 <br />
 --&gt; go south<br />
 You walk through the door into a backroom.<br />
@@ -997,22 +997,23 @@ we will use the same trick we used to open and close the door and the box
 </tr><tr>
 <td>
 <ol>
-<li class="old">extern const char *cannotBeOpened(void);</li>
-<li class="old">extern const char *cannotBeClosed(void);</li>
-<li class="old">extern const char *cannotBeLocked(void);</li>
-<li class="old">extern const char *cannotBeUnlocked(void);</li>
+<li class="old">extern void cannotBeOpened(void);</li>
+<li class="old">extern void cannotBeClosed(void);</li>
+<li class="old">extern void cannotBeLocked(void);</li>
+<li class="old">extern void cannotBeUnlocked(void);</li>
 <li class="old"></li>
-<li class="old">extern const char *isAlreadyOpen(void);</li>
-<li class="old">extern const char *isAlreadyClosed(void);</li>
-<li class="old">extern const char *isAlreadyLocked(void);</li>
-<li class="old">extern const char *isAlreadyUnlocked(void);</li>
+<li class="old">extern void isAlreadyOpen(void);</li>
+<li class="old">extern void isAlreadyClosed(void);</li>
+<li class="old">extern void isAlreadyLocked(void);</li>
+<li class="old">extern void isAlreadyUnlocked(void);</li>
 <li class="old"></li>
-<li class="old">extern const char *isStillOpen(void);</li>
-<li class="old">extern const char *isStillLocked(void);</li>
+<li class="old">extern void isStillOpen(void);</li>
+<li class="old">extern void isStillLocked(void);</li>
 <li class="old"></li>
-<li class="old">extern const char *toggleBackdoor(void);</li>
-<li class="old">extern const char *toggleBox(void);</li>
-<li class="old">extern const char *toggleBoxLock(void);</li>
+<li class="old">extern void toggleDoorToBackroom(void);</li>
+<li class="old">extern void toggleDoorToCave(void);</li>
+<li class="old">extern void toggleBox(void);</li>
+<li class="old">extern void toggleBoxLock(void);</li>
 <li class="new"></li>
 <li class="new">extern void toggleLamp(void);</li>
 </ol>
@@ -1023,62 +1024,68 @@ we will use the same trick we used to open and close the door and the box
 <td>
 <ol>
 <li class="old">#include &lt;stdbool.h&gt;</li>
-<li class="new">#include &lt;stdio.h&gt;</li>
+<li class="old">#include &lt;stdio.h&gt;</li>
 <li class="old">#include "object.h"</li>
 <li class="new">#include "misc.h"</li>
 <li class="new">#include "location.h"</li>
 <li class="old"></li>
-<li class="old">static void swapLocations(OBJECT *obj1, OBJECT *obj2)</li>
+<li class="old">static void swapLocations(const char *verb1, OBJECT *obj1,</li>
+<li class="old">                          const char *verb2, OBJECT *obj2)</li>
 <li class="old">{</li>
 <li class="old">   OBJECT *tmp = obj1-&gt;location;</li>
+<li class="old">   OBJECT *obj = tmp != NULL ? obj1 : obj2;</li>
+<li class="old">   const char *verb = tmp != NULL ? verb1 : verb2;</li>
 <li class="old">   obj1-&gt;location = obj2-&gt;location;</li>
 <li class="old">   obj2-&gt;location = tmp;</li>
+<li class="old">   if (verb != NULL) printf("You %s %s.\n", verb, obj-&gt;description);</li>
 <li class="old">}</li>
 <li class="old"></li>
-<li class="old">const char *cannotBeOpened(void)    { return "That cannot be opened.\n";    }</li>
-<li class="old">const char *cannotBeClosed(void)    { return "That cannot be closed.\n";    }</li>
-<li class="old">const char *cannotBeLocked(void)    { return "That cannot be locked.\n";    }</li>
-<li class="old">const char *cannotBeUnlocked(void)  { return "That cannot be unlocked.\n";  }</li>
+<li class="old">void cannotBeOpened(void)    { printf("That cannot be opened.\n");    }</li>
+<li class="old">void cannotBeClosed(void)    { printf("That cannot be closed.\n");    }</li>
+<li class="old">void cannotBeLocked(void)    { printf("That cannot be locked.\n");    }</li>
+<li class="old">void cannotBeUnlocked(void)  { printf("That cannot be unlocked.\n");  }</li>
 <li class="old"></li>
-<li class="old">const char *isAlreadyOpen(void)     { return "That is already open.\n";     }</li>
-<li class="old">const char *isAlreadyClosed(void)   { return "That is already closed.\n";   }</li>
-<li class="old">const char *isAlreadyLocked(void)   { return "That is already locked.\n";   }</li>
-<li class="old">const char *isAlreadyUnlocked(void) { return "That is already unlocked.\n"; }</li>
+<li class="old">void isAlreadyOpen(void)     { printf("That is already open.\n");     }</li>
+<li class="old">void isAlreadyClosed(void)   { printf("That is already closed.\n");   }</li>
+<li class="old">void isAlreadyLocked(void)   { printf("That is already locked.\n");   }</li>
+<li class="old">void isAlreadyUnlocked(void) { printf("That is already unlocked.\n"); }</li>
 <li class="old"></li>
-<li class="old">const char *isStillOpen(void)       { return "That is still open.\n";       }</li>
-<li class="old">const char *isStillLocked(void)     { return "That is locked.\n";           }</li>
+<li class="old">void isStillOpen(void)       { printf("That is still open.\n");       }</li>
+<li class="old">void isStillLocked(void)     { printf("That is locked.\n");           }</li>
 <li class="old"></li>
-<li class="old">const char *toggleBackdoor(void)</li>
+<li class="old">void toggleDoorToBackroom(void)</li>
 <li class="old">{</li>
-<li class="old">   swapLocations(openDoorToBackroom, closedDoorToBackroom);</li>
-<li class="old">   swapLocations(openDoorToCave, closedDoorToCave);</li>
-<li class="old">   return "OK.\n";</li>
+<li class="old">   swapLocations(NULL, openDoorToCave, NULL, closedDoorToCave);</li>
+<li class="old">   swapLocations("close", openDoorToBackroom, "open", closedDoorToBackroom);</li>
 <li class="old">}</li>
 <li class="old"></li>
-<li class="old">const char *toggleBox(void)</li>
+<li class="old">void toggleDoorToCave(void)</li>
 <li class="old">{</li>
-<li class="old">   swapLocations(openBox, closedBox);</li>
-<li class="old">   return "OK.\n";</li>
+<li class="old">   swapLocations(NULL, openDoorToBackroom, NULL, closedDoorToBackroom);</li>
+<li class="old">   swapLocations("close", openDoorToCave, "open", closedDoorToCave);</li>
 <li class="old">}</li>
 <li class="old"></li>
-<li class="old">const char *toggleBoxLock(void)</li>
+<li class="old">void toggleBox(void)</li>
+<li class="old">{</li>
+<li class="old">   swapLocations("close", openBox, "open", closedBox);</li>
+<li class="old">}</li>
+<li class="old"></li>
+<li class="old">void toggleBoxLock(void)</li>
 <li class="old">{</li>
 <li class="old">   if (keyForBox-&gt;location == player)</li>
 <li class="old">   {</li>
-<li class="old">      swapLocations(closedBox, lockedBox);</li>
-<li class="old">      return "OK.\n";</li>
+<li class="old">      swapLocations("lock", closedBox, "unlock", lockedBox);</li>
 <li class="old">   }</li>
 <li class="old">   else</li>
 <li class="old">   {</li>
-<li class="old">      return "You don't have a key.\n";</li>
+<li class="old">      printf("You don't have a key.\n");</li>
 <li class="new">   }</li>
 <li class="new">}</li>
 <li class="new"></li>
 <li class="new">void toggleLamp(void)</li>
 <li class="new">{</li>
 <li class="new">   bool oldLit = isLit(player-&gt;location);</li>
-<li class="new">   swapLocations(lampOn, lampOff);</li>
-<li class="new">   printf("OK.\n");</li>
+<li class="new">   swapLocations("turn off", lampOn, "turn on", lampOff);</li>
 <li class="new">   if (oldLit != isLit(player-&gt;location))</li>
 <li class="new">   {</li>
 <li class="new">      printf("\n");</li>
@@ -1093,13 +1100,13 @@ we will use the same trick we used to open and close the door and the box
 Explanation:
 </p>
 <ul>
-<li>Line 56:
+<li>Line 63:
 we are doing the exact same trick
 as used in chapter 12 to open and close objects.
 Just swap between two different objects:
 one for the lamp turned on, the other for the lamp turned off.
 </li>
-<li>Lines 58-62:
+<li>Lines 64-68:
 when turning on the light in a dark area,
 we immediately give players a look at their surroundings.
 This is consistent with the behavior of the &lsquo;go&rsquo; command:

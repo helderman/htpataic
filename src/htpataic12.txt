@@ -239,6 +239,9 @@ To avoid
 <a href="http://en.wikipedia.org/wiki/Duplicate_code">duplicate code</a>,
 I deliberately did <i>not</i> use anonymous functions this time.
 Instead, we will implement the necessary logic in a separate module.
+Function <i>swapLocations</i> is in there too,
+but in a slightly extended version,
+which will also output feedback to the user.
 </p>
 <table class="code"><tr>
 <th>toggle.h</th>

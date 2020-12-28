@@ -12,10 +12,10 @@ typedef struct object {
    int            weight;
    int            capacity;
    int            health;
-   const char  *(*open)(void);
-   const char  *(*close)(void);
-   const char  *(*lock)(void);
-   const char  *(*unlock)(void);
+   void         (*open)(void);
+   void         (*close)(void);
+   void         (*lock)(void);
+   void         (*unlock)(void);
 } OBJECT;
 
 extern OBJECT objs[];

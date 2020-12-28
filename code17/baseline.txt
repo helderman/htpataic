@@ -93,7 +93,7 @@ an exit to the west
 It's too dark.
 
 --> turn lamp on
-OK.
+You turn on a lamp.
 
 You are in a little cave.
 You see:
@@ -123,7 +123,7 @@ You are not holding any coin.
 The door is closed.
 
 --> open door
-OK.
+You open a closed door to the south.
 
 --> go south
 You walk through the door into a backroom.
@@ -141,13 +141,13 @@ That is locked.
 The key seems to fit the lock.
 
 --> unlock box
-OK.
+You unlock a wooden box.
 
 --> unlock box
 That is already unlocked.
 
 --> open box
-OK.
+You open a wooden box.
 
 --> look box
 The box is open.
@@ -164,10 +164,10 @@ You put a gold coin in a wooden box.
 That is still open.
 
 --> close box
-OK.
+You close a wooden box.
 
 --> lock box
-OK.
+You lock a wooden box.
 
 --> lock box
 That is already locked.
@@ -209,7 +209,7 @@ dense forest all around
 The lamp is already on.
 
 --> turn lamp off
-OK.
+You turn off a lamp.
 
 --> turn lamp off
 The lamp is already off.

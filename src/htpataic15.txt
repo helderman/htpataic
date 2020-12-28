@@ -196,13 +196,13 @@ we will use the same trick we used to open and close the door and the box
 Explanation:
 </p>
 <ul>
-<li>Line 56:
+<li>Line 63:
 we are doing the exact same trick
 as used in chapter 12 to open and close objects.
 Just swap between two different objects:
 one for the lamp turned on, the other for the lamp turned off.
 </li>
-<li>Lines 58-62:
+<li>Lines 64-68:
 when turning on the light in a dark area,
 we immediately give players a look at their surroundings.
 This is consistent with the behavior of the &lsquo;go&rsquo; command:

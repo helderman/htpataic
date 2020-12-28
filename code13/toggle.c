@@ -1,48 +1,56 @@
 #include <stdbool.h>
+#include <stdio.h>
 #include "object.h"
 
-static void swapLocations(OBJECT *obj1, OBJECT *obj2)
+static void swapLocations(const char *verb1, OBJECT *obj1,
+                          const char *verb2, OBJECT *obj2)
 {
    OBJECT *tmp = obj1->location;
+   OBJECT *obj = tmp != NULL ? obj1 : obj2;
+   const char *verb = tmp != NULL ? verb1 : verb2;
    obj1->location = obj2->location;
    obj2->location = tmp;
+   if (verb != NULL) printf("You %s %s.\n", verb, obj->description);
 }
 
-const char *cannotBeOpened(void)    { return "That cannot be opened.\n";    }
-const char *cannotBeClosed(void)    { return "That cannot be closed.\n";    }
-const char *cannotBeLocked(void)    { return "That cannot be locked.\n";    }
-const char *cannotBeUnlocked(void)  { return "That cannot be unlocked.\n";  }
+void cannotBeOpened(void)    { printf("That cannot be opened.\n");    }
+void cannotBeClosed(void)    { printf("That cannot be closed.\n");    }
+void cannotBeLocked(void)    { printf("That cannot be locked.\n");    }
+void cannotBeUnlocked(void)  { printf("That cannot be unlocked.\n");  }
 
-const char *isAlreadyOpen(void)     { return "That is already open.\n";     }
-const char *isAlreadyClosed(void)   { return "That is already closed.\n";   }
-const char *isAlreadyLocked(void)   { return "That is already locked.\n";   }
-const char *isAlreadyUnlocked(void) { return "That is already unlocked.\n"; }
+void isAlreadyOpen(void)     { printf("That is already open.\n");     }
+void isAlreadyClosed(void)   { printf("That is already closed.\n");   }
+void isAlreadyLocked(void)   { printf("That is already locked.\n");   }
+void isAlreadyUnlocked(void) { printf("That is already unlocked.\n"); }
 
-const char *isStillOpen(void)       { return "That is still open.\n";       }
-const char *isStillLocked(void)     { return "That is locked.\n";           }
+void isStillOpen(void)       { printf("That is still open.\n");       }
+void isStillLocked(void)     { printf("That is locked.\n");           }
 
-const char *toggleBackdoor(void)
+void toggleDoorToBackroom(void)
 {
-   swapLocations(openDoorToBackroom, closedDoorToBackroom);
-   swapLocations(openDoorToCave, closedDoorToCave);
-   return "OK.\n";
+   swapLocations(NULL, openDoorToCave, NULL, closedDoorToCave);
+   swapLocations("close", openDoorToBackroom, "open", closedDoorToBackroom);
 }
 
-const char *toggleBox(void)
+void toggleDoorToCave(void)
 {
-   swapLocations(openBox, closedBox);
-   return "OK.\n";
+   swapLocations(NULL, openDoorToBackroom, NULL, closedDoorToBackroom);
+   swapLocations("close", openDoorToCave, "open", closedDoorToCave);
 }
 
-const char *toggleBoxLock(void)
+void toggleBox(void)
+{
+   swapLocations("close", openBox, "open", closedBox);
+}
+
+void toggleBoxLock(void)
 {
    if (keyForBox->location == player)
    {
-      swapLocations(closedBox, lockedBox);
-      return "OK.\n";
+      swapLocations("lock", closedBox, "unlock", lockedBox);
    }
    else
    {
-      return "You don't have a key.\n";
+      printf("You don't have a key.\n");
    }
 }

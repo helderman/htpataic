@@ -1,16 +1,17 @@
-extern const char *cannotBeOpened(void);
-extern const char *cannotBeClosed(void);
-extern const char *cannotBeLocked(void);
-extern const char *cannotBeUnlocked(void);
+extern void cannotBeOpened(void);
+extern void cannotBeClosed(void);
+extern void cannotBeLocked(void);
+extern void cannotBeUnlocked(void);
 
-extern const char *isAlreadyOpen(void);
-extern const char *isAlreadyClosed(void);
-extern const char *isAlreadyLocked(void);
-extern const char *isAlreadyUnlocked(void);
+extern void isAlreadyOpen(void);
+extern void isAlreadyClosed(void);
+extern void isAlreadyLocked(void);
+extern void isAlreadyUnlocked(void);
 
-extern const char *isStillOpen(void);
-extern const char *isStillLocked(void);
+extern void isStillOpen(void);
+extern void isStillLocked(void);
 
-extern const char *toggleBackdoor(void);
-extern const char *toggleBox(void);
-extern const char *toggleBoxLock(void);
+extern void toggleDoorToBackroom(void);
+extern void toggleDoorToCave(void);
+extern void toggleBox(void);
+extern void toggleBoxLock(void);

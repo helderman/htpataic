@@ -565,7 +565,7 @@ You pick up a tiny key.<br />
 The door is closed.<br />
 <br />
 --&gt; open door<br />
-OK.<br />
+You open a closed door to the south.<br />
 <br />
 --&gt; go south<br />
 You walk through the door into a backroom.<br />
@@ -577,10 +577,10 @@ an open door to the north<br />
 a wooden box<br />
 <br />
 --&gt; unlock box<br />
-OK.<br />
+You unlock a wooden box.<br />
 <br />
 --&gt; open box<br />
-OK.<br />
+You open a wooden box.<br />
 <br />
 --&gt; examine box<br />
 The box is open.<br />
@@ -707,28 +707,28 @@ Same thing for the module we added in the previous chapter.
 <li class="new">bool executeOpen(void)</li>
 <li class="old">{</li>
 <li class="new"><span class="old">   OBJECT *obj = reachableObject("what you want to open", </span>params[0]);</li>
-<li class="old">   if (obj != NULL) printf("%s", (*obj-&gt;open)());</li>
+<li class="old">   if (obj != NULL) (*obj-&gt;open)();</li>
 <li class="new"><span class="old">   </span>return true;</li>
 <li class="old">}</li>
 <li class="old"></li>
 <li class="new">bool executeClose(void)</li>
 <li class="old">{</li>
 <li class="new"><span class="old">   OBJECT *obj = reachableObject("what you want to close", </span>params[0]);</li>
-<li class="old">   if (obj != NULL) printf("%s", (*obj-&gt;close)());</li>
+<li class="old">   if (obj != NULL) (*obj-&gt;close)();</li>
 <li class="new"><span class="old">   </span>return true;</li>
 <li class="old">}</li>
 <li class="old"></li>
 <li class="new">bool executeLock(void)</li>
 <li class="old">{</li>
 <li class="new"><span class="old">   OBJECT *obj = reachableObject("what you want to lock", </span>params[0]);</li>
-<li class="old">   if (obj != NULL) printf("%s", (*obj-&gt;lock)());</li>
+<li class="old">   if (obj != NULL) (*obj-&gt;lock)();</li>
 <li class="new"><span class="old">   </span>return true;</li>
 <li class="old">}</li>
 <li class="old"></li>
 <li class="new">bool executeUnlock(void)</li>
 <li class="old">{</li>
 <li class="new"><span class="old">   OBJECT *obj = reachableObject("what you want to unlock", </span>params[0]);</li>
-<li class="old">   if (obj != NULL) printf("%s", (*obj-&gt;unlock)());</li>
+<li class="old">   if (obj != NULL) (*obj-&gt;unlock)();</li>
 <li class="new"><span class="old">   </span>return true;</li>
 <li class="old">}</li>
 </ol>

@@ -309,10 +309,10 @@ Bye!<br />
 <li class="old">   int            capacity;</li>
 <li class="old">   int            health;</li>
 <li class="old">   int            light;</li>
-<li class="old">   const char  *(*open)(void);</li>
-<li class="old">   const char  *(*close)(void);</li>
-<li class="old">   const char  *(*lock)(void);</li>
-<li class="old">   const char  *(*unlock)(void);</li>
+<li class="old">   void         (*open)(void);</li>
+<li class="old">   void         (*close)(void);</li>
+<li class="old">   void         (*lock)(void);</li>
+<li class="old">   void         (*unlock)(void);</li>
 <li class="old">} OBJECT;</li>
 <li class="old"></li>
 <li class="old">extern OBJECT objs[];</li>
@@ -437,7 +437,7 @@ Bye!<br />
 <li class="old">     details     "The door is open.\n"</li>
 <li class="old">     textGo      "You walk through the door into a backroom.\n"</li>
 <li class="old">     open        isAlreadyOpen</li>
-<li class="old">     close       toggleBackdoor</li>
+<li class="old">     close       toggleDoorToBackroom</li>
 <li class="old"></li>
 <li class="old">- closedDoorToBackroom</li>
 <li class="old">     description "a closed door to the south"</li>
@@ -446,7 +446,7 @@ Bye!<br />
 <li class="old">     prospect    backroom</li>
 <li class="old">     details     "The door is closed.\n"</li>
 <li class="old">     textGo      "The door is closed.\n"</li>
-<li class="old">     open        toggleBackdoor</li>
+<li class="old">     open        toggleDoorToBackroom</li>
 <li class="old">     close       isAlreadyClosed</li>
 <li class="old"></li>
 <li class="old">- openDoorToCave</li>
@@ -456,7 +456,7 @@ Bye!<br />
 <li class="old">     details     "The door is open.\n"</li>
 <li class="old">     textGo      "You walk through the door into the cave.\n"</li>
 <li class="old">     open        isAlreadyOpen</li>
-<li class="old">     close       toggleBackdoor</li>
+<li class="old">     close       toggleDoorToCave</li>
 <li class="old"></li>
 <li class="old">- closedDoorToCave</li>
 <li class="old">     description "a closed door to the north"</li>
@@ -465,7 +465,7 @@ Bye!<br />
 <li class="old">     prospect    cave</li>
 <li class="old">     details     "The door is closed.\n"</li>
 <li class="old">     textGo      "The door is closed.\n"</li>
-<li class="old">     open        toggleBackdoor</li>
+<li class="old">     open        toggleDoorToCave</li>
 <li class="old">     close       isAlreadyClosed</li>
 <li class="old"></li>
 <li class="old">- openBox</li>

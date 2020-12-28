@@ -51,7 +51,7 @@ Lines executed:88.89% of 18
 Creating 'reach.c.gcov'
 
 File 'toggle.c'
-Lines executed:94.29% of 35
+Lines executed:85.37% of 41
 Creating 'toggle.c.gcov'
 
-Lines executed:92.23% of 373
+Lines executed:91.29% of 379

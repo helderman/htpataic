@@ -293,7 +293,7 @@ OBJECT objs[] = {
 		0,
 		0,
 		 isAlreadyOpen,
-		 toggleBackdoor,
+		 toggleDoorToBackroom,
 		cannotBeLocked,
 		cannotBeUnlocked
 	},
@@ -311,7 +311,7 @@ OBJECT objs[] = {
 		0,
 		0,
 		0,
-		 toggleBackdoor,
+		 toggleDoorToBackroom,
 		 isAlreadyClosed,
 		cannotBeLocked,
 		cannotBeUnlocked
@@ -331,7 +331,7 @@ OBJECT objs[] = {
 		0,
 		0,
 		 isAlreadyOpen,
-		 toggleBackdoor,
+		 toggleDoorToCave,
 		cannotBeLocked,
 		cannotBeUnlocked
 	},
@@ -349,7 +349,7 @@ OBJECT objs[] = {
 		0,
 		0,
 		0,
-		 toggleBackdoor,
+		 toggleDoorToCave,
 		 isAlreadyClosed,
 		cannotBeLocked,
 		cannotBeUnlocked

@@ -33,7 +33,7 @@ It's too dark.
 It's too dark.
 
 --> turn lamp on
-OK.
+You turn on a lamp.
 
 You are in a little cave.
 You see:
@@ -54,7 +54,7 @@ a tiny key
 You pick up a tiny key.
 
 --> open door
-OK.
+You open a closed door to the south.
 
 --> go south
 You walk through the door into a backroom.

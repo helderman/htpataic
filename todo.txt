@@ -3,6 +3,7 @@
   - turn.c includes damage.h; put the common code in damage.c!
 
 - a chapter about multiplayer
+  - don't forget to put the new executable in .gitignore
   - actorHere is not aware of duplicates yet; maybe let noun.c accept null tag? Or a special tag "person" or "character" or "anyone"?
 
 - ch19: noun.c is 109 lines

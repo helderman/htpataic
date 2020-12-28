@@ -29,7 +29,7 @@ You pick up a tiny key.
 The door is closed.
 
 --> open door
-OK.
+You open a closed door to the south.
 
 --> go south
 You walk through the door into a backroom.
@@ -41,10 +41,10 @@ an open door to the north
 a wooden box
 
 --> unlock box
-OK.
+You unlock a wooden box.
 
 --> open box
-OK.
+You open a wooden box.
 
 --> examine box
 The box is open.
