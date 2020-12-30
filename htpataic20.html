@@ -584,9 +584,10 @@ by the end of this chapter.
 <li class="new">#include "object.h"</li>
 <li class="new">#include "misc.h"</li>
 <li class="new"></li>
-<li class="new">static void describeAttack(OBJECT *attacker, OBJECT *victim,</li>
-<li class="new">                           const char *weaponDescription)</li>
+<li class="new">static void describeAttack(OBJECT *attacker, OBJECT *victim, OBJECT *weapon)</li>
 <li class="new">{</li>
+<li class="new">   const char *weaponDescription = weapon == attacker ? "bare hands"</li>
+<li class="new">                                                      : weapon-&gt;description;</li>
 <li class="new">   if (attacker == player)</li>
 <li class="new">   {</li>
 <li class="new">      printf("You hit %s with %s.\n", victim-&gt;description, weaponDescription);</li>
@@ -620,33 +621,14 @@ by the end of this chapter.
 <li class="new">   }</li>
 <li class="new">}</li>
 <li class="new"></li>
-<li class="new">static void describeAlreadyDead(OBJECT *victim)</li>
-<li class="new">{</li>
-<li class="new">   if (victim == player)</li>
-<li class="new">   {</li>
-<li class="new">      printf("It has little effect, since you were already dead.\n");</li>
-<li class="new">   }</li>
-<li class="new">   else</li>
-<li class="new">   {</li>
-<li class="new">      printf("It has little effect, since %s was already dead.\n",</li>
-<li class="new">             victim-&gt;description);</li>
-<li class="new">   }</li>
-<li class="new">}</li>
-<li class="new"></li>
 <li class="new">void dealDamage(OBJECT *attacker, OBJECT *weapon, OBJECT *victim)</li>
 <li class="new">{</li>
-<li class="new">   const char *weaponDescription = weapon == attacker ? "bare hands"</li>
-<li class="new">                                                      : weapon-&gt;description;</li>
 <li class="new">   int damage = (rand() % 6) * weapon-&gt;impact * attacker-&gt;health / 100;</li>
 <li class="new">   if (damage &lt; 0)</li>
 <li class="new">   {</li>
-<li class="new">      describeAttack(attacker, victim, weaponDescription);</li>
-<li class="new">      if (victim-&gt;health &lt;= 0)</li>
+<li class="new">      if (victim-&gt;health &gt; 0)</li>
 <li class="new">      {</li>
-<li class="new">         describeAlreadyDead(victim);</li>
-<li class="new">      }</li>
-<li class="new">      else</li>
-<li class="new">      {</li>
+<li class="new">         describeAttack(attacker, victim, weapon);</li>
 <li class="new">         victim-&gt;health += damage;</li>
 <li class="new">         if (victim-&gt;health &lt;= 0)</li>
 <li class="new">         {</li>
@@ -658,11 +640,17 @@ by the end of this chapter.
 <li class="new">            victim-&gt;trust--;</li>
 <li class="new">         }</li>
 <li class="new">      }</li>
+<li class="new">      else if (victim != player)</li>
+<li class="new">      {</li>
+<li class="new">         printf("That will have little effect; %s is already dead.\n",</li>
+<li class="new">                victim-&gt;description);</li>
+<li class="new">      }</li>
 <li class="new">   }</li>
 <li class="new">   else if (attacker == player)</li>
 <li class="new">   {</li>
 <li class="new">      printf("You try to hit %s with %s, but you miss.\n",</li>
-<li class="new">             victim-&gt;description, weaponDescription);</li>
+<li class="new">             victim-&gt;description,</li>
+<li class="new">             weapon == attacker ? "bare hands" : weapon-&gt;description);</li>
 <li class="new">   }</li>
 <li class="new">}</li>
 <li class="new"></li>
@@ -849,7 +837,7 @@ from <i>bool</i> to <i>int</i>.
 This is a sweeping change through a lot of modules
 (<i>inventory.c</i>, <i>inventory2.c</i>, <i>location.c</i>,
 <i>move.c</i>, <i>onoff.c</i>, <i>openclose.c</i>, <i>talk.c</i>).
-Unsurprising; for every command, we need to make up ours minds
+Unsurprising; for every command, we need to make up our minds
 how many time unit are being consumed by the execution of that command.
 </li>
 <li>Line 23:

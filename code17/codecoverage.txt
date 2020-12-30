@@ -23,7 +23,7 @@ Lines executed:100.00% of 43
 Creating 'misc.c.gcov'
 
 File 'move.c'
-Lines executed:92.00% of 25
+Lines executed:92.86% of 28
 Creating 'move.c.gcov'
 
 File 'noun.c'
@@ -54,4 +54,4 @@ File 'toggle.c'
 Lines executed:85.37% of 41
 Creating 'toggle.c.gcov'
 
-Lines executed:91.29% of 379
+Lines executed:91.36% of 382

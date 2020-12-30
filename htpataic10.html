@@ -486,6 +486,28 @@ And a <b>health</b> check replaces the hard-coded whitelist of actors.
 <li class="new">   return sum;</li>
 <li class="new">}</li>
 <li class="old"></li>
+<li class="old">static void describeMove(OBJECT *obj, OBJECT *to)</li>
+<li class="old">{</li>
+<li class="old">   if (to == player-&gt;location)</li>
+<li class="old">   {</li>
+<li class="old">      printf("You drop %s.\n", obj-&gt;description);</li>
+<li class="old">   }</li>
+<li class="old">   else if (to != player)</li>
+<li class="old">   {</li>
+<li class="new"><span class="old">      </span>printf(to-&gt;health &gt; 0<span class="old"> ? "You give %s to %s.\n" : "You put %s in %s.\n",</span></li>
+<li class="old">             obj-&gt;description, to-&gt;description);</li>
+<li class="old">   }</li>
+<li class="old">   else if (obj-&gt;location == player-&gt;location)</li>
+<li class="old">   {</li>
+<li class="old">      printf("You pick up %s.\n", obj-&gt;description);</li>
+<li class="old">   }</li>
+<li class="old">   else</li>
+<li class="old">   {</li>
+<li class="old">      printf("You get %s from %s.\n",</li>
+<li class="old">             obj-&gt;description, obj-&gt;location-&gt;description);</li>
+<li class="old">   }</li>
+<li class="old">}</li>
+<li class="old"></li>
 <li class="old">void moveObject(OBJECT *obj, OBJECT *to)</li>
 <li class="old">{</li>
 <li class="old">   if (obj == NULL)</li>
@@ -498,33 +520,15 @@ And a <b>health</b> check replaces the hard-coded whitelist of actors.
 <li class="old">   }</li>
 <li class="new"><span class="old">   else if </span>(obj-&gt;weight &gt; to-&gt;capacity)</li>
 <li class="old">   {</li>
-<li class="old">      printf("That is way too heavy.\n");</li>
-<li class="old">   }</li>
-<li class="new"><span class="old">   else </span>if (obj-&gt;weight + weightOfContents(to) &gt; to-&gt;capacity)</li>
-<li class="new">   {</li>
-<li class="new">      printf("That would become too heavy.\n");</li>
+<li class="new"><span class="old">      printf("That is way </span>too heavy.\n");</li>
 <li class="new">   }</li>
-<li class="new">   else</li>
+<li class="new">   else if (obj-&gt;weight + weightOfContents(to) &gt; to-&gt;capacity)</li>
+<li class="new">   {</li>
+<li class="new">      printf("That would become<span class="old"> too heavy.\n");</span></li>
+<li class="old">   }</li>
+<li class="old">   else</li>
 <li class="old">   {</li>
-<li class="old">      if (to == player-&gt;location)</li>
-<li class="old">      {</li>
-<li class="old">         printf("You drop %s.\n", obj-&gt;description);</li>
-<li class="old">      }</li>
-<li class="old">      else if (to != player)</li>
-<li class="old">      {</li>
-<li class="new"><span class="old">         </span>printf(to-&gt;health &gt; 0<span class="old"> ? "You give %s to %s.\n"</span></li>
-<li class="old">                               : "You put %s in %s.\n",</li>
-<li class="old">                obj-&gt;description, to-&gt;description);</li>
-<li class="old">      }</li>
-<li class="old">      else if (obj-&gt;location == player-&gt;location)</li>
-<li class="old">      {</li>
-<li class="old">         printf("You pick up %s.\n", obj-&gt;description);</li>
-<li class="old">      }</li>
-<li class="old">      else</li>
-<li class="old">      {</li>
-<li class="old">         printf("You get %s from %s.\n", obj-&gt;description,</li>
-<li class="old">                                         obj-&gt;location-&gt;description);</li>
-<li class="old">      }</li>
+<li class="old">      describeMove(obj, to);</li>
 <li class="old">      obj-&gt;location = to;</li>
 <li class="old">   }</li>
 <li class="old">}</li>

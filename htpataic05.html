@@ -372,6 +372,28 @@ can perform that action for all four commands.
 <li class="new">#include &lt;stdio.h&gt;</li>
 <li class="new">#include "object.h"</li>
 <li class="new"></li>
+<li class="new">static void describeMove(OBJECT *obj, OBJECT *to)</li>
+<li class="new">{</li>
+<li class="new">   if (to == player-&gt;location)</li>
+<li class="new">   {</li>
+<li class="new">      printf("You drop %s.\n", obj-&gt;description);</li>
+<li class="new">   }</li>
+<li class="new">   else if (to != player)</li>
+<li class="new">   {</li>
+<li class="new">      printf(to == guard ? "You give %s to %s.\n" : "You put %s in %s.\n",</li>
+<li class="new">             obj-&gt;description, to-&gt;description);</li>
+<li class="new">   }</li>
+<li class="new">   else if (obj-&gt;location == player-&gt;location)</li>
+<li class="new">   {</li>
+<li class="new">      printf("You pick up %s.\n", obj-&gt;description);</li>
+<li class="new">   }</li>
+<li class="new">   else</li>
+<li class="new">   {</li>
+<li class="new">      printf("You get %s from %s.\n",</li>
+<li class="new">             obj-&gt;description, obj-&gt;location-&gt;description);</li>
+<li class="new">   }</li>
+<li class="new">}</li>
+<li class="new"></li>
 <li class="new">void moveObject(OBJECT *obj, OBJECT *to)</li>
 <li class="new">{</li>
 <li class="new">   if (obj == NULL)</li>
@@ -388,25 +410,7 @@ can perform that action for all four commands.
 <li class="new">   }</li>
 <li class="new">   else</li>
 <li class="new">   {</li>
-<li class="new">      if (to == player-&gt;location)</li>
-<li class="new">      {</li>
-<li class="new">         printf("You drop %s.\n", obj-&gt;description);</li>
-<li class="new">      }</li>
-<li class="new">      else if (to != player)</li>
-<li class="new">      {</li>
-<li class="new">         printf(to == guard ? "You give %s to %s.\n"</li>
-<li class="new">                            : "You put %s in %s.\n",</li>
-<li class="new">                obj-&gt;description, to-&gt;description);</li>
-<li class="new">      }</li>
-<li class="new">      else if (obj-&gt;location == player-&gt;location)</li>
-<li class="new">      {</li>
-<li class="new">         printf("You pick up %s.\n", obj-&gt;description);</li>
-<li class="new">      }</li>
-<li class="new">      else</li>
-<li class="new">      {</li>
-<li class="new">         printf("You get %s from %s.\n", obj-&gt;description,</li>
-<li class="new">                                         obj-&gt;location-&gt;description);</li>
-<li class="new">      }</li>
+<li class="new">      describeMove(obj, to);</li>
 <li class="new">      obj-&gt;location = to;</li>
 <li class="new">   }</li>
 <li class="new">}</li>
@@ -418,26 +422,26 @@ can perform that action for all four commands.
 Explanation:
 </p>
 <ul>
-<li>Line 6-17:
+<li>Line 6-23:
+various messages to confirm that the move was successful.
+Alternatively, we could have given a simple &lsquo;OK&rsquo;.
+</li>
+<li>Line 28-39:
 various conditions under which the move will not take place.
 </li>
-<li>Line 10-13:
+<li>Line 32-35:
 there is only one possibility for the item&rsquo;s destination to be NULL:
 when trying to &lsquo;give&rsquo; something
 at a location where the player is alone.
 </li>
-<li>Line 14-17:
+<li>Line 36-39:
 some objects are not meant to be picked up;
 for example <i>field</i> and <i>cave</i>.
 The condition to recognize those objects, is still rather crude here.
 For example, it is currently possible to pick up the guard.
 This will be improved in chapter 10.
 </li>
-<li>Line 20-38:
-various messages to confirm that the move was successful.
-Alternatively, we could have given a simple &lsquo;OK&rsquo;.
-</li>
-<li>Line 39:
+<li>Line 43:
 the core of the function; here the object is actually moved.
 </li>
 </ul>

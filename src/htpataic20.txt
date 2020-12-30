@@ -443,7 +443,7 @@ from <i>bool</i> to <i>int</i>.
 This is a sweeping change through a lot of modules
 (<i>inventory.c</i>, <i>inventory2.c</i>, <i>location.c</i>,
 <i>move.c</i>, <i>onoff.c</i>, <i>openclose.c</i>, <i>talk.c</i>).
-Unsurprising; for every command, we need to make up ours minds
+Unsurprising; for every command, we need to make up our minds
 how many time unit are being consumed by the execution of that command.
 </li>
 <li>Line 23:
