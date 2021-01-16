@@ -60,7 +60,7 @@ void dealDamage(OBJECT *attacker, OBJECT *weapon, OBJECT *victim)
             victim->trust--;
          }
       }
-      else if (victim != player)
+      else if (attacker == player)
       {
          printf("That will have little effect; %s is already dead.\n",
                 victim->description);

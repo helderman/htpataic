@@ -249,7 +249,7 @@ Explanation:
 <ul>
 <li>Line 1:
 from <a href="http://en.wikipedia.org/wiki/Ctype.h">ctype.h</a>,
-we will be using <i>isspace</i> (line 28),
+we will be using <i>isspace</i> (line 26),
 which provides a more complete
 <a href="http://en.wikipedia.org/wiki/Whitespace_(computer_science)">whitespace</a>
 test than a simple comparison with
@@ -261,32 +261,36 @@ among others).
 <li>Line 11-15:
 type <i>COMMAND</i> is a structure that combines a pattern with a function.
 </li>
-<li>Line 17-32:
+<li>Line 17-29:
 a few generic handlers.
 </li>
-<li>Line 28:
-this loop prints the first word entered by the player;
+<li>Line 26:
+this loop calculates the length of the first word entered by the player;
 we assume this is supposed to be the (unrecognized) verb.
 </li>
-<li>Line 36-56:
+<li>Line 27:
+we use a special format specifier <code>%.*s</code>
+to print only the first <i>len</i> characters of <i>src</i>.
+</li>
+<li>Line 33-53:
 the array of patterns.
 </li>
-<li>Line 41-43:
+<li>Line 38-40:
 <a href="https://en.wikipedia.org/wiki/Synonym">synonyms</a>
 are simple: just map different patterns to the same function.
 </li>
-<li>Line 55:
+<li>Line 52:
 the last pattern should always be &ldquo;A&rdquo;;
 this pattern matches <i>anything</i> and so it will pick up
 everything that hasn&rsquo;t been matched by preceding patterns.
 </li>
-<li>Line 58:
+<li>Line 55:
 this loop scans though all patterns from top to bottom;
 it stops at the first pattern that matches.
-The &lsquo;sure match&rsquo; on line 55 ensures
+The &lsquo;sure match&rsquo; on line 52 ensures
 the loop will never pass the end of the array.
 </li>
-<li>Line 59:
+<li>Line 56:
 the function that belongs to the matching pattern is called.
 </li>
 </ul>

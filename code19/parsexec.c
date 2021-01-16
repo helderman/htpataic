@@ -25,12 +25,9 @@ static bool executeQuit(void)
 static bool executeNoMatch(void)
 {
    const char *src = *params;
-   if (*src != '\0')
-   {
-      printf("I don't know how to '");
-      while (*src != '\0' && !isspace(*src)) putchar(*src++);
-      printf("'.\n");
-   }
+   int len;
+   for (len = 0; src[len] != '\0' && !isspace(src[len]); len++);
+   if (len > 0) printf("I don't know how to '%.*s'.\n", len, src);
    return true;
 }
 

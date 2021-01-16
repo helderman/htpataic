@@ -33,7 +33,7 @@ extern OBJECT objs[];
 - field
      description "an open field"
      tags        "field"
-     details     "The field is a nice and quiet place under a clear blue sky.\n"
+     details     "The field is a nice and quiet place under a clear blue sky."
      gossip      "A lot of tourists go there."
      capacity    9999
      light       100
@@ -41,7 +41,7 @@ extern OBJECT objs[];
 - cave
      description "a little cave"
      tags        "cave"
-     details     "The cave is just a cold, damp, rocky chamber.\n"
+     details     "The cave is just a cold, damp, rocky chamber."
      gossip      "It's dark in there; bring a lamp!"
      capacity    9999
 
@@ -49,7 +49,7 @@ extern OBJECT objs[];
      description "a silver coin"
      tags        "silver", "coin", "silver coin"
      location    field
-     details     "The coin has an eagle on the obverse.\n"
+     details     "The coin has an eagle on the obverse."
      gossip      "Money makes the world go round..."
      weight      1
 
@@ -57,7 +57,7 @@ extern OBJECT objs[];
      description "a gold coin"
      tags        "gold", "coin", "gold coin"
      location    openBox
-     details     "The shiny coin seems to be a rare and priceless artefact.\n"
+     details     "The shiny coin seems to be a rare and priceless artefact."
      gossip      "Money makes the world go round..."
      weight      1
 
@@ -65,7 +65,7 @@ extern OBJECT objs[];
      description "a burly guard"
      tags        "guard", "burly guard"
      location    field
-     details     "The guard is a really big fellow.\n"
+     details     "The guard is a really big fellow."
      gossip      "Easy to bribe..."
      contents    "He has"
      health      100
@@ -75,7 +75,7 @@ extern OBJECT objs[];
      description "yourself"
      tags        "yourself"
      location    field
-     details     "You would need a mirror to look at yourself.\n"
+     details     "You would need a mirror to look at yourself."
      gossip      "You're not from around here, are you?"
      contents    "You have"
      health      100
@@ -87,8 +87,8 @@ extern OBJECT objs[];
      tags        "east", "entrance"
      location    field
      destination cave
-     details     "The entrance is just a narrow opening in a small outcrop.\n"
-     textGo      "You walk into the cave.\n"
+     details     "The entrance is just a narrow opening in a small outcrop."
+     textGo      "You walk into the cave."
      open        isAlreadyOpen
 
 - intoCaveBlocked
@@ -97,8 +97,8 @@ extern OBJECT objs[];
      tags        "east", "entrance"
      location    field
      prospect    cave
-     details     "The entrance is just a narrow opening in a small outcrop.\n"
-     textGo      "The guard stops you from walking into the cave.\n"
+     details     "The entrance is just a narrow opening in a small outcrop."
+     textGo      "The guard stops you from walking into the cave."
      open        isAlreadyOpen
 
 - exitCave
@@ -106,29 +106,29 @@ extern OBJECT objs[];
      tags        "west", "exit"
      location    cave
      destination field
-     details     "Sunlight pours in through an opening in the cave's wall.\n"
-     textGo      "You walk out of the cave.\n"
+     details     "Sunlight pours in through an opening in the cave's wall."
+     textGo      "You walk out of the cave."
      open        isAlreadyOpen
 
 - wallField
      description "dense forest all around"
      tags        "west", "north", "south", "forest"
      location    field
-     details     "The field is surrounded by trees and undergrowth.\n"
-     textGo      "Dense forest is blocking the way.\n"
+     details     "The field is surrounded by trees and undergrowth."
+     textGo      "Dense forest is blocking the way."
      gossip      "You cannot go there, it is impenetrable."
 
 - wallCave
      description "solid rock all around"
      tags        "east", "north", "rock"
      location    cave
-     details     "Carved in stone is a secret password 'abccb'.\n"
-     textGo      "Solid rock is blocking the way.\n"
+     details     "Carved in stone is a secret password 'abccb'."
+     textGo      "Solid rock is blocking the way."
 
 - backroom
      description "a backroom"
      tags        "backroom"
-     details     "The room is dusty and messy.\n"
+     details     "The room is dusty and messy."
      gossip      "There is something of value to be found there."
      capacity    9999
 
@@ -136,15 +136,15 @@ extern OBJECT objs[];
      description "solid rock all around"
      tags        "east", "west", "south", "rock"
      location    backroom
-     details     "Trendy wallpaper covers the rock walls.\n"
-     textGo      "Solid rock is blocking the way.\n"
+     details     "Trendy wallpaper covers the rock walls."
+     textGo      "Solid rock is blocking the way."
 
 - openDoorToBackroom
      description "an open door to the south"
      tags        "south", "door", "doorway"
      destination backroom
-     details     "The door is open.\n"
-     textGo      "You walk through the door into a backroom.\n"
+     details     "The door is open."
+     textGo      "You walk through the door into a backroom."
      open        isAlreadyOpen
      close       toggleDoorToBackroom
 
@@ -153,8 +153,8 @@ extern OBJECT objs[];
      tags        "south", "door", "doorway"
      location    cave
      prospect    backroom
-     details     "The door is closed.\n"
-     textGo      "The door is closed.\n"
+     details     "The door is closed."
+     textGo      "The door is closed."
      open        toggleDoorToBackroom
      close       isAlreadyClosed
 
@@ -162,8 +162,8 @@ extern OBJECT objs[];
      description "an open door to the north"
      tags        "north", "door", "doorway"
      destination cave
-     details     "The door is open.\n"
-     textGo      "You walk through the door into the cave.\n"
+     details     "The door is open."
+     textGo      "You walk through the door into the cave."
      open        isAlreadyOpen
      close       toggleDoorToCave
 
@@ -172,15 +172,15 @@ extern OBJECT objs[];
      tags        "north", "door", "doorway"
      location    backroom
      prospect    cave
-     details     "The door is closed.\n"
-     textGo      "The door is closed.\n"
+     details     "The door is closed."
+     textGo      "The door is closed."
      open        toggleDoorToCave
      close       isAlreadyClosed
 
 - openBox
      description "a wooden box"
      tags        "box", "wooden box"
-     details     "The box is open.\n"
+     details     "The box is open."
      gossip      "You need a key to open it."
      weight      5
      capacity    10
@@ -192,7 +192,7 @@ extern OBJECT objs[];
 - closedBox
      description "a wooden box"
      tags        "box", "wooden box"
-     details     "The box is closed.\n"
+     details     "The box is closed."
      weight      5
      open        toggleBox
      close       isAlreadyClosed
@@ -203,7 +203,7 @@ extern OBJECT objs[];
      description "a wooden box"
      tags        "box", "wooden box"
      location    backroom
-     details     "The box is closed.\n"
+     details     "The box is closed."
      weight      5
      open        isStillLocked
      close       isAlreadyClosed
@@ -214,7 +214,7 @@ extern OBJECT objs[];
      description "a tiny key"
      tags        "key", "tiny key"
      location    cave
-     details     "The key is really small and shiny.\n"
+     details     "The key is really small and shiny."
      gossip      "A small key opens a small lock."
      weight      1
 
@@ -222,13 +222,13 @@ extern OBJECT objs[];
      description "a lamp"
      tags        "lamp"
      location    field
-     details     "The lamp is off.\n"
+     details     "The lamp is off."
      gossip      "Essential in dark areas."
      weight      5
 
 - lampOn
      description "a lamp"
      tags        "lamp"
-     details     "The lamp is on.\n"
+     details     "The lamp is on."
      weight      5
      light       100

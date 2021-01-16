@@ -271,7 +271,7 @@ Adding a new command &lsquo;talk&rsquo; to the parser:
 Explanation:
 </p>
 <ul>
-<li>Line 67-70:
+<li>Line 64-67:
 four new patterns for one new verb.
 As explained in chapter 14, the order of the patterns is important.
 </li>

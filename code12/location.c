@@ -30,7 +30,7 @@ void executeLook(const char *noun)
          // already handled by getVisible
          break;
       default:
-         printf("%s", obj->details);
+         printf("%s\n", obj->details);
          listObjectsAtLocation(obj);
       }
    }
@@ -38,7 +38,7 @@ void executeLook(const char *noun)
 
 static void movePlayer(OBJECT *passage)
 {
-   printf("%s", passage->textGo);
+   printf("%s\n", passage->textGo);
    if (passage->destination != NULL)
    {
       player->location = passage->destination;

@@ -141,34 +141,34 @@ We define seven new attributes in <i>object.txt</i>:
 <li class="old">- field</li>
 <li class="old">     description "an open field"</li>
 <li class="old">     tags        "field"</li>
-<li class="new"><span class="old">     </span>details     "The field is a nice and quiet place under a clear blue sky.\n"</li>
+<li class="new"><span class="old">     </span>details     "The field is a nice and quiet place under a clear blue sky."</li>
 <li class="new">     capacity    9999</li>
 <li class="old"></li>
 <li class="old">- cave</li>
 <li class="old">     description "a little cave"</li>
 <li class="old">     tags        "cave"</li>
-<li class="new"><span class="old">     </span>details     "The cave is just a cold, damp, rocky chamber.\n"</li>
+<li class="new"><span class="old">     </span>details     "The cave is just a cold, damp, rocky chamber."</li>
 <li class="new">     capacity    9999</li>
 <li class="old"></li>
 <li class="old">- silver</li>
 <li class="old">     description "a silver coin"</li>
 <li class="old">     tags        "silver", "coin", "silver coin"</li>
 <li class="old">     location    field</li>
-<li class="new"><span class="old">     </span>details     "The coin has an eagle on the obverse.\n"</li>
+<li class="new"><span class="old">     </span>details     "The coin has an eagle on the obverse."</li>
 <li class="new">     weight      1</li>
 <li class="old"></li>
 <li class="old">- gold</li>
 <li class="old">     description "a gold coin"</li>
 <li class="old">     tags        "gold", "coin", "gold coin"</li>
 <li class="old">     location    cave</li>
-<li class="new"><span class="old">     </span>details     "The shiny coin seems to be a rare and priceless artefact.\n"</li>
+<li class="new"><span class="old">     </span>details     "The shiny coin seems to be a rare and priceless artefact."</li>
 <li class="new">     weight      1</li>
 <li class="old"></li>
 <li class="old">- guard</li>
 <li class="old">     description "a burly guard"</li>
 <li class="old">     tags        "guard", "burly guard"</li>
 <li class="old">     location    field</li>
-<li class="new"><span class="old">     </span>details     "The guard is a really big fellow.\n"</li>
+<li class="new"><span class="old">     </span>details     "The guard is a really big fellow."</li>
 <li class="new">     contents    "He has"</li>
 <li class="new">     health      100</li>
 <li class="new">     capacity    20</li>
@@ -177,7 +177,7 @@ We define seven new attributes in <i>object.txt</i>:
 <li class="old">     description "yourself"</li>
 <li class="old">     tags        "yourself"</li>
 <li class="old">     location    field</li>
-<li class="new"><span class="old">     </span>details     "You would need a mirror to look at yourself.\n"</li>
+<li class="new"><span class="old">     </span>details     "You would need a mirror to look at yourself."</li>
 <li class="new">     contents    "You have"</li>
 <li class="new">     health      100</li>
 <li class="new">     capacity    20</li>
@@ -187,30 +187,30 @@ We define seven new attributes in <i>object.txt</i>:
 <li class="old">     tags        "east", "entrance"</li>
 <li class="old">     location    field</li>
 <li class="new"><span class="old">     </span>prospect<span class="old">    cave</span></li>
-<li class="new"><span class="old">     </span>details     "The entrance is just a narrow opening in a small outcrop.\n"</li>
-<li class="new">     textGo      "The guard stops you from walking into the cave.\n"</li>
+<li class="new"><span class="old">     </span>details     "The entrance is just a narrow opening in a small outcrop."</li>
+<li class="new">     textGo      "The guard stops you from walking into the cave."</li>
 <li class="old"></li>
 <li class="old">- exitCave</li>
 <li class="old">     description "an exit to the west"</li>
 <li class="old">     tags        "west", "exit"</li>
 <li class="old">     location    cave</li>
 <li class="old">     destination field</li>
-<li class="new"><span class="old">     </span>details     "Sunlight pours in through an opening in the cave's wall.\n"</li>
-<li class="new">     textGo      "You walk out of the cave.\n"</li>
+<li class="new"><span class="old">     </span>details     "Sunlight pours in through an opening in the cave's wall."</li>
+<li class="new">     textGo      "You walk out of the cave."</li>
 <li class="old"></li>
 <li class="old">- wallField</li>
 <li class="old">     description "dense forest all around"</li>
 <li class="old">     tags        "west", "north", "south", "forest"</li>
 <li class="old">     location    field</li>
-<li class="new"><span class="old">     </span>details     "The field is surrounded by trees and undergrowth.\n"</li>
-<li class="new">     textGo      "Dense forest is blocking the way.\n"</li>
+<li class="new"><span class="old">     </span>details     "The field is surrounded by trees and undergrowth."</li>
+<li class="new">     textGo      "Dense forest is blocking the way."</li>
 <li class="old"></li>
 <li class="old">- wallCave</li>
 <li class="old">     description "solid rock all around"</li>
 <li class="old">     tags        "east", "north", "south", "rock"</li>
 <li class="old">     location    cave</li>
-<li class="new"><span class="old">     </span>details     "Carved in stone is a secret password 'abccb'.\n"</li>
-<li class="new">     textGo      "Solid rock is blocking the way.\n"</li>
+<li class="new"><span class="old">     </span>details     "Carved in stone is a secret password 'abccb'."</li>
+<li class="new">     textGo      "Solid rock is blocking the way."</li>
 </ol>
 </td>
 </tr></table>
@@ -422,7 +422,7 @@ Bye!<br />
 <li class="new">         // already handled by getVisible</li>
 <li class="new">         break;</li>
 <li class="new">      default:</li>
-<li class="new">         printf("%s", obj-&gt;details);</li>
+<li class="new">         printf("%s\n", obj-&gt;details);</li>
 <li class="new">         listObjectsAtLocation(obj);</li>
 <li class="new">      }</li>
 <li class="new">   }</li>
@@ -430,7 +430,7 @@ Bye!<br />
 <li class="new"></li>
 <li class="new">static void movePlayer(OBJECT *passage)</li>
 <li class="new">{</li>
-<li class="new">   printf("%s", passage-&gt;textGo);</li>
+<li class="new">   printf("%s\n", passage-&gt;textGo);</li>
 <li class="new">   if (passage-&gt;destination != NULL)</li>
 <li class="new">   {</li>
 <li class="new">      player-&gt;location = passage-&gt;destination;</li>

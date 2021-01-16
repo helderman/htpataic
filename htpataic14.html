@@ -220,12 +220,9 @@ Bye!<br />
 <li class="old">static bool executeNoMatch(void)</li>
 <li class="old">{</li>
 <li class="old">   const char *src = *params;</li>
-<li class="old">   if (*src != '\0')</li>
-<li class="old">   {</li>
-<li class="old">      printf("I don't know how to '");</li>
-<li class="old">      while (*src != '\0' &amp;&amp; !isspace(*src)) putchar(*src++);</li>
-<li class="old">      printf("'.\n");</li>
-<li class="old">   }</li>
+<li class="old">   int len;</li>
+<li class="old">   for (len = 0; src[len] != '\0' &amp;&amp; !isspace(src[len]); len++);</li>
+<li class="old">   if (len &gt; 0) printf("I don't know how to '%.*s'.\n", len, src);</li>
 <li class="old">   return true;</li>
 <li class="old">}</li>
 <li class="old"></li>

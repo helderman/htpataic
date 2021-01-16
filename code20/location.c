@@ -37,7 +37,7 @@ int executeLook(void)
       // already handled by getVisible
       return 0;
    default:
-      printf("%s", obj->details);
+      printf("%s\n", obj->details);
       listObjectsAtLocation(obj);
       return 1;
    }
@@ -45,7 +45,7 @@ int executeLook(void)
 
 static void movePlayer(OBJECT *passage)
 {
-   printf("%s", passage->textGo);
+   printf("%s\n", passage->textGo);
    if (passage->destination != NULL)
    {
       player->location = passage->destination;

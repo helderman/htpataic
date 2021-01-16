@@ -640,7 +640,7 @@ by the end of this chapter.
 <li class="new">            victim-&gt;trust--;</li>
 <li class="new">         }</li>
 <li class="new">      }</li>
-<li class="new">      else if (victim != player)</li>
+<li class="new">      else if (attacker == player)</li>
 <li class="new">      {</li>
 <li class="new">         printf("That will have little effect; %s is already dead.\n",</li>
 <li class="new">                victim-&gt;description);</li>
@@ -764,21 +764,18 @@ it&rsquo;s time to let the player return the favor!
 <li class="new"><span class="old">static </span>int<span class="old"> executeNoMatch(void)</span></li>
 <li class="old">{</li>
 <li class="old">   const char *src = *params;</li>
-<li class="old">   if (*src != '\0')</li>
-<li class="old">   {</li>
-<li class="old">      printf("I don't know how to '");</li>
-<li class="old">      while (*src != '\0' &amp;&amp; !isspace(*src)) putchar(*src++);</li>
-<li class="old">      printf("'.\n");</li>
-<li class="old">   }</li>
+<li class="old">   int len;</li>
+<li class="old">   for (len = 0; src[len] != '\0' &amp;&amp; !isspace(src[len]); len++);</li>
+<li class="old">   if (len &gt; 0) printf("I don't know how to '%.*s'.\n", len, src);</li>
 <li class="new"><span class="old">   return </span>0;</li>
-<li class="old">}</li>
-<li class="old"></li>
+<li class="new">}</li>
+<li class="new"></li>
 <li class="new">static int executeWait(void)</li>
 <li class="new">{</li>
 <li class="new">   printf("Some time passes...\n");</li>
 <li class="new">   return 1;</li>
-<li class="new">}</li>
-<li class="new"></li>
+<li class="old">}</li>
+<li class="old"></li>
 <li class="new">int<span class="old"> parseAndExecute(const char *input)</span></li>
 <li class="old">{</li>
 <li class="old">   static const COMMAND commands[] =</li>
@@ -831,7 +828,7 @@ it&rsquo;s time to let the player return the favor!
 Explanation:
 </p>
 <ul>
-<li>Line 18, 21, 26, 44:
+<li>Line 18, 21, 26, 41:
 we are changing the return type of the command functions
 from <i>bool</i> to <i>int</i>.
 This is a sweeping change through a lot of modules
@@ -845,13 +842,13 @@ every command function should return the number of time units consumed.
 <i>Quit</i> is the exception to the rule: it returns -1,
 to signal the main loop that the program should end.
 </li>
-<li>Line 35:
+<li>Line 32:
 here you see one of the situations where a command function returns zero.
 The command has not been recognized, either because the player made a typo,
 or because the game&rsquo;s vocabulair is too limited.
 Neither is considered part of the story; no game time passes.
 </li>
-<li>Line 38-42, 81:
+<li>Line 35-39, 78:
 with the introduction of &lsquo;time&rsquo;,
 there should also be a command that allows the player
 to just let time pass without actually doing anything.
@@ -859,7 +856,7 @@ This may seem useless, but it can be fun to have a puzzle in the game
 that actually relies on the execution of this command.
 Patience is a virtue, so why not reward it?
 </li>
-<li>Line 78-80:
+<li>Line 75-77:
 we are introducing a new command &lsquo;attack&rsquo;, with two arguments:
 A represents the victim, B the weapon.
 Both are optional; below we will see how this is handled.
@@ -993,7 +990,7 @@ the weapons and the respawn location.
 <li class="old">- field</li>
 <li class="old">     description "an open field"</li>
 <li class="old">     tags        "field"</li>
-<li class="old">     details     "The field is a nice and quiet place under a clear blue sky.\n"</li>
+<li class="old">     details     "The field is a nice and quiet place under a clear blue sky."</li>
 <li class="old">     gossip      "A lot of tourists go there."</li>
 <li class="old">     capacity    9999</li>
 <li class="old">     light       100</li>
@@ -1001,7 +998,7 @@ the weapons and the respawn location.
 <li class="old">- cave</li>
 <li class="old">     description "a little cave"</li>
 <li class="old">     tags        "cave"</li>
-<li class="old">     details     "The cave is just a cold, damp, rocky chamber.\n"</li>
+<li class="old">     details     "The cave is just a cold, damp, rocky chamber."</li>
 <li class="old">     gossip      "It's dark in there; bring a lamp!"</li>
 <li class="old">     capacity    9999</li>
 <li class="old"></li>
@@ -1009,7 +1006,7 @@ the weapons and the respawn location.
 <li class="old">     description "a silver coin"</li>
 <li class="old">     tags        "silver", "coin", "silver coin"</li>
 <li class="old">     location    field</li>
-<li class="old">     details     "The coin has an eagle on the obverse.\n"</li>
+<li class="old">     details     "The coin has an eagle on the obverse."</li>
 <li class="old">     gossip      "Money makes the world go round..."</li>
 <li class="old">     weight      1</li>
 <li class="old"></li>
@@ -1017,7 +1014,7 @@ the weapons and the respawn location.
 <li class="old">     description "a gold coin"</li>
 <li class="old">     tags        "gold", "coin", "gold coin"</li>
 <li class="old">     location    openBox</li>
-<li class="old">     details     "The shiny coin seems to be a rare and priceless artefact.\n"</li>
+<li class="old">     details     "The shiny coin seems to be a rare and priceless artefact."</li>
 <li class="old">     gossip      "Money makes the world go round..."</li>
 <li class="old">     weight      1</li>
 <li class="old"></li>
@@ -1025,7 +1022,7 @@ the weapons and the respawn location.
 <li class="old">     description "a burly guard"</li>
 <li class="old">     tags        "guard", "burly guard"</li>
 <li class="old">     location    field</li>
-<li class="old">     details     "The guard is a really big fellow.\n"</li>
+<li class="old">     details     "The guard is a really big fellow."</li>
 <li class="old">     gossip      "Easy to bribe..."</li>
 <li class="old">     contents    "He has"</li>
 <li class="old">     health      100</li>
@@ -1036,7 +1033,7 @@ the weapons and the respawn location.
 <li class="old">     description "yourself"</li>
 <li class="old">     tags        "yourself"</li>
 <li class="old">     location    field</li>
-<li class="old">     details     "You would need a mirror to look at yourself.\n"</li>
+<li class="old">     details     "You would need a mirror to look at yourself."</li>
 <li class="old">     gossip      "You're not from around here, are you?"</li>
 <li class="old">     contents    "You have"</li>
 <li class="old">     health      100</li>
@@ -1049,8 +1046,8 @@ the weapons and the respawn location.
 <li class="old">     tags        "east", "entrance"</li>
 <li class="old">     location    field</li>
 <li class="old">     destination cave</li>
-<li class="old">     details     "The entrance is just a narrow opening in a small outcrop.\n"</li>
-<li class="old">     textGo      "You walk into the cave.\n"</li>
+<li class="old">     details     "The entrance is just a narrow opening in a small outcrop."</li>
+<li class="old">     textGo      "You walk into the cave."</li>
 <li class="old">     open        isAlreadyOpen</li>
 <li class="old"></li>
 <li class="old">- intoCaveBlocked</li>
@@ -1059,8 +1056,8 @@ the weapons and the respawn location.
 <li class="old">     tags        "east", "entrance"</li>
 <li class="old">     location    field</li>
 <li class="old">     prospect    cave</li>
-<li class="old">     details     "The entrance is just a narrow opening in a small outcrop.\n"</li>
-<li class="old">     textGo      "The guard stops you from walking into the cave.\n"</li>
+<li class="old">     details     "The entrance is just a narrow opening in a small outcrop."</li>
+<li class="old">     textGo      "The guard stops you from walking into the cave."</li>
 <li class="old">     open        isAlreadyOpen</li>
 <li class="old"></li>
 <li class="old">- exitCave</li>
@@ -1068,29 +1065,29 @@ the weapons and the respawn location.
 <li class="old">     tags        "west", "exit"</li>
 <li class="old">     location    cave</li>
 <li class="old">     destination field</li>
-<li class="old">     details     "Sunlight pours in through an opening in the cave's wall.\n"</li>
-<li class="old">     textGo      "You walk out of the cave.\n"</li>
+<li class="old">     details     "Sunlight pours in through an opening in the cave's wall."</li>
+<li class="old">     textGo      "You walk out of the cave."</li>
 <li class="old">     open        isAlreadyOpen</li>
 <li class="old"></li>
 <li class="old">- wallField</li>
 <li class="old">     description "dense forest all around"</li>
 <li class="old">     tags        "west", "north", "south", "forest"</li>
 <li class="old">     location    field</li>
-<li class="old">     details     "The field is surrounded by trees and undergrowth.\n"</li>
-<li class="old">     textGo      "Dense forest is blocking the way.\n"</li>
+<li class="old">     details     "The field is surrounded by trees and undergrowth."</li>
+<li class="old">     textGo      "Dense forest is blocking the way."</li>
 <li class="old">     gossip      "You cannot go there, it is impenetrable."</li>
 <li class="old"></li>
 <li class="old">- wallCave</li>
 <li class="old">     description "solid rock all around"</li>
 <li class="old">     tags        "east", "north", "rock"</li>
 <li class="old">     location    cave</li>
-<li class="old">     details     "Carved in stone is a secret password 'abccb'.\n"</li>
-<li class="old">     textGo      "Solid rock is blocking the way.\n"</li>
+<li class="old">     details     "Carved in stone is a secret password 'abccb'."</li>
+<li class="old">     textGo      "Solid rock is blocking the way."</li>
 <li class="old"></li>
 <li class="old">- backroom</li>
 <li class="old">     description "a backroom"</li>
 <li class="old">     tags        "backroom"</li>
-<li class="old">     details     "The room is dusty and messy.\n"</li>
+<li class="old">     details     "The room is dusty and messy."</li>
 <li class="old">     gossip      "There is something of value to be found there."</li>
 <li class="old">     capacity    9999</li>
 <li class="old"></li>
@@ -1098,15 +1095,15 @@ the weapons and the respawn location.
 <li class="old">     description "solid rock all around"</li>
 <li class="old">     tags        "east", "west", "south", "rock"</li>
 <li class="old">     location    backroom</li>
-<li class="old">     details     "Trendy wallpaper covers the rock walls.\n"</li>
-<li class="old">     textGo      "Solid rock is blocking the way.\n"</li>
+<li class="old">     details     "Trendy wallpaper covers the rock walls."</li>
+<li class="old">     textGo      "Solid rock is blocking the way."</li>
 <li class="old"></li>
 <li class="old">- openDoorToBackroom</li>
 <li class="old">     description "an open door to the south"</li>
 <li class="old">     tags        "south", "door", "doorway"</li>
 <li class="old">     destination backroom</li>
-<li class="old">     details     "The door is open.\n"</li>
-<li class="old">     textGo      "You walk through the door into a backroom.\n"</li>
+<li class="old">     details     "The door is open."</li>
+<li class="old">     textGo      "You walk through the door into a backroom."</li>
 <li class="old">     open        isAlreadyOpen</li>
 <li class="old">     close       toggleDoorToBackroom</li>
 <li class="old"></li>
@@ -1115,8 +1112,8 @@ the weapons and the respawn location.
 <li class="old">     tags        "south", "door", "doorway"</li>
 <li class="old">     location    cave</li>
 <li class="old">     prospect    backroom</li>
-<li class="old">     details     "The door is closed.\n"</li>
-<li class="old">     textGo      "The door is closed.\n"</li>
+<li class="old">     details     "The door is closed."</li>
+<li class="old">     textGo      "The door is closed."</li>
 <li class="old">     open        toggleDoorToBackroom</li>
 <li class="old">     close       isAlreadyClosed</li>
 <li class="old"></li>
@@ -1124,8 +1121,8 @@ the weapons and the respawn location.
 <li class="old">     description "an open door to the north"</li>
 <li class="old">     tags        "north", "door", "doorway"</li>
 <li class="old">     destination cave</li>
-<li class="old">     details     "The door is open.\n"</li>
-<li class="old">     textGo      "You walk through the door into the cave.\n"</li>
+<li class="old">     details     "The door is open."</li>
+<li class="old">     textGo      "You walk through the door into the cave."</li>
 <li class="old">     open        isAlreadyOpen</li>
 <li class="old">     close       toggleDoorToCave</li>
 <li class="old"></li>
@@ -1134,15 +1131,15 @@ the weapons and the respawn location.
 <li class="old">     tags        "north", "door", "doorway"</li>
 <li class="old">     location    backroom</li>
 <li class="old">     prospect    cave</li>
-<li class="old">     details     "The door is closed.\n"</li>
-<li class="old">     textGo      "The door is closed.\n"</li>
+<li class="old">     details     "The door is closed."</li>
+<li class="old">     textGo      "The door is closed."</li>
 <li class="old">     open        toggleDoorToCave</li>
 <li class="old">     close       isAlreadyClosed</li>
 <li class="old"></li>
 <li class="old">- openBox</li>
 <li class="old">     description "a wooden box"</li>
 <li class="old">     tags        "box", "wooden box"</li>
-<li class="old">     details     "The box is open.\n"</li>
+<li class="old">     details     "The box is open."</li>
 <li class="old">     gossip      "You need a key to open it."</li>
 <li class="old">     weight      5</li>
 <li class="old">     capacity    10</li>
@@ -1154,7 +1151,7 @@ the weapons and the respawn location.
 <li class="old">- closedBox</li>
 <li class="old">     description "a wooden box"</li>
 <li class="old">     tags        "box", "wooden box"</li>
-<li class="old">     details     "The box is closed.\n"</li>
+<li class="old">     details     "The box is closed."</li>
 <li class="old">     weight      5</li>
 <li class="old">     open        toggleBox</li>
 <li class="old">     close       isAlreadyClosed</li>
@@ -1165,7 +1162,7 @@ the weapons and the respawn location.
 <li class="old">     description "a wooden box"</li>
 <li class="old">     tags        "box", "wooden box"</li>
 <li class="old">     location    backroom</li>
-<li class="old">     details     "The box is closed.\n"</li>
+<li class="old">     details     "The box is closed."</li>
 <li class="old">     weight      5</li>
 <li class="old">     open        isStillLocked</li>
 <li class="old">     close       isAlreadyClosed</li>
@@ -1176,7 +1173,7 @@ the weapons and the respawn location.
 <li class="old">     description "a tiny key"</li>
 <li class="old">     tags        "key", "tiny key"</li>
 <li class="old">     location    cave</li>
-<li class="old">     details     "The key is really small and shiny.\n"</li>
+<li class="old">     details     "The key is really small and shiny."</li>
 <li class="old">     gossip      "A small key opens a small lock."</li>
 <li class="old">     weight      1</li>
 <li class="old"></li>
@@ -1184,14 +1181,14 @@ the weapons and the respawn location.
 <li class="old">     description "a lamp"</li>
 <li class="old">     tags        "lamp"</li>
 <li class="old">     location    field</li>
-<li class="old">     details     "The lamp is off.\n"</li>
+<li class="old">     details     "The lamp is off."</li>
 <li class="old">     gossip      "Essential in dark areas."</li>
 <li class="old">     weight      5</li>
 <li class="old"></li>
 <li class="old">- lampOn</li>
 <li class="old">     description "a lamp"</li>
 <li class="old">     tags        "lamp"</li>
-<li class="old">     details     "The lamp is on.\n"</li>
+<li class="old">     details     "The lamp is on."</li>
 <li class="old">     weight      5</li>
 <li class="old">     light       100</li>
 <li class="new"></li>
@@ -1199,7 +1196,7 @@ the weapons and the respawn location.
 <li class="new">     description "a wooden club"</li>
 <li class="new">     tags        "club", "wooden club"</li>
 <li class="new">     location    field</li>
-<li class="new">     details     "Two feet of solid wood.\n"</li>
+<li class="new">     details     "Two feet of solid wood."</li>
 <li class="new">     weight      5</li>
 <li class="new">     impact      -2</li>
 <li class="new"></li>
@@ -1207,14 +1204,14 @@ the weapons and the respawn location.
 <li class="new">     description "a dagger"</li>
 <li class="new">     tags        "dagger"</li>
 <li class="new">     location    field</li>
-<li class="new">     details     "The dagger is very sharp.\n"</li>
+<li class="new">     details     "The dagger is very sharp."</li>
 <li class="new">     weight      7</li>
 <li class="new">     impact      -5</li>
 <li class="new"></li>
 <li class="new">- heaven</li>
 <li class="new">     description "little heaven"</li>
 <li class="new">     tags        "heaven", "little heaven"</li>
-<li class="new">     details     "Everything looks so peaceful here.\n"</li>
+<li class="new">     details     "Everything looks so peaceful here."</li>
 <li class="new">     gossip      "It's where all the good adventurers go."</li>
 <li class="new">     capacity    9999</li>
 <li class="new">     light       100</li>
@@ -1224,8 +1221,8 @@ the weapons and the respawn location.
 <li class="new">     tags        "portal", "respawn portal"</li>
 <li class="new">     location    heaven</li>
 <li class="new">     destination field</li>
-<li class="new">     details     "Looks like a gateway into the unknown.\n"</li>
-<li class="new">     textGo      "A bright flash of light, and you are back in the field.\n"</li>
+<li class="new">     details     "Looks like a gateway into the unknown."</li>
+<li class="new">     textGo      "A bright flash of light, and you are back in the field."</li>
 <li class="new">     open        isAlreadyOpen</li>
 </ol>
 </td>

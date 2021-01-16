@@ -20,34 +20,34 @@ extern OBJECT objs[];
 - field
      description "an open field"
      tags        "field"
-     details     "The field is a nice and quiet place under a clear blue sky.\n"
+     details     "The field is a nice and quiet place under a clear blue sky."
      capacity    9999
 
 - cave
      description "a little cave"
      tags        "cave"
-     details     "The cave is just a cold, damp, rocky chamber.\n"
+     details     "The cave is just a cold, damp, rocky chamber."
      capacity    9999
 
 - silver
      description "a silver coin"
      tags        "silver", "coin", "silver coin"
      location    field
-     details     "The coin has an eagle on the obverse.\n"
+     details     "The coin has an eagle on the obverse."
      weight      1
 
 - gold
      description "a gold coin"
      tags        "gold", "coin", "gold coin"
      location    cave
-     details     "The shiny coin seems to be a rare and priceless artefact.\n"
+     details     "The shiny coin seems to be a rare and priceless artefact."
      weight      1
 
 - guard
      description "a burly guard"
      tags        "guard", "burly guard"
      location    field
-     details     "The guard is a really big fellow.\n"
+     details     "The guard is a really big fellow."
      contents    "He has"
      health      100
      capacity    20
@@ -56,7 +56,7 @@ extern OBJECT objs[];
      description "yourself"
      tags        "yourself"
      location    field
-     details     "You would need a mirror to look at yourself.\n"
+     details     "You would need a mirror to look at yourself."
      contents    "You have"
      health      100
      capacity    20
@@ -66,27 +66,27 @@ extern OBJECT objs[];
      tags        "east", "entrance"
      location    field
      prospect    cave
-     details     "The entrance is just a narrow opening in a small outcrop.\n"
-     textGo      "The guard stops you from walking into the cave.\n"
+     details     "The entrance is just a narrow opening in a small outcrop."
+     textGo      "The guard stops you from walking into the cave."
 
 - exitCave
      description "an exit to the west"
      tags        "west", "exit"
      location    cave
      destination field
-     details     "Sunlight pours in through an opening in the cave's wall.\n"
-     textGo      "You walk out of the cave.\n"
+     details     "Sunlight pours in through an opening in the cave's wall."
+     textGo      "You walk out of the cave."
 
 - wallField
      description "dense forest all around"
      tags        "west", "north", "south", "forest"
      location    field
-     details     "The field is surrounded by trees and undergrowth.\n"
-     textGo      "Dense forest is blocking the way.\n"
+     details     "The field is surrounded by trees and undergrowth."
+     textGo      "Dense forest is blocking the way."
 
 - wallCave
      description "solid rock all around"
      tags        "east", "north", "south", "rock"
      location    cave
-     details     "Carved in stone is a secret password 'abccb'.\n"
-     textGo      "Solid rock is blocking the way.\n"
+     details     "Carved in stone is a secret password 'abccb'."
+     textGo      "Solid rock is blocking the way."

@@ -437,7 +437,7 @@ it&rsquo;s time to let the player return the favor!
 Explanation:
 </p>
 <ul>
-<li>Line 18, 21, 26, 44:
+<li>Line 18, 21, 26, 41:
 we are changing the return type of the command functions
 from <i>bool</i> to <i>int</i>.
 This is a sweeping change through a lot of modules
@@ -451,13 +451,13 @@ every command function should return the number of time units consumed.
 <i>Quit</i> is the exception to the rule: it returns -1,
 to signal the main loop that the program should end.
 </li>
-<li>Line 35:
+<li>Line 32:
 here you see one of the situations where a command function returns zero.
 The command has not been recognized, either because the player made a typo,
 or because the game&rsquo;s vocabulair is too limited.
 Neither is considered part of the story; no game time passes.
 </li>
-<li>Line 38-42, 81:
+<li>Line 35-39, 78:
 with the introduction of &lsquo;time&rsquo;,
 there should also be a command that allows the player
 to just let time pass without actually doing anything.
@@ -465,7 +465,7 @@ This may seem useless, but it can be fun to have a puzzle in the game
 that actually relies on the execution of this command.
 Patience is a virtue, so why not reward it?
 </li>
-<li>Line 78-80:
+<li>Line 75-77:
 we are introducing a new command &lsquo;attack&rsquo;, with two arguments:
 A represents the victim, B the weapon.
 Both are optional; below we will see how this is handled.
