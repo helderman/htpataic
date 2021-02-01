@@ -27,9 +27,10 @@
 <div><a href="htpataic18.html">18. Abbreviations</a></div>
 <div><a href="htpataic19.html">19. Conversations</a></div>
 <div><b>20. Combat</b></div>
-<div><a href="htpataic21.html">21. Database</a></div>
-<div><a href="htpataic22.html">22. Speech</a></div>
-<div><a href="htpataic23.html">23. JavaScript</a></div>
+<div><a href="htpataic21.html">21. Multi-player</a></div>
+<div><a href="htpataic22.html">22. Database</a></div>
+<div><a href="htpataic23.html">23. Speech</a></div>
+<div><a href="htpataic24.html">24. JavaScript</a></div>
 </td></tr></table>
 
 <h1>How to program a text adventure in C</h1>
@@ -973,7 +974,7 @@ the weapons and the respawn location.
 <li class="old">   int            capacity;</li>
 <li class="old">   int            health;</li>
 <li class="old">   int            light;</li>
-<li class="new">   int            impact;</li>
+<li class="new"><span class="old">   </span>int            impact;</li>
 <li class="new">   int            trust;</li>
 <li class="old">   void         (*open)(void);</li>
 <li class="old">   void         (*close)(void);</li>
@@ -983,8 +984,26 @@ the weapons and the respawn location.
 <li class="old"></li>
 <li class="old">extern OBJECT objs[];</li>
 <li class="old"></li>
-<li class="old">- gossipEWNS</li>
+<li class="new"><span class="old">- </span>heaven</li>
+<li class="new">     description "little heaven"</li>
+<li class="new">     tags        "heaven", "little heaven"</li>
+<li class="new">     details     "Everything looks so peaceful here."</li>
+<li class="new">     gossip      "It's where all the good adventurers go."</li>
+<li class="new">     capacity    9999</li>
+<li class="new">     light       100</li>
+<li class="new"></li>
+<li class="new">- respawn</li>
+<li class="new">     description "a respawn portal"</li>
+<li class="new">     tags        "portal", "respawn portal"</li>
+<li class="new">     location    heaven</li>
+<li class="new">     destination field</li>
+<li class="new">     details     "Looks like a gateway into the unknown."</li>
+<li class="new">     textGo      "A bright flash of light, and you are back in the field."</li>
+<li class="new">     open        isAlreadyOpen</li>
+<li class="new"></li>
+<li class="new">- heavenEWNS</li>
 <li class="old">     tags        "east", "west", "north", "south"</li>
+<li class="new"><span class="old">     </span>location    heaven</li>
 <li class="old">     gossip      "It's just a compass direction."</li>
 <li class="old"></li>
 <li class="old">- field</li>
@@ -1026,7 +1045,7 @@ the weapons and the respawn location.
 <li class="old">     gossip      "Easy to bribe..."</li>
 <li class="old">     contents    "He has"</li>
 <li class="old">     health      100</li>
-<li class="new">     impact      -1</li>
+<li class="new"><span class="old">     </span>impact      -1</li>
 <li class="old">     capacity    20</li>
 <li class="old"></li>
 <li class="old">- player</li>
@@ -1037,7 +1056,7 @@ the weapons and the respawn location.
 <li class="old">     gossip      "You're not from around here, are you?"</li>
 <li class="old">     contents    "You have"</li>
 <li class="old">     health      100</li>
-<li class="new">     impact      -1</li>
+<li class="new"><span class="old">     </span>impact      -1</li>
 <li class="old">     capacity    20</li>
 <li class="old"></li>
 <li class="old">- intoCave</li>
@@ -1191,7 +1210,7 @@ the weapons and the respawn location.
 <li class="old">     details     "The lamp is on."</li>
 <li class="old">     weight      5</li>
 <li class="old">     light       100</li>
-<li class="new"></li>
+<li class="old"></li>
 <li class="new">- club</li>
 <li class="new">     description "a wooden club"</li>
 <li class="new">     tags        "club", "wooden club"</li>
@@ -1207,23 +1226,6 @@ the weapons and the respawn location.
 <li class="new">     details     "The dagger is very sharp."</li>
 <li class="new">     weight      7</li>
 <li class="new">     impact      -5</li>
-<li class="new"></li>
-<li class="new">- heaven</li>
-<li class="new">     description "little heaven"</li>
-<li class="new">     tags        "heaven", "little heaven"</li>
-<li class="new">     details     "Everything looks so peaceful here."</li>
-<li class="new">     gossip      "It's where all the good adventurers go."</li>
-<li class="new">     capacity    9999</li>
-<li class="new">     light       100</li>
-<li class="new"></li>
-<li class="new">- respawn</li>
-<li class="new">     description "a respawn portal"</li>
-<li class="new">     tags        "portal", "respawn portal"</li>
-<li class="new">     location    heaven</li>
-<li class="new">     destination field</li>
-<li class="new">     details     "Looks like a gateway into the unknown."</li>
-<li class="new">     textGo      "A bright flash of light, and you are back in the field."</li>
-<li class="new">     open        isAlreadyOpen</li>
 </ol>
 </td>
 </tr></table>

@@ -1,0 +1,13 @@
+extern void outbufClear(void);
+extern void outbufRewind(int len);
+extern void outbufByte(char c);
+extern void outbufBytes(const char *data, int length);
+extern void outbufAsSpace(char c);
+extern void outbufString(const char *string);
+extern void outbufFormat(const char *format, va_list ap);
+extern bool outbufStartsWith(const char *prefix, int len);
+extern bool outbufMove(int from, int to);
+extern void outbufInsertBytes(int pos, const char *data, int len);
+extern void outbufInsertString(int pos, const char *string);
+extern void outbufInsertSpaces(int pos, const char *data, int len);
+extern void outbufFlush(int socket);

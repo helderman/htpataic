@@ -28,8 +28,26 @@ typedef struct object {
 
 extern OBJECT objs[];
 
-- gossipEWNS
+- heaven
+     description "little heaven"
+     tags        "heaven", "little heaven"
+     details     "Everything looks so peaceful here."
+     gossip      "It's where all the good adventurers go."
+     capacity    9999
+     light       100
+
+- respawn
+     description "a respawn portal"
+     tags        "portal", "respawn portal"
+     location    heaven
+     destination field
+     details     "Looks like a gateway into the unknown."
+     textGo      "A bright flash of light, and you are back in the field."
+     open        isAlreadyOpen
+
+- heavenEWNS
      tags        "east", "west", "north", "south"
+     location    heaven
      gossip      "It's just a compass direction."
 
 - field
@@ -252,20 +270,3 @@ extern OBJECT objs[];
      details     "The dagger is very sharp."
      weight      7
      impact      -5
-
-- heaven
-     description "little heaven"
-     tags        "heaven", "little heaven"
-     details     "Everything looks so peaceful here."
-     gossip      "It's where all the good adventurers go."
-     capacity    9999
-     light       100
-
-- respawn
-     description "a respawn portal"
-     tags        "portal", "respawn portal"
-     location    heaven
-     destination field
-     details     "Looks like a gateway into the unknown."
-     textGo      "A bright flash of light, and you are back in the field."
-     open        isAlreadyOpen

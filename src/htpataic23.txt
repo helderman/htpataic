@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>23. JavaScript</title>
+<title>23. Speech</title>
 <link rel="stylesheet" href="htpataic.css" type="text/css" />
 </head>
 <body>
@@ -18,7 +18,7 @@ by Ruud Helderman
 Licensed under
 <a href="https://github.com/helderman/htpataic/blob/master/LICENSE">MIT License</a>
 </p>
-<h2>23. JavaScript</h2>
+<h2>23. Speech</h2>
 <p class="intro">
 TODO
 </p>
@@ -30,7 +30,7 @@ TODO
 #zip
 </td></tr></table>
 <p>
-Next chapter: <a href="htpataic24.html">24. ???</a>
+Next chapter: <a href="htpataic24.html">24. JavaScript</a>
 </p>
 </body>
 </html>

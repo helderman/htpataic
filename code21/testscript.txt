@@ -1,0 +1,11 @@
+get club
+get dagger
+get lamp
+attack
+attack with club
+drop dagger
+attack guard
+attack with dagger
+attack with lamp
+wait
+quit

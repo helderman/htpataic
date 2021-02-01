@@ -1,0 +1,48 @@
+Welcome to Little Cave Adventure.
+You are in an open field.
+You see:
+a silver coin
+a burly guard
+a cave entrance to the east
+dense forest all around
+a lamp
+a wooden club
+a dagger
+
+--> get club
+You pick up a wooden club.
+
+--> get dagger
+You pick up a dagger.
+
+--> get lamp
+You pick up a lamp.
+
+--> attack
+You hit a burly guard with a dagger.
+You are hit by a burly guard, with bare hands.
+
+--> attack with club
+You hit a burly guard with a wooden club.
+
+--> drop dagger
+You drop a dagger.
+You see a burly guard pick up a dagger.
+
+--> attack guard
+You hit a burly guard with a wooden club.
+You are hit by a burly guard, with a dagger.
+
+--> attack with dagger
+You are not holding any dagger.
+
+--> attack with lamp
+You try to hit a burly guard with a lamp, but you miss.
+
+--> wait
+Some time passes...
+You are hit by a burly guard, with a dagger.
+
+--> quit
+
+Bye!

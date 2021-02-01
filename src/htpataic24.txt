@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>24. JavaScript</title>
+<link rel="stylesheet" href="htpataic.css" type="text/css" />
+</head>
+<body>
+<table class="contents"><tr><td>
+#contents
+</td></tr></table>
+
+<h1>How to program a text adventure in C</h1>
+<p>
+by Ruud Helderman
+&lt;<a href="mailto:r.helderman@hccnet.nl">r.helderman@hccnet.nl</a>&gt;
+</p>
+<p>
+Licensed under
+<a href="https://github.com/helderman/htpataic/blob/master/LICENSE">MIT License</a>
+</p>
+<h2>24. JavaScript</h2>
+<p class="intro">
+TODO
+</p>
+<p>
+TODO
+</p>
+<hr />
+<table class="download"><tr><td>
+#zip
+</td></tr></table>
+<p>
+Next chapter: <a href="htpataic25.html">25. ???</a>
+</p>
+</body>
+</html>
