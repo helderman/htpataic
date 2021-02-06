@@ -16,9 +16,9 @@ BEGIN {
    prop["location"]    = "NULL";
    prop["destination"] = "NULL";
    prop["prospect"]    = "";
-   prop["details"]     = "\"You see nothing special.\\n\"";
+   prop["details"]     = "\"You see nothing special.\"";
    prop["contents"]    = "\"You see\"";
-   prop["textGo"]      = "\"You can't get much closer than this.\\n\"";
+   prop["textGo"]      = "\"You can't get much closer than this.\"";
    prop["gossip"]      = "\"I know nothing about that.\"";
    prop["weight"]      = "99";
    prop["capacity"]    = "0";

@@ -1,7 +1,7 @@
 all: lilcave src.zip map.png
 
-C = object.c misc.c match.c noun.c toggle.c location.c move.c outbuf.c telnet.c client.c print.c tcp.c host.c play.c reach.c inventory.c inventory2.c openclose.c onoff.c talk.c damage.c attack.c turn.c expand.c parsexec.c main.c
-H = object.h misc.h match.h noun.h toggle.h location.h move.h outbuf.h telnet.h client.h print.h tcp.h host.h play.h reach.h inventory.h inventory2.h openclose.h onoff.h talk.h damage.h attack.h turn.h expand.h parsexec.h
+C = object.c misc.c match.c noun.c toggle.c location.c move.c tcp.c outbuf.c telnet.c client.c print.c server.c play.c reach.c inventory.c inventory2.c openclose.c onoff.c talk.c damage.c attack.c turn.c expand.c parsexec.c main.c
+H = object.h misc.h match.h noun.h toggle.h location.h move.h tcp.h outbuf.h telnet.h client.h print.h server.h play.h reach.h inventory.h inventory2.h openclose.h onoff.h talk.h damage.h attack.h turn.h expand.h parsexec.h
 
 success.txt: lilcave.testable testscript.txt baseline.txt
 	./lilcave.testable testscript.txt > transcript.txt

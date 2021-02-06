@@ -44,7 +44,7 @@ Licensed under
 </p>
 <h2>21. Multi-player</h2>
 <p class="intro">
-It wasn&rsquo;t long after the first text adventures had appeared,
+It wasn&rsquo;t long after the first text adventures appeared,
 that somebody came with the idea to make it multi-player.
 <a href="https://en.wikipedia.org/wiki/MUD">MUDs</a>
 flourished on university networks,
@@ -60,7 +60,768 @@ but even among gamers, few are aware you can use that for
 <a href="https://en.wikipedia.org/wiki/Role-playing">role-playing</a>.
 </p>
 <p>
-TODO - Under construction.
+To make our game multi-user, we will turn it into a
+<a href="https://en.wikipedia.org/wiki/Transmission_Control_Protocol">TCP</a>
+server.
+Each player will connect to the server with a standard
+<a href="https://en.wikipedia.org/wiki/Telnet">Telnet</a>
+client.
+Sounds old-school? It is.
+But it&rsquo;s probably closest to how the early MUDs were made.
+And it&rsquo;s fun to do.
+</p>
+<p>
+Implementing a TCP server in C is pretty straightforward.
+It involves writing quite a bit of
+<a href="https://en.wikipedia.org/wiki/Boilerplate_code">boilerplate code</a>
+around
+<a href="https://en.wikipedia.org/wiki/Berkeley_sockets">Berkeley sockets</a>,
+the <i>de facto</i> standard for a
+<a href="https://en.wikipedia.org/wiki/Client%E2%80%93server_model">client-server</a>
+application.
+Fortunately, code samples can be found anywhere on the internet.
+</p>
+<table class="code"><tr>
+<th>server.h</th>
+</tr><tr>
+<td>
+<ol>
+<li class="new">extern void server(bool (*action)(char *, int));</li>
+</ol>
+</td>
+</tr><tr>
+<th>server.c</th>
+</tr><tr>
+<td>
+<ol>
+<li class="new">#include &lt;stdbool.h&gt;</li>
+<li class="new">#include &lt;stdio.h&gt;</li>
+<li class="new">#include &lt;unistd.h&gt;</li>
+<li class="new">#include &lt;netinet/in.h&gt;</li>
+<li class="new">#include "print.h"</li>
+<li class="new">#include "object.h"</li>
+<li class="new">#include "outbuf.h"</li>
+<li class="new">#include "telnet.h"</li>
+<li class="new">#include "client.h"</li>
+<li class="new">#include "tcp.h"</li>
+<li class="new"></li>
+<li class="new">#define PORT  8888</li>
+<li class="new"></li>
+<li class="new">void server(bool (*action)(char *, int))</li>
+<li class="new">{</li>
+<li class="new">   struct sockaddr_in address;</li>
+<li class="new">   int listener = tcpListen(&amp;address, PORT);</li>
+<li class="new">   clientInit();</li>
+<li class="new"></li>
+<li class="new">   for (;;)</li>
+<li class="new">   {</li>
+<li class="new">      fd_set fds;</li>
+<li class="new">      CLIENT *client;</li>
+<li class="new">      int i;</li>
+<li class="new">      int fd = listener;</li>
+<li class="new">      FD_ZERO(&amp;fds);</li>
+<li class="new">      FD_SET(listener, &amp;fds);</li>
+<li class="new">      for (i = 0; (client = clientGet(i)) != NULL; i++)</li>
+<li class="new">      {</li>
+<li class="new">         if (client-&gt;fd != -1) FD_SET(client-&gt;fd, &amp;fds);</li>
+<li class="new">         if (client-&gt;fd &gt; fd) fd = client-&gt;fd;</li>
+<li class="new">      }</li>
+<li class="new">      select(fd + 1, &amp;fds, NULL, NULL, NULL);</li>
+<li class="new"></li>
+<li class="new">      if (FD_ISSET(listener, &amp;fds))</li>
+<li class="new">      {</li>
+<li class="new">         fd = tcpAccept(&amp;address, listener);</li>
+<li class="new">         printf("Socket %d connected.\n", fd);</li>
+<li class="new">         outbufClear();</li>
+<li class="new">         telnetConfigure();</li>
+<li class="new">         outbufFormat("Welcome to Little Cave Adventure.\n");</li>
+<li class="new">         client = clientGetFree();</li>
+<li class="new">         if (client != NULL)</li>
+<li class="new">         {</li>
+<li class="new">            client-&gt;fd = fd;</li>
+<li class="new">            client-&gt;obj = nobody;</li>
+<li class="new">            telnetInit(&amp;client-&gt;inbuf);</li>
+<li class="new">            telnetAppendPrompt(&amp;client-&gt;inbuf);</li>
+<li class="new">         }</li>
+<li class="new">         else</li>
+<li class="new">         {</li>
+<li class="new">            outbufFormat("All sockets occupied, please try again later.\n");</li>
+<li class="new">         }</li>
+<li class="new">         outbufFlush(fd);</li>
+<li class="new">      }</li>
+<li class="new">      for (i = 0; (client = clientGet(i)) != NULL; i++)</li>
+<li class="new">      {</li>
+<li class="new">         if (FD_ISSET(client-&gt;fd, &amp;fds))</li>
+<li class="new">         {</li>
+<li class="new">            static char buffer[1024];</li>
+<li class="new">            int len = read(client-&gt;fd, buffer, sizeof buffer);</li>
+<li class="new">            if (len &gt; 0)</li>
+<li class="new">            {</li>
+<li class="new">               player = client-&gt;obj;</li>
+<li class="new">               printSetCurrent(client-&gt;fd);</li>
+<li class="new">               telnetParse(&amp;client-&gt;inbuf, client-&gt;fd, action, buffer, len);</li>
+<li class="new">               if (client-&gt;obj == nobody) client-&gt;obj = player;</li>
+<li class="new">            }</li>
+<li class="new">            else if (len == 0)   </li>
+<li class="new">            {</li>
+<li class="new">               printf("Socket %d disconnected.\n", client-&gt;fd);</li>
+<li class="new">               close(client-&gt;fd);</li>
+<li class="new">               client-&gt;fd = -1;</li>
+<li class="new">            }</li>
+<li class="new">         }</li>
+<li class="new">      }</li>
+<li class="new">   }</li>
+<li class="new">}</li>
+</ol>
+</td>
+</tr></table>
+<div class="explanation">
+<p>
+Explanation:
+</p>
+<ul>
+<li>Line 14:
+function <i>server</i> has a function pointer <i>action</i> as its parameter.
+Through this parameter, we will pass in
+the game engine we have created in the previous chapters.
+</li>
+<li>Line 16-17:
+we start by setting up a listening
+<a href="https://en.wikipedia.org/wiki/Network_socket">socket</a>.
+</li>
+<li>Line 20:
+then we go into an
+<a href="https://en.wikipedia.org/wiki/Infinite_loop">infinite loop</a>.
+</li>
+<li>Line 22-32:
+we build up a collection of clients that are currently connected.
+</li>
+<li>Line 33:
+<a href="https://en.wikipedia.org/wiki/Select_(Unix)">select</a>
+waits until it detects activity from any of the clients.
+</li>
+<li>Line 35:
+activity on the listening socket means a new client is connecting to the server.
+</li>
+<li>Line 37-54:
+the new client is welcomed.
+</li>
+<li>Line 56:
+looping through all the clients that are currently connected.
+</li>
+<li>Line 58:
+any activity from this client?
+</li>
+<li>Line 61:
+calling
+<a href="https://en.wikipedia.org/wiki/Read_(system_call)">read</a>
+to receive data from the client&rsquo;s
+<a href="https://en.wikipedia.org/wiki/Network_socket">socket</a>.
+Here we pull in everything typed in by a user.
+</li>
+<li>Line 64:
+up until now, <i>player</i> was a fixed object.
+We will make it a variable instead,
+so that we can switch between different
+<a href="https://en.wikipedia.org/wiki/Player_character">player characters</a>
+in the game.
+</li>
+<li>Line 66:
+this is the heart of the server.
+It processes the client&rsquo;s input (<i>buffer</i>)
+by letting our game engine (parameter <i>action</i>) execute every command
+and sending every response back to the client&rsquo;s socket.
+</li>
+<li>Line 67:
+when a client first connects, they will be nobody (see line 46).
+Once the game engine has established who you are,
+it will be persisted here.
+</li>
+<li>Line 69-74:
+in this context, no data means the client is disconnecting,
+i.e. the user has closed the Telnet client.
+</li>
+</ul>
+</div>
+<p>
+For readability, I implemented functions <i>tcpListen</i> and <i>tcpAccept</i>
+in a separate module.
+</p>
+<table class="code"><tr>
+<th>tcp.h</th>
+</tr><tr>
+<td>
+<ol>
+<li class="new">extern int tcpListen(struct sockaddr_in *addr, uint16_t port);</li>
+<li class="new">extern int tcpAccept(struct sockaddr_in *addr, int listener);</li>
+<li class="new">extern void tcpSend(int fd, const char *data, int len);</li>
+</ol>
+</td>
+</tr><tr>
+<th>tcp.c</th>
+</tr><tr>
+<td>
+<ol>
+<li class="new">#include &lt;stdio.h&gt;</li>
+<li class="new">#include &lt;stdlib.h&gt;</li>
+<li class="new">#include &lt;unistd.h&gt;</li>
+<li class="new">#include &lt;errno.h&gt;</li>
+<li class="new">#include &lt;netinet/in.h&gt;</li>
+<li class="new"></li>
+<li class="new">static int assert(const char *name, int retval)</li>
+<li class="new">{</li>
+<li class="new">   if (retval == -1)</li>
+<li class="new">   {</li>
+<li class="new">      perror(name);</li>
+<li class="new">      exit(EXIT_FAILURE);</li>
+<li class="new">   }</li>
+<li class="new">   return retval;</li>
+<li class="new">}</li>
+<li class="new"></li>
+<li class="new">int tcpListen(struct sockaddr_in *addr, uint16_t port)</li>
+<li class="new">{</li>
+<li class="new">   int opt = 1;   </li>
+<li class="new">   int fd = assert("socket", socket(AF_INET, SOCK_STREAM, 0));</li>
+<li class="new">   assert("setsockopt", setsockopt(fd, SOL_SOCKET, SO_REUSEADDR,</li>
+<li class="new">                                   (char *)&amp;opt, sizeof opt));</li>
+<li class="new">   addr-&gt;sin_family = AF_INET;</li>
+<li class="new">   addr-&gt;sin_addr.s_addr = INADDR_ANY;</li>
+<li class="new">   addr-&gt;sin_port = htons(port);</li>
+<li class="new">   assert("bind", bind(fd, (struct sockaddr *)addr, sizeof *addr));</li>
+<li class="new">   assert("listen", listen(fd, 3));</li>
+<li class="new">   printf("Listening to port %u.\n", (unsigned int)port);</li>
+<li class="new">   return fd;</li>
+<li class="new">}</li>
+<li class="new"></li>
+<li class="new">int tcpAccept(struct sockaddr_in *addr, int listener)</li>
+<li class="new">{</li>
+<li class="new">   socklen_t len = sizeof *addr;</li>
+<li class="new">   return assert("accept", accept(listener, (struct sockaddr *)addr, &amp;len));</li>
+<li class="new">}</li>
+<li class="new"></li>
+<li class="new">void tcpSend(int fd, const char *data, int len)</li>
+<li class="new">{</li>
+<li class="new">   int written;</li>
+<li class="new">   while (len &gt; 0 &amp;&amp; ((written = write(fd, data, len)) &gt;= 0 || errno == EINTR))</li>
+<li class="new">   {</li>
+<li class="new">      if (written &gt; 0) data += written, len -= written;</li>
+<li class="new">   }</li>
+<li class="new">}</li>
+</ol>
+</td>
+</tr></table>
+<div class="explanation">
+<p>
+Explanation:
+</p>
+<ul>
+<li>Line 20:
+calling system call <i>socket</i>.
+</li>
+<li>Line 26:
+calling system call <i>bind</i>.
+</li>
+<li>Line 27:
+calling system call <i>listen</i>.
+</li>
+<li>Line 35:
+calling system call <i>accept</i>.
+</li>
+<li>Line 38-45:
+function <i>tcpSend</i> will be used later in this chapter
+to send output to client sockets.
+</li>
+</ul>
+</div>
+<p>
+The following module exposes an array of
+<a href="https://en.wikipedia.org/wiki/Struct_(C_programming_language)">structs</a>
+holding information about the clients that have connected to the game.
+For each client, there is a file descriptor (the
+<a href="https://en.wikipedia.org/wiki/Network_socket">socket</a>),
+an object (the
+<a href="https://en.wikipedia.org/wiki/Player_character">player character</a>)
+and an input buffer (see <i>telnet.h</i> below).
+</p>
+<table class="code"><tr>
+<th>client.h</th>
+</tr><tr>
+<td>
+<ol>
+<li class="new">typedef struct</li>
+<li class="new">{</li>
+<li class="new">   int fd;</li>
+<li class="new">   OBJECT *obj;</li>
+<li class="new">   INBUF inbuf;</li>
+<li class="new">}</li>
+<li class="new">CLIENT;</li>
+<li class="new"></li>
+<li class="new">extern void    clientInit(void);</li>
+<li class="new">extern CLIENT *clientGet(int i);</li>
+<li class="new">extern CLIENT *clientGetFree(void);</li>
+</ol>
+</td>
+</tr><tr>
+<th>client.c</th>
+</tr><tr>
+<td>
+<ol>
+<li class="new">#include &lt;stdbool.h&gt;</li>
+<li class="new">#include &lt;stdio.h&gt;</li>
+<li class="new">#include "object.h"</li>
+<li class="new">#include "telnet.h"</li>
+<li class="new">#include "client.h"</li>
+<li class="new"></li>
+<li class="new">#define MAX_CLIENTS  30</li>
+<li class="new"></li>
+<li class="new">static CLIENT clients[MAX_CLIENTS];</li>
+<li class="new"></li>
+<li class="new">void clientInit(void)</li>
+<li class="new">{</li>
+<li class="new">   int i;</li>
+<li class="new">   for (i = 0; i &lt; MAX_CLIENTS; i++) clients[i].fd = -1;</li>
+<li class="new">}</li>
+<li class="new"></li>
+<li class="new">CLIENT *clientGet(int i)</li>
+<li class="new">{</li>
+<li class="new">   return i &lt; MAX_CLIENTS ? clients + i : NULL;</li>
+<li class="new">}</li>
+<li class="new"></li>
+<li class="new">CLIENT *clientGetFree(void)</li>
+<li class="new">{</li>
+<li class="new">   CLIENT *client;</li>
+<li class="new">   int i;</li>
+<li class="new">   for (i = 0; (client = clientGet(i)) != NULL &amp;&amp; client-&gt;fd != -1; i++);</li>
+<li class="new">   return client;</li>
+<li class="new">}</li>
+</ol>
+</td>
+</tr></table>
+<div class="explanation">
+<p>
+Explanation:
+</p>
+<ul>
+<li>Line 11-15:
+initially, all &lsquo;slots&rsquo; in the array will be empty.
+</li>
+<li>Line 17-20:
+function <i>clientGet</i> is used to find existing clients.
+</li>
+<li>Line 22-28:
+function <i>clientGetFree</i> is used to find a free slot.
+If all slots are taken, then it will return NULL.
+</li>
+</ul>
+</div>
+<p>
+The following module handles the peculiarities of the
+<a href="https://en.wikipedia.org/wiki/Telnet">Telnet</a>
+protocol.
+It also takes care of buffering client input
+(i.e. everything typed in by the users).
+</p>
+<table class="code"><tr>
+<th>telnet.h</th>
+</tr><tr>
+<td>
+<ol>
+<li class="new">typedef struct</li>
+<li class="new">{</li>
+<li class="new">   bool subnegotiation;</li>
+<li class="new">   unsigned index;</li>
+<li class="new">   char data[100];</li>
+<li class="new">}</li>
+<li class="new">INBUF;</li>
+<li class="new"></li>
+<li class="new">extern void telnetInit(INBUF *inbuf);</li>
+<li class="new">extern void telnetConfigure(void);</li>
+<li class="new">extern void telnetInsertHome(void);</li>
+<li class="new">extern void telnetInsertSpaces(INBUF *inbuf);</li>
+<li class="new">extern void telnetDeleteSpaces(INBUF *inbuf);</li>
+<li class="new">extern void telnetAppendPrompt(INBUF *inbuf);</li>
+<li class="new">extern void telnetDeletePrompt(INBUF *inbuf);</li>
+<li class="new">extern void telnetParse(INBUF *inbuf, int fd, bool (*action)(char *, int),</li>
+<li class="new">                        const char *data, int length);</li>
+</ol>
+</td>
+</tr><tr>
+<th>telnet.c</th>
+</tr><tr>
+<td>
+<ol>
+<li class="new">#include &lt;stdbool.h&gt;</li>
+<li class="new">#include &lt;stdio.h&gt;</li>
+<li class="new">#include "outbuf.h"</li>
+<li class="new">#include "telnet.h"</li>
+<li class="new"></li>
+<li class="new">static const char prompt[] = "--&gt; ";</li>
+<li class="new"></li>
+<li class="new">void telnetInit(INBUF *inbuf)</li>
+<li class="new">{</li>
+<li class="new">   inbuf-&gt;subnegotiation = false;</li>
+<li class="new">   inbuf-&gt;index = 0;</li>
+<li class="new">}</li>
+<li class="new"></li>
+<li class="new">void telnetConfigure(void)</li>
+<li class="new">{</li>
+<li class="new">   static const char config[] = {</li>
+<li class="new">      '\xFF', '\xFD', 34, '\xFF', '\xFA', 34, 1, 0, '\xFF', '\xF0',</li>
+<li class="new">      '\xFF', '\xFB', 1</li>
+<li class="new">   };</li>
+<li class="new">   outbufBytes(config, sizeof config);</li>
+<li class="new">}</li>
+<li class="new"></li>
+<li class="new">void telnetInsertHome(void)</li>
+<li class="new">{</li>
+<li class="new">   outbufInsertString(0, "\r\r");</li>
+<li class="new">}</li>
+<li class="new"></li>
+<li class="new">void telnetInsertSpaces(INBUF *inbuf)</li>
+<li class="new">{</li>
+<li class="new">   outbufInsertSpaces(1, inbuf-&gt;data, inbuf-&gt;index);</li>
+<li class="new">   outbufInsertSpaces(1, prompt, sizeof prompt - 1);</li>
+<li class="new">}</li>
+<li class="new"></li>
+<li class="new">void telnetDeleteSpaces(INBUF *inbuf)</li>
+<li class="new">{</li>
+<li class="new">   outbufMove(inbuf-&gt;index + sizeof prompt, 1);</li>
+<li class="new">}</li>
+<li class="new"></li>
+<li class="new">void telnetAppendPrompt(INBUF *inbuf)</li>
+<li class="new">{</li>
+<li class="new">   outbufBytes(prompt, sizeof prompt - 1);</li>
+<li class="new">   outbufBytes(inbuf-&gt;data, inbuf-&gt;index);</li>
+<li class="new">}</li>
+<li class="new"></li>
+<li class="new">void telnetDeletePrompt(INBUF *inbuf)</li>
+<li class="new">{</li>
+<li class="new">   outbufRewind(inbuf-&gt;index + sizeof prompt - 1);</li>
+<li class="new">}</li>
+<li class="new"></li>
+<li class="new">void telnetParse(INBUF *inbuf, int fd, bool (*action)(char *, int),</li>
+<li class="new">                 const char *data, int length)</li>
+<li class="new">{</li>
+<li class="new">   int i;</li>
+<li class="new">   outbufClear();</li>
+<li class="new">   for (i = 0; i &lt; length; i++)</li>
+<li class="new">   {</li>
+<li class="new">      int c = data[i];</li>
+<li class="new">      if (c == '\xFF')</li>
+<li class="new">      {</li>
+<li class="new">         switch (data[++i])</li>
+<li class="new">         {</li>
+<li class="new">            case '\xF0':</li>
+<li class="new">               inbuf-&gt;subnegotiation = false;</li>
+<li class="new">               break;</li>
+<li class="new">            case '\xFA':</li>
+<li class="new">               inbuf-&gt;subnegotiation = true;</li>
+<li class="new">               break;</li>
+<li class="new">            case '\xFB': case '\xFC': case '\xFD': case '\xFE':</li>
+<li class="new">               i++;</li>
+<li class="new">               break;</li>
+<li class="new">         }</li>
+<li class="new">      }</li>
+<li class="new">      else if (inbuf-&gt;subnegotiation)</li>
+<li class="new">      {</li>
+<li class="new">      }</li>
+<li class="new">      else if (c == '\r')</li>
+<li class="new">      {</li>
+<li class="new">         outbufFormat("\n");</li>
+<li class="new">         outbufFlush(fd);</li>
+<li class="new">         inbuf-&gt;data[inbuf-&gt;index] = '\0';</li>
+<li class="new">         (*action)(inbuf-&gt;data, sizeof inbuf-&gt;data);</li>
+<li class="new">         inbuf-&gt;index = 0;</li>
+<li class="new">         outbufClear();</li>
+<li class="new">         outbufBytes(prompt, sizeof prompt - 1);</li>
+<li class="new">      }</li>
+<li class="new">      else if (c == '\b' || c == '\x7F')</li>
+<li class="new">      {</li>
+<li class="new">         if (inbuf-&gt;index &gt; 0)</li>
+<li class="new">	 {</li>
+<li class="new">            outbufByte('\b');</li>
+<li class="new">            outbufAsSpace(inbuf-&gt;data[--inbuf-&gt;index]);</li>
+<li class="new">            outbufByte('\b');</li>
+<li class="new">	 }</li>
+<li class="new">      }</li>
+<li class="new">      else if (c &gt;= ' ' &amp;&amp; c &lt; '\x7F')</li>
+<li class="new">      {</li>
+<li class="new">         if (inbuf-&gt;index &lt; sizeof inbuf-&gt;data - 1)</li>
+<li class="new">         {</li>
+<li class="new">            outbufByte(c);</li>
+<li class="new">            inbuf-&gt;data[inbuf-&gt;index++] = c;</li>
+<li class="new">         }</li>
+<li class="new">      }</li>
+<li class="new">   }</li>
+<li class="new">   outbufFlush(fd);</li>
+<li class="new">}</li>
+</ol>
+</td>
+</tr></table>
+<div class="explanation">
+<p>
+Explanation:
+</p>
+<ul>
+<li>Line ?:
+?
+</li>
+<li>Line ?:
+?
+</li>
+</ul>
+</div>
+<p>
+Output may need to go to more than one client.
+</p>
+<table class="code"><tr>
+<th>print.h</th>
+</tr><tr>
+<td>
+<ol>
+<li class="new">extern void printSetCurrent(int fd);</li>
+<li class="new">extern void printPrivate(const char *format, ...);</li>
+<li class="new">extern void printSee(const char *format, ...);</li>
+<li class="new">extern void printHear(const char *format, ...);</li>
+</ol>
+</td>
+</tr><tr>
+<th>print.c</th>
+</tr><tr>
+<td>
+<ol>
+<li class="new">#include &lt;stdarg.h&gt;</li>
+<li class="new">#include &lt;stdbool.h&gt;</li>
+<li class="new">#include &lt;stdio.h&gt;</li>
+<li class="new">#include "object.h"</li>
+<li class="new">#include "outbuf.h"</li>
+<li class="new">#include "telnet.h"</li>
+<li class="new">#include "client.h"</li>
+<li class="new"></li>
+<li class="new">static int currentSocket = -1;</li>
+<li class="new"></li>
+<li class="new">static void printToAll(const char *observe, const char *format, va_list ap)</li>
+<li class="new">{</li>
+<li class="new">   if (currentSocket == -1)</li>
+<li class="new">   {</li>
+<li class="new">      vprintf(format, ap);</li>
+<li class="new">   }</li>
+<li class="new">   else</li>
+<li class="new">   {</li>
+<li class="new">      outbufClear();</li>
+<li class="new">      outbufFormatVar(format, ap);</li>
+<li class="new">      outbufFlush(currentSocket);</li>
+<li class="new">      if (observe != NULL &amp;&amp; outbufStartsWith("You ", 4))</li>
+<li class="new">      {</li>
+<li class="new">         CLIENT *client;</li>
+<li class="new">         int i;</li>
+<li class="new">         outbufInsertString(3, player-&gt;description);</li>
+<li class="new">         outbufInsertString(3, observe);</li>
+<li class="new">         telnetInsertHome();</li>
+<li class="new">         for (i = 0; (client = clientGet(i)) != NULL; i++)</li>
+<li class="new">         {</li>
+<li class="new">            if (client-&gt;fd != -1 &amp;&amp; client-&gt;fd != currentSocket &amp;&amp;</li>
+<li class="new">                client-&gt;obj-&gt;location == player-&gt;location)</li>
+<li class="new">            {</li>
+<li class="new">               telnetInsertSpaces(&amp;client-&gt;inbuf);</li>
+<li class="new">               telnetAppendPrompt(&amp;client-&gt;inbuf);</li>
+<li class="new">               outbufFlush(client-&gt;fd);</li>
+<li class="new">               telnetDeletePrompt(&amp;client-&gt;inbuf);</li>
+<li class="new">               telnetDeleteSpaces(&amp;client-&gt;inbuf);</li>
+<li class="new">            }</li>
+<li class="new">         }</li>
+<li class="new">      }</li>
+<li class="new">   }</li>
+<li class="new">}</li>
+<li class="new"></li>
+<li class="new">void printSetCurrent(int fd)</li>
+<li class="new">{</li>
+<li class="new">   currentSocket = fd;</li>
+<li class="new">}</li>
+<li class="new"></li>
+<li class="new">void printPrivate(const char *format, ...)</li>
+<li class="new">{</li>
+<li class="new">   va_list ap;</li>
+<li class="new">   va_start(ap, format);</li>
+<li class="new">   printToAll(NULL, format, ap);</li>
+<li class="new">   va_end(ap);</li>
+<li class="new">}</li>
+<li class="new"></li>
+<li class="new">void printSee(const char *format, ...)</li>
+<li class="new">{</li>
+<li class="new">   va_list ap;</li>
+<li class="new">   va_start(ap, format);</li>
+<li class="new">   printToAll(" see ", format, ap);</li>
+<li class="new">   va_end(ap);</li>
+<li class="new">}</li>
+<li class="new"></li>
+<li class="new">void printHear(const char *format, ...)</li>
+<li class="new">{</li>
+<li class="new">   va_list ap;</li>
+<li class="new">   va_start(ap, format);</li>
+<li class="new">   printToAll(" hear ", format, ap);</li>
+<li class="new">   va_end(ap);</li>
+<li class="new">}</li>
+</ol>
+</td>
+</tr></table>
+<div class="explanation">
+<p>
+Explanation:
+</p>
+<ul>
+<li>Line ?:
+?
+</li>
+<li>Line ?:
+?
+</li>
+</ul>
+</div>
+<p>
+Making output ready to be sent to a socket.
+</p>
+<table class="code"><tr>
+<th>outbuf.h</th>
+</tr><tr>
+<td>
+<ol>
+<li class="new">extern void outbufClear(void);</li>
+<li class="new">extern void outbufRewind(int len);</li>
+<li class="new">extern void outbufByte(char c);</li>
+<li class="new">extern void outbufBytes(const char *data, int length);</li>
+<li class="new">extern void outbufAsSpace(char c);</li>
+<li class="new">extern void outbufFormatVar(const char *format, va_list ap);</li>
+<li class="new">extern void outbufFormat(const char *format, ...);</li>
+<li class="new">extern bool outbufStartsWith(const char *prefix, int len);</li>
+<li class="new">extern bool outbufMove(int from, int to);</li>
+<li class="new">extern void outbufInsertString(int pos, const char *string);</li>
+<li class="new">extern void outbufInsertSpaces(int pos, const char *data, int len);</li>
+<li class="new">extern void outbufFlush(int fd);</li>
+</ol>
+</td>
+</tr><tr>
+<th>outbuf.c</th>
+</tr><tr>
+<td>
+<ol>
+<li class="new">#include &lt;ctype.h&gt;</li>
+<li class="new">#include &lt;stdarg.h&gt;</li>
+<li class="new">#include &lt;stdbool.h&gt;</li>
+<li class="new">#include &lt;stdio.h&gt;</li>
+<li class="new">#include &lt;string.h&gt;</li>
+<li class="new">#include &lt;netinet/in.h&gt;</li>
+<li class="new">#include "tcp.h"</li>
+<li class="new"></li>
+<li class="new">#define MAX_LEN  4095</li>
+<li class="new"></li>
+<li class="new">static int outbufLen;</li>
+<li class="new">static char outbufData[MAX_LEN + 1];</li>
+<li class="new"></li>
+<li class="new">static int asSpace(int c)</li>
+<li class="new">{</li>
+<li class="new">   return isspace(c) ? c : ' ';</li>
+<li class="new">}</li>
+<li class="new"></li>
+<li class="new">void outbufClear(void)</li>
+<li class="new">{</li>
+<li class="new">   outbufLen = 0;</li>
+<li class="new">}</li>
+<li class="new"></li>
+<li class="new">void outbufRewind(int len)</li>
+<li class="new">{</li>
+<li class="new">   outbufLen -= len;</li>
+<li class="new">}</li>
+<li class="new"></li>
+<li class="new">void outbufByte(char c)</li>
+<li class="new">{</li>
+<li class="new">   if (outbufLen &lt; MAX_LEN) outbufData[outbufLen++] = c;</li>
+<li class="new">}</li>
+<li class="new"></li>
+<li class="new">void outbufBytes(const char *data, int length)</li>
+<li class="new">{</li>
+<li class="new">   for (; length &gt; 0; length--) outbufByte(*data++);</li>
+<li class="new">}</li>
+<li class="new"></li>
+<li class="new">void outbufAsSpace(char c)</li>
+<li class="new">{</li>
+<li class="new">   outbufByte(asSpace(c));</li>
+<li class="new">}</li>
+<li class="new"></li>
+<li class="new">void outbufFormatVar(const char *format, va_list ap)</li>
+<li class="new">{</li>
+<li class="new">   char *ptr = outbufData + outbufLen;</li>
+<li class="new">   outbufLen += vsnprintf(ptr, sizeof outbufData - outbufLen, format, ap);</li>
+<li class="new">   if (outbufLen &gt; MAX_LEN) outbufLen = MAX_LEN;</li>
+<li class="new">   while (outbufLen &lt; MAX_LEN &amp;&amp; (ptr = strchr(ptr, '\n')) != NULL)</li>
+<li class="new">   {</li>
+<li class="new">      memmove(ptr + 1, ptr, outbufData + ++outbufLen - ptr);</li>
+<li class="new">      *ptr = '\r';</li>
+<li class="new">      ptr += 2;</li>
+<li class="new">   }</li>
+<li class="new">}</li>
+<li class="new"></li>
+<li class="new">void outbufFormat(const char *format, ...)</li>
+<li class="new">{</li>
+<li class="new">   va_list ap;</li>
+<li class="new">   va_start(ap, format);</li>
+<li class="new">   outbufFormatVar(format, ap);</li>
+<li class="new">   va_end(ap);</li>
+<li class="new">}</li>
+<li class="new"></li>
+<li class="new">bool outbufStartsWith(const char *prefix, int len)</li>
+<li class="new">{</li>
+<li class="new">   return outbufLen &gt;= len &amp;&amp; strncmp(outbufData, prefix, len) == 0;</li>
+<li class="new">}</li>
+<li class="new"></li>
+<li class="new">bool outbufMove(int from, int to)</li>
+<li class="new">{</li>
+<li class="new">   outbufLen += to - from;</li>
+<li class="new">   if (outbufLen &gt; MAX_LEN) outbufLen = MAX_LEN;</li>
+<li class="new">   if (to &lt; outbufLen)</li>
+<li class="new">   {</li>
+<li class="new">      memmove(outbufData + to, outbufData + from, outbufLen - to);</li>
+<li class="new">   }</li>
+<li class="new">   return to &lt;= outbufLen;</li>
+<li class="new">}</li>
+<li class="new"></li>
+<li class="new">void outbufInsertString(int pos, const char *string)</li>
+<li class="new">{</li>
+<li class="new">   int len = strlen(string);</li>
+<li class="new">   if (outbufMove(pos, pos + len)) strncpy(outbufData + pos, string, len);</li>
+<li class="new">}</li>
+<li class="new"></li>
+<li class="new">void outbufInsertSpaces(int pos, const char *data, int len)</li>
+<li class="new">{</li>
+<li class="new">   if (outbufMove(pos, pos + len))</li>
+<li class="new">   {</li>
+<li class="new">      int i;</li>
+<li class="new">      for (i = pos; i &lt; pos + len; i++) outbufData[i] = asSpace(data[i]);</li>
+<li class="new">   }</li>
+<li class="new">}</li>
+<li class="new"></li>
+<li class="new">void outbufFlush(int fd)</li>
+<li class="new">{</li>
+<li class="new">   tcpSend(fd, outbufData, outbufLen);</li>
+<li class="new">}</li>
+</ol>
+</td>
+</tr></table>
+<div class="explanation">
+<p>
+Explanation:
+</p>
+<ul>
+<li>Line ?:
+?
+</li>
+<li>Line ?:
+?
+</li>
+</ul>
+</div>
+<p>
+TODO -- under construction
 </p>
 <hr />
 <table class="download"><tr><td>

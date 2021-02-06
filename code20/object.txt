@@ -46,8 +46,10 @@ extern OBJECT objs[];
      open        isAlreadyOpen
 
 - heavenEWNS
+     description "nothing but peace and quiet"
      tags        "east", "west", "north", "south"
      location    heaven
+     textGo      "In this dimension, there are no directions."
      gossip      "It's just a compass direction."
 
 - field

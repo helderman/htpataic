@@ -1002,8 +1002,10 @@ the weapons and the respawn location.
 <li class="new">     open        isAlreadyOpen</li>
 <li class="new"></li>
 <li class="new">- heavenEWNS</li>
+<li class="new">     description "nothing but peace and quiet"</li>
 <li class="old">     tags        "east", "west", "north", "south"</li>
 <li class="new"><span class="old">     </span>location    heaven</li>
+<li class="new">     textGo      "In this dimension, there are no directions."</li>
 <li class="old">     gossip      "It's just a compass direction."</li>
 <li class="old"></li>
 <li class="old">- field</li>
@@ -1237,16 +1239,16 @@ Explanation:
 <li>Line 21-22:
 the new attributes &lsquo;impact&rsquo; and &lsquo;trust&rsquo;.
 </li>
-<li>Lines 74, 85:
+<li>Line 31-46:
+&lsquo;little heaven&rsquo; and its portal leading back to earth.
+</li>
+<li>Lines 94, 105:
 most actors can fight without a weapon.
 It basically means the actor <i>is</i> the weapon.
 Here we specify the effect of each actor fighting with bare hands.
 </li>
-<li>Line 240-254:
+<li>Line 260-274:
 a number of weapons.
-</li>
-<li>Line 256-271:
-&lsquo;little heaven&rsquo; and its portal leading back to earth.
 </li>
 </ul>
 </div>
@@ -1277,9 +1279,9 @@ The new attributes demand a change in <i>object.awk</i> as well.
 <li class="old">   prop["location"]    = "NULL";</li>
 <li class="old">   prop["destination"] = "NULL";</li>
 <li class="old">   prop["prospect"]    = "";</li>
-<li class="old">   prop["details"]     = "\"You see nothing special.\\n\"";</li>
+<li class="old">   prop["details"]     = "\"You see nothing special.\"";</li>
 <li class="old">   prop["contents"]    = "\"You see\"";</li>
-<li class="old">   prop["textGo"]      = "\"You can't get much closer than this.\\n\"";</li>
+<li class="old">   prop["textGo"]      = "\"You can't get much closer than this.\"";</li>
 <li class="old">   prop["gossip"]      = "\"I know nothing about that.\"";</li>
 <li class="old">   prop["weight"]      = "99";</li>
 <li class="old">   prop["capacity"]    = "0";</li>
@@ -1388,7 +1390,7 @@ I am still working on extra chapters, covering some technical topics.
 <a class="button" href="https://repl.it/github/helderman/htpataic">&#x1F300; &nbsp; Run on Repl.it</a>
 </td></tr></table>
 <p>
-Next chapter: <a href="htpataic21.html">21. Database</a>
+Next chapter: <a href="htpataic21.html">21. Multi-player</a>
 </p>
 </body>
 </html>

@@ -1,4 +1,3 @@
-#include <stdarg.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include "outbuf.h"
@@ -12,17 +11,13 @@ void telnetInit(INBUF *inbuf)
    inbuf->index = 0;
 }
 
-void telnetWelcome(const char *format, ...)
+void telnetConfigure(void)
 {
    static const char config[] = {
       '\xFF', '\xFD', 34, '\xFF', '\xFA', 34, 1, 0, '\xFF', '\xF0',
       '\xFF', '\xFB', 1
    };
-   va_list ap;
-   va_start(ap, format);
    outbufBytes(config, sizeof config);
-   outbufFormat(format, ap);
-   va_end(ap);
 }
 
 void telnetInsertHome(void)
@@ -52,7 +47,7 @@ void telnetDeletePrompt(INBUF *inbuf)
    outbufRewind(inbuf->index + sizeof prompt - 1);
 }
 
-void telnetParse(int fd, INBUF *inbuf, bool (*action)(char *, int),
+void telnetParse(INBUF *inbuf, int fd, bool (*action)(char *, int),
                  const char *data, int length)
 {
    int i;
@@ -80,8 +75,7 @@ void telnetParse(int fd, INBUF *inbuf, bool (*action)(char *, int),
       }
       else if (c == '\r')
       {
-         outbufByte('\r');
-         outbufByte('\n');
+         outbufFormat("\n");
          outbufFlush(fd);
          inbuf->data[inbuf->index] = '\0';
          (*action)(inbuf->data, sizeof inbuf->data);

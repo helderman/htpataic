@@ -3,13 +3,13 @@
 #include <stdbool.h>
 #include <stdio.h>
 #include <string.h>
-#include <sys/types.h>
-#include <sys/socket.h>
+#include <netinet/in.h>
+#include "tcp.h"
 
-#define BUF_SIZE  4096
+#define MAX_LEN  4095
 
 static int outbufLen;
-static char outbufData[BUF_SIZE + 1];
+static char outbufData[MAX_LEN + 1];
 
 static int asSpace(int c)
 {
@@ -28,7 +28,7 @@ void outbufRewind(int len)
 
 void outbufByte(char c)
 {
-   if (outbufLen < BUF_SIZE) outbufData[outbufLen++] = c;
+   if (outbufLen < MAX_LEN) outbufData[outbufLen++] = c;
 }
 
 void outbufBytes(const char *data, int length)
@@ -41,22 +41,25 @@ void outbufAsSpace(char c)
    outbufByte(asSpace(c));
 }
 
-void outbufString(const char *string)
-{
-   outbufBytes(string, strlen(string));
-}
-
-void outbufFormat(const char *format, va_list ap)
+void outbufFormatVar(const char *format, va_list ap)
 {
    char *ptr = outbufData + outbufLen;
    outbufLen += vsnprintf(ptr, sizeof outbufData - outbufLen, format, ap);
-   if (outbufLen > BUF_SIZE) outbufLen = BUF_SIZE;
-   while (outbufLen < BUF_SIZE && (ptr = strchr(ptr, '\n')) != NULL)
+   if (outbufLen > MAX_LEN) outbufLen = MAX_LEN;
+   while (outbufLen < MAX_LEN && (ptr = strchr(ptr, '\n')) != NULL)
    {
       memmove(ptr + 1, ptr, outbufData + ++outbufLen - ptr);
       *ptr = '\r';
       ptr += 2;
    }
+}
+
+void outbufFormat(const char *format, ...)
+{
+   va_list ap;
+   va_start(ap, format);
+   outbufFormatVar(format, ap);
+   va_end(ap);
 }
 
 bool outbufStartsWith(const char *prefix, int len)
@@ -67,7 +70,7 @@ bool outbufStartsWith(const char *prefix, int len)
 bool outbufMove(int from, int to)
 {
    outbufLen += to - from;
-   if (outbufLen > BUF_SIZE) outbufLen = BUF_SIZE;
+   if (outbufLen > MAX_LEN) outbufLen = MAX_LEN;
    if (to < outbufLen)
    {
       memmove(outbufData + to, outbufData + from, outbufLen - to);
@@ -75,14 +78,10 @@ bool outbufMove(int from, int to)
    return to <= outbufLen;
 }
 
-void outbufInsertBytes(int pos, const char *data, int len)
-{
-   if (outbufMove(pos, pos + len)) strncpy(outbufData + pos, data, len);
-}
-
 void outbufInsertString(int pos, const char *string)
 {
-   outbufInsertBytes(pos, string, strlen(string));
+   int len = strlen(string);
+   if (outbufMove(pos, pos + len)) strncpy(outbufData + pos, string, len);
 }
 
 void outbufInsertSpaces(int pos, const char *data, int len)
@@ -94,7 +93,7 @@ void outbufInsertSpaces(int pos, const char *data, int len)
    }
 }
 
-void outbufFlush(int socket)
+void outbufFlush(int fd)
 {
-   if (outbufLen > 0) send(socket, outbufData, outbufLen, 0);
+   tcpSend(fd, outbufData, outbufLen);
 }

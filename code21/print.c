@@ -17,7 +17,7 @@ static void printToAll(const char *observe, const char *format, va_list ap)
    else
    {
       outbufClear();
-      outbufFormat(format, ap);
+      outbufFormatVar(format, ap);
       outbufFlush(currentSocket);
       if (observe != NULL && outbufStartsWith("You ", 4))
       {

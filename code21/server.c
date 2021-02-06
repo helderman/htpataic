@@ -1,11 +1,7 @@
 #include <stdbool.h>
 #include <stdio.h>
 #include <unistd.h>
-#include <arpa/inet.h>
-#include <sys/types.h>
-#include <sys/socket.h>
 #include <netinet/in.h>
-#include <sys/time.h>
 #include "print.h"
 #include "object.h"
 #include "outbuf.h"
@@ -15,7 +11,7 @@
 
 #define PORT  8888
 
-void host(bool (*action)(char *, int))
+void server(bool (*action)(char *, int))
 {
    struct sockaddr_in address;
    int listener = tcpListen(&address, PORT);
@@ -41,7 +37,8 @@ void host(bool (*action)(char *, int))
          fd = tcpAccept(&address, listener);
          printf("Socket %d connected.\n", fd);
          outbufClear();
-         telnetWelcome("Welcome to Little Cave Adventure.\n");
+         telnetConfigure();
+         outbufFormat("Welcome to Little Cave Adventure.\n");
          client = clientGetFree();
          if (client != NULL)
          {
@@ -52,7 +49,7 @@ void host(bool (*action)(char *, int))
          }
          else
          {
-            outbufString("All sockets occupied, please try again later.\n");
+            outbufFormat("All sockets occupied, please try again later.\n");
          }
          outbufFlush(fd);
       }
@@ -66,7 +63,7 @@ void host(bool (*action)(char *, int))
             {
                player = client->obj;
                printSetCurrent(client->fd);
-               telnetParse(client->fd, &client->inbuf, action, buffer, len);
+               telnetParse(&client->inbuf, client->fd, action, buffer, len);
                if (client->obj == nobody) client->obj = player;
             }
             else if (len == 0)   

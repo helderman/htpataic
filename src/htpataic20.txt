@@ -532,16 +532,16 @@ Explanation:
 <li>Line 21-22:
 the new attributes &lsquo;impact&rsquo; and &lsquo;trust&rsquo;.
 </li>
-<li>Lines 74, 85:
+<li>Line 31-46:
+&lsquo;little heaven&rsquo; and its portal leading back to earth.
+</li>
+<li>Lines 94, 105:
 most actors can fight without a weapon.
 It basically means the actor <i>is</i> the weapon.
 Here we specify the effect of each actor fighting with bare hands.
 </li>
-<li>Line 240-254:
+<li>Line 260-274:
 a number of weapons.
-</li>
-<li>Line 256-271:
-&lsquo;little heaven&rsquo; and its portal leading back to earth.
 </li>
 </ul>
 </div>
@@ -582,7 +582,7 @@ I am still working on extra chapters, covering some technical topics.
 #zip
 </td></tr></table>
 <p>
-Next chapter: <a href="htpataic21.html">21. Database</a>
+Next chapter: <a href="htpataic21.html">21. Multi-player</a>
 </p>
 </body>
 </html>

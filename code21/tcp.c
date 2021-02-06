@@ -1,9 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
-#include <arpa/inet.h>
-#include <sys/types.h>
-#include <sys/socket.h>
+#include <errno.h>
 #include <netinet/in.h>
 
 static int assert(const char *name, int retval)
@@ -35,4 +33,13 @@ int tcpAccept(struct sockaddr_in *addr, int listener)
 {
    socklen_t len = sizeof *addr;
    return assert("accept", accept(listener, (struct sockaddr *)addr, &len));
+}
+
+void tcpSend(int fd, const char *data, int len)
+{
+   int written;
+   while (len > 0 && ((written = write(fd, data, len)) >= 0 || errno == EINTR))
+   {
+      if (written > 0) data += written, len -= written;
+   }
 }

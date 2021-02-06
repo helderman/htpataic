@@ -8,7 +8,7 @@
 #include "expand.h"
 #include "parsexec.h"
 #include "turn.h"
-#include "host.h"
+#include "server.h"
 
 static char input[100] = "look around";
 
@@ -82,6 +82,6 @@ int main(int argc, char *argv[])
    player = nobody;
    while (adminProcessCommand() && getInput(argv[1]));
    printf("\nGoing into multi-user mode; press ^C to stop.\n");
-   host(processCommand);
+   server(processCommand);
    return 0;
 }

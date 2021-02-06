@@ -20,7 +20,7 @@ OBJECT objs[] = {
 		NULL,
 		 "The field is a nice and quiet place under a clear blue sky.",
 		"You see",
-		"You can't get much closer than this.\n",
+		"You can't get much closer than this.",
 		99,
 		 9999,
 		0
@@ -33,7 +33,7 @@ OBJECT objs[] = {
 		NULL,
 		 "The cave is just a cold, damp, rocky chamber.",
 		"You see",
-		"You can't get much closer than this.\n",
+		"You can't get much closer than this.",
 		99,
 		 9999,
 		0
@@ -46,7 +46,7 @@ OBJECT objs[] = {
 		NULL,
 		 "The coin has an eagle on the obverse.",
 		"You see",
-		"You can't get much closer than this.\n",
+		"You can't get much closer than this.",
 		 1,
 		0,
 		0
@@ -59,7 +59,7 @@ OBJECT objs[] = {
 		NULL,
 		 "The shiny coin seems to be a rare and priceless artefact.",
 		"You see",
-		"You can't get much closer than this.\n",
+		"You can't get much closer than this.",
 		 1,
 		0,
 		0
@@ -72,7 +72,7 @@ OBJECT objs[] = {
 		NULL,
 		 "The guard is a really big fellow.",
 		 "He has",
-		"You can't get much closer than this.\n",
+		"You can't get much closer than this.",
 		99,
 		 20,
 		 100
@@ -85,7 +85,7 @@ OBJECT objs[] = {
 		NULL,
 		 "You would need a mirror to look at yourself.",
 		 "You have",
-		"You can't get much closer than this.\n",
+		"You can't get much closer than this.",
 		99,
 		 20,
 		 100

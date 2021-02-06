@@ -20,7 +20,7 @@ Licensed under
 </p>
 <h2>21. Multi-player</h2>
 <p class="intro">
-It wasn&rsquo;t long after the first text adventures had appeared,
+It wasn&rsquo;t long after the first text adventures appeared,
 that somebody came with the idea to make it multi-player.
 <a href="https://en.wikipedia.org/wiki/MUD">MUDs</a>
 flourished on university networks,
@@ -36,7 +36,281 @@ but even among gamers, few are aware you can use that for
 <a href="https://en.wikipedia.org/wiki/Role-playing">role-playing</a>.
 </p>
 <p>
-TODO - Under construction.
+To make our game multi-user, we will turn it into a
+<a href="https://en.wikipedia.org/wiki/Transmission_Control_Protocol">TCP</a>
+server.
+Each player will connect to the server with a standard
+<a href="https://en.wikipedia.org/wiki/Telnet">Telnet</a>
+client.
+Sounds old-school? It is.
+But it&rsquo;s probably closest to how the early MUDs were made.
+And it&rsquo;s fun to do.
+</p>
+<p>
+Implementing a TCP server in C is pretty straightforward.
+It involves writing quite a bit of
+<a href="https://en.wikipedia.org/wiki/Boilerplate_code">boilerplate code</a>
+around
+<a href="https://en.wikipedia.org/wiki/Berkeley_sockets">Berkeley sockets</a>,
+the <i>de facto</i> standard for a
+<a href="https://en.wikipedia.org/wiki/Client%E2%80%93server_model">client-server</a>
+application.
+Fortunately, code samples can be found anywhere on the internet.
+</p>
+<table class="code"><tr>
+<th>server.h</th>
+</tr><tr>
+<td>
+#diff server.h
+</td>
+</tr><tr>
+<th>server.c</th>
+</tr><tr>
+<td>
+#diff server.c
+</td>
+</tr></table>
+<div class="explanation">
+<p>
+Explanation:
+</p>
+<ul>
+<li>Line 14:
+function <i>server</i> has a function pointer <i>action</i> as its parameter.
+Through this parameter, we will pass in
+the game engine we have created in the previous chapters.
+</li>
+<li>Line 16-17:
+we start by setting up a listening
+<a href="https://en.wikipedia.org/wiki/Network_socket">socket</a>.
+</li>
+<li>Line 20:
+then we go into an
+<a href="https://en.wikipedia.org/wiki/Infinite_loop">infinite loop</a>.
+</li>
+<li>Line 22-32:
+we build up a collection of clients that are currently connected.
+</li>
+<li>Line 33:
+<a href="https://en.wikipedia.org/wiki/Select_(Unix)">select</a>
+waits until it detects activity from any of the clients.
+</li>
+<li>Line 35:
+activity on the listening socket means a new client is connecting to the server.
+</li>
+<li>Line 37-54:
+the new client is welcomed.
+</li>
+<li>Line 56:
+looping through all the clients that are currently connected.
+</li>
+<li>Line 58:
+any activity from this client?
+</li>
+<li>Line 61:
+calling
+<a href="https://en.wikipedia.org/wiki/Read_(system_call)">read</a>
+to receive data from the client&rsquo;s
+<a href="https://en.wikipedia.org/wiki/Network_socket">socket</a>.
+Here we pull in everything typed in by a user.
+</li>
+<li>Line 64:
+up until now, <i>player</i> was a fixed object.
+We will make it a variable instead,
+so that we can switch between different
+<a href="https://en.wikipedia.org/wiki/Player_character">player characters</a>
+in the game.
+</li>
+<li>Line 66:
+this is the heart of the server.
+It processes the client&rsquo;s input (<i>buffer</i>)
+by letting our game engine (parameter <i>action</i>) execute every command
+and sending every response back to the client&rsquo;s socket.
+</li>
+<li>Line 67:
+when a client first connects, they will be nobody (see line 46).
+Once the game engine has established who you are,
+it will be persisted here.
+</li>
+<li>Line 69-74:
+in this context, no data means the client is disconnecting,
+i.e. the user has closed the Telnet client.
+</li>
+</ul>
+</div>
+<p>
+For readability, I implemented functions <i>tcpListen</i> and <i>tcpAccept</i>
+in a separate module.
+</p>
+<table class="code"><tr>
+<th>tcp.h</th>
+</tr><tr>
+<td>
+#diff tcp.h
+</td>
+</tr><tr>
+<th>tcp.c</th>
+</tr><tr>
+<td>
+#diff tcp.c
+</td>
+</tr></table>
+<div class="explanation">
+<p>
+Explanation:
+</p>
+<ul>
+<li>Line 20:
+calling system call <i>socket</i>.
+</li>
+<li>Line 26:
+calling system call <i>bind</i>.
+</li>
+<li>Line 27:
+calling system call <i>listen</i>.
+</li>
+<li>Line 35:
+calling system call <i>accept</i>.
+</li>
+<li>Line 38-45:
+function <i>tcpSend</i> will be used later in this chapter
+to send output to client sockets.
+</li>
+</ul>
+</div>
+<p>
+The following module exposes an array of
+<a href="https://en.wikipedia.org/wiki/Struct_(C_programming_language)">structs</a>
+holding information about the clients that have connected to the game.
+For each client, there is a file descriptor (the
+<a href="https://en.wikipedia.org/wiki/Network_socket">socket</a>),
+an object (the
+<a href="https://en.wikipedia.org/wiki/Player_character">player character</a>)
+and an input buffer (see <i>telnet.h</i> below).
+</p>
+<table class="code"><tr>
+<th>client.h</th>
+</tr><tr>
+<td>
+#diff client.h
+</td>
+</tr><tr>
+<th>client.c</th>
+</tr><tr>
+<td>
+#diff client.c
+</td>
+</tr></table>
+<div class="explanation">
+<p>
+Explanation:
+</p>
+<ul>
+<li>Line 11-15:
+initially, all &lsquo;slots&rsquo; in the array will be empty.
+</li>
+<li>Line 17-20:
+function <i>clientGet</i> is used to find existing clients.
+</li>
+<li>Line 22-28:
+function <i>clientGetFree</i> is used to find a free slot.
+If all slots are taken, then it will return NULL.
+</li>
+</ul>
+</div>
+<p>
+The following module handles the peculiarities of the
+<a href="https://en.wikipedia.org/wiki/Telnet">Telnet</a>
+protocol.
+It also takes care of buffering client input
+(i.e. everything typed in by the users).
+</p>
+<table class="code"><tr>
+<th>telnet.h</th>
+</tr><tr>
+<td>
+#diff telnet.h
+</td>
+</tr><tr>
+<th>telnet.c</th>
+</tr><tr>
+<td>
+#diff telnet.c
+</td>
+</tr></table>
+<div class="explanation">
+<p>
+Explanation:
+</p>
+<ul>
+<li>Line ?:
+?
+</li>
+<li>Line ?:
+?
+</li>
+</ul>
+</div>
+<p>
+Output may need to go to more than one client.
+</p>
+<table class="code"><tr>
+<th>print.h</th>
+</tr><tr>
+<td>
+#diff print.h
+</td>
+</tr><tr>
+<th>print.c</th>
+</tr><tr>
+<td>
+#diff print.c
+</td>
+</tr></table>
+<div class="explanation">
+<p>
+Explanation:
+</p>
+<ul>
+<li>Line ?:
+?
+</li>
+<li>Line ?:
+?
+</li>
+</ul>
+</div>
+<p>
+Making output ready to be sent to a socket.
+</p>
+<table class="code"><tr>
+<th>outbuf.h</th>
+</tr><tr>
+<td>
+#diff outbuf.h
+</td>
+</tr><tr>
+<th>outbuf.c</th>
+</tr><tr>
+<td>
+#diff outbuf.c
+</td>
+</tr></table>
+<div class="explanation">
+<p>
+Explanation:
+</p>
+<ul>
+<li>Line ?:
+?
+</li>
+<li>Line ?:
+?
+</li>
+</ul>
+</div>
+<p>
+TODO -- under construction
 </p>
 <hr />
 <table class="download"><tr><td>
