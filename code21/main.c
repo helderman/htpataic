@@ -79,9 +79,11 @@ int main(int argc, char *argv[])
 {
    (void)argc;
    printf("Welcome to Little Cave Adventure.\n");
+   printf("You are in single-user mode; enter 'quit' for multi-user mode.\n");
    player = nobody;
    while (adminProcessCommand() && getInput(argv[1]));
    printf("\nGoing into multi-user mode; press ^C to stop.\n");
    server(processCommand);
+   printf("\nBye!\n");
    return 0;
 }

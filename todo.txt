@@ -1,3 +1,5 @@
+- ch21: log time and player
+- ch21: split in 2 chapters; begin with multiple player characters in single-user mode
 - ch20: make isHolding static; it's used in ch20 in turn.c and damage.c, but they are similar; move to misc.c
   - hmm, misc.c is already 98 lines
   - turn.c includes damage.h; put the common code in damage.c!

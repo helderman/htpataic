@@ -29,6 +29,17 @@ int tcpListen(struct sockaddr_in *addr, uint16_t port)
    return fd;
 }
 
+void tcpClose(int fd, uint16_t port)
+{
+   close(fd);
+   printf("No longer listening to port %u.\n", (unsigned int)port);
+}
+
+int tcpSelect(int nfds, fd_set *readfds)
+{
+   return select(nfds, readfds, NULL, NULL, NULL);
+}
+
 int tcpAccept(struct sockaddr_in *addr, int listener)
 {
    socklen_t len = sizeof *addr;

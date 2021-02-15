@@ -47,6 +47,58 @@ But it&rsquo;s probably closest to how the early MUDs were made.
 And it&rsquo;s fun to do.
 </p>
 <p>
+So basically,
+our program <i>lilcave</i> should be running continuously on a computer.
+The computer should always be online; it should never be turned off.
+In the early days of the internet,
+that typically meant the program would be running on a university
+<a href="https://en.wikipedia.org/wiki/Minicomputer">mini</a>
+or
+<a href="https://en.wikipedia.org/wiki/Mainframe_computer">mainframe</a>,
+under the supervision of the super user
+(or more likely, covertly scheduled by a smart student).
+</p>
+<p>
+With today&rsquo;s hardware, any
+<a href="https://en.wikipedia.org/wiki/Personal_computer">PC</a>
+will do fine running such a game.
+But since it is an online game, there are a few things to keep in mind.
+</p>
+<ul>
+<li>Assuming your machine has a
+<a href="https://en.wikipedia.org/wiki/Firewall_(computing)">firewall</a>,
+you will need to add a rule allowing <i>inbound</i> traffic to your program,
+protocol TCP, port 18811
+(or whatever number is being specified in <i>server.c</i>; see below).
+With the built-in firewall of
+<a href="https://en.wikipedia.org/wiki/Microsoft_Windows">MS Windows</a>,
+that&rsquo;s easy enough: the firewall will automatically
+propose the necessary adjustment as soon as you first launch your program.
+</li>
+<li>Assuming your home network is separated from the internet by a
+<a href="https://en.wikipedia.org/wiki/Router_(computing)">router</a>,
+you will need to configure
+<a href="https://en.wikipedia.org/wiki/Port_forwarding">port forwarding</a>
+on the router.
+</li>
+<li>You may want to keep the game running day and night.
+That warrants an energy-efficient machine, for example a
+<a href="https://en.wikipedia.org/wiki/Raspberry_Pi">Raspberry Pi</a>.
+</li>
+<li>Rather than running your own
+<a href="https://en.wikipedia.org/wiki/Home_server">home server</a>,
+you might consider having your game
+<a href="https://en.wikipedia.org/wiki/Internet_hosting_service">hosted</a>
+by a third party at a monthly fee.
+A
+<a href="https://en.wikipedia.org/wiki/Text-based_game">text-based</a>
+game typically has small demands, so you could probably settle
+for a minimal amount of memory, disk space and bandwidth.
+But do make sure the package comes with a C compiler,
+as you will need to build your game from source on the hosted server.
+</li>
+</ul>
+<p>
 Implementing a TCP server in C is pretty straightforward.
 It involves writing quite a bit of
 <a href="https://en.wikipedia.org/wiki/Boilerplate_code">boilerplate code</a>
@@ -75,72 +127,81 @@ Fortunately, code samples can be found anywhere on the internet.
 Explanation:
 </p>
 <ul>
-<li>Line 14:
+<li>Line 13:
+I just randomly picked a port number
+that was not already in use by any popular online game.
+Players need this number, as well as your server&rsquo;s
+(external) IP address, to connect to your game.
+</li>
+<li>Line 25:
 function <i>server</i> has a function pointer <i>action</i> as its parameter.
 Through this parameter, we will pass in
 the game engine we have created in the previous chapters.
 </li>
-<li>Line 16-17:
+<li>Line 27-28:
 we start by setting up a listening
 <a href="https://en.wikipedia.org/wiki/Network_socket">socket</a>.
 </li>
-<li>Line 20:
-then we go into an
-<a href="https://en.wikipedia.org/wiki/Infinite_loop">infinite loop</a>.
+<li>Line 33:
+this is the main loop of the game server.
+We could stay here forever,
+but sooner or later we will be forced to leave by a signal, or by an error.
 </li>
-<li>Line 22-32:
+<li>Line 35-43:
 we build up a collection of clients that are currently connected.
 </li>
-<li>Line 33:
-<a href="https://en.wikipedia.org/wiki/Select_(Unix)">select</a>
-waits until it detects activity from any of the clients.
+<li>Line 44:
+here, the process waits until some activity is detected from any of the clients.
+If an error occurs, we will leave the loop. This will end the game.
 </li>
-<li>Line 35:
+<li>Line 46:
 activity on the listening socket means a new client is connecting to the server.
 </li>
-<li>Line 37-54:
+<li>Line 48-66:
 the new client is welcomed.
 </li>
-<li>Line 56:
+<li>Line 68:
 looping through all the clients that are currently connected.
 </li>
-<li>Line 58:
+<li>Line 70:
 any activity from this client?
 </li>
-<li>Line 61:
+<li>Line 73:
 calling
 <a href="https://en.wikipedia.org/wiki/Read_(system_call)">read</a>
 to receive data from the client&rsquo;s
 <a href="https://en.wikipedia.org/wiki/Network_socket">socket</a>.
 Here we pull in everything typed in by a user.
 </li>
-<li>Line 64:
+<li>Line 76:
 up until now, <i>player</i> was a fixed object.
 We will make it a variable instead,
 so that we can switch between different
 <a href="https://en.wikipedia.org/wiki/Player_character">player characters</a>
 in the game.
 </li>
-<li>Line 66:
+<li>Line 78:
 this is the heart of the server.
 It processes the client&rsquo;s input (<i>buffer</i>)
 by letting our game engine (parameter <i>action</i>) execute every command
 and sending every response back to the client&rsquo;s socket.
 </li>
-<li>Line 67:
-when a client first connects, they will be nobody (see line 46).
+<li>Line 79:
+when a client first connects, they will be nobody (see line 58).
 Once the game engine has established who you are,
 it will be persisted here.
 </li>
-<li>Line 69-74:
+<li>Line 81-84:
 in this context, no data means the client is disconnecting,
 i.e. the user has closed the Telnet client.
+</li>
+<li>Line 88-89:
+when leaving the main loop, close all remaining sockets.
 </li>
 </ul>
 </div>
 <p>
-For readability, I implemented functions <i>tcpListen</i> and <i>tcpAccept</i>
-in a separate module.
+For readability, I implemented a number of functions in a separate module.
 </p>
 <table class="code"><tr>
 <th>tcp.h</th>
@@ -169,17 +230,21 @@ calling system call <i>bind</i>.
 <li>Line 27:
 calling system call <i>listen</i>.
 </li>
-<li>Line 35:
+<li>Line 40:
+calling system call
+<a href="https://en.wikipedia.org/wiki/Select_(Unix)">select</a>.
+</li>
+<li>Line 46:
 calling system call <i>accept</i>.
 </li>
-<li>Line 38-45:
+<li>Line 49-56:
 function <i>tcpSend</i> will be used later in this chapter
 to send output to client sockets.
 </li>
 </ul>
 </div>
 <p>
-The following module exposes an array of
+The following module provides access to an array of
 <a href="https://en.wikipedia.org/wiki/Struct_(C_programming_language)">structs</a>
 holding information about the clients that have connected to the game.
 For each client, there is a file descriptor (the
@@ -294,6 +359,60 @@ Making output ready to be sent to a socket.
 </tr><tr>
 <td>
 #diff outbuf.c
+</td>
+</tr></table>
+<div class="explanation">
+<p>
+Explanation:
+</p>
+<ul>
+<li>Line ?:
+?
+</li>
+<li>Line ?:
+?
+</li>
+</ul>
+</div>
+<p>
+Allow for a graceful exit
+in case the process is forced to stop by an outside signal.
+</p>
+<table class="code"><tr>
+<th>break.h</th>
+</tr><tr>
+<td>
+#diff break.h
+</td>
+</tr><tr>
+<th>break.c</th>
+</tr><tr>
+<td>
+#diff break.c
+</td>
+</tr></table>
+<div class="explanation">
+<p>
+Explanation:
+</p>
+<ul>
+<li>Line ?:
+?
+</li>
+<li>Line ?:
+?
+</li>
+</ul>
+</div>
+<p>
+Start running the server after an initial single-user session
+allowing the game administrator to set up things in the game.
+</p>
+<table class="code"><tr>
+<th>main.c</th>
+</tr><tr>
+<td>
+#diff main.c
 </td>
 </tr></table>
 <div class="explanation">

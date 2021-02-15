@@ -1,11 +1,10 @@
-get club
-get dagger
+play thor
 get lamp
-attack
-attack with club
-drop dagger
-attack guard
-attack with dagger
-attack with lamp
-wait
-quit
+get coin
+give coin
+e
+turn lamp on
+get key
+open door
+s
+

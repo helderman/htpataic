@@ -1,10 +1,10 @@
-all: lilcave src.zip map.png
+all: lilcave success.txt src.zip map.png
 
-C = object.c misc.c match.c noun.c toggle.c location.c move.c tcp.c outbuf.c telnet.c client.c print.c server.c play.c reach.c inventory.c inventory2.c openclose.c onoff.c talk.c damage.c attack.c turn.c expand.c parsexec.c main.c
-H = object.h misc.h match.h noun.h toggle.h location.h move.h tcp.h outbuf.h telnet.h client.h print.h server.h play.h reach.h inventory.h inventory2.h openclose.h onoff.h talk.h damage.h attack.h turn.h expand.h parsexec.h
+C = object.c misc.c match.c noun.c toggle.c location.c move.c break.c tcp.c outbuf.c telnet.c client.c print.c server.c play.c reach.c inventory.c inventory2.c openclose.c onoff.c talk.c damage.c attack.c turn.c expand.c parsexec.c main.c
+H = object.h misc.h match.h noun.h toggle.h location.h move.h break.h tcp.h outbuf.h telnet.h client.h print.h server.h play.h reach.h inventory.h inventory2.h openclose.h onoff.h talk.h damage.h attack.h turn.h expand.h parsexec.h
 
 success.txt: lilcave.testable testscript.txt baseline.txt
-	./lilcave.testable testscript.txt > transcript.txt
+	./test.sh testscript.txt > transcript.txt
 	gcov *.gcda | tee codecoverage.txt | tail -n1
 	cmp baseline.txt transcript.txt
 	mv -f transcript.txt $@

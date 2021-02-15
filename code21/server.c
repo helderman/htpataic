@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <unistd.h>
 #include <netinet/in.h>
+#include "break.h"
 #include "print.h"
 #include "object.h"
 #include "outbuf.h"
@@ -9,19 +10,29 @@
 #include "client.h"
 #include "tcp.h"
 
-#define PORT  8888
+#define PORT  18811
+
+static void disconnect(CLIENT *client)
+{
+   if (client->fd != -1)
+   {
+      close(client->fd);
+      printf("Socket %d disconnected.\n", client->fd);
+      client->fd = -1;
+   }
+}
 
 void server(bool (*action)(char *, int))
 {
    struct sockaddr_in address;
    int listener = tcpListen(&address, PORT);
+   int i;
+   CLIENT *client;
    clientInit();
 
-   for (;;)
+   for (breakInit(); breakTest(); )
    {
       fd_set fds;
-      CLIENT *client;
-      int i;
       int fd = listener;
       FD_ZERO(&fds);
       FD_SET(listener, &fds);
@@ -30,11 +41,12 @@ void server(bool (*action)(char *, int))
          if (client->fd != -1) FD_SET(client->fd, &fds);
          if (client->fd > fd) fd = client->fd;
       }
-      select(fd + 1, &fds, NULL, NULL, NULL);
+      if (tcpSelect(fd + 1, &fds) == -1) break;
 
       if (FD_ISSET(listener, &fds))
       {
          fd = tcpAccept(&address, listener);
+         if (fd == -1) break;
          printf("Socket %d connected.\n", fd);
          outbufClear();
          telnetConfigure();
@@ -53,7 +65,7 @@ void server(bool (*action)(char *, int))
          }
          outbufFlush(fd);
       }
-      for (i = 0; (client = clientGet(i)) != NULL; i++)
+      for (i = 0; breakTest() && (client = clientGet(i)) != NULL; i++)
       {
          if (FD_ISSET(client->fd, &fds))
          {
@@ -68,11 +80,11 @@ void server(bool (*action)(char *, int))
             }
             else if (len == 0)   
             {
-               printf("Socket %d disconnected.\n", client->fd);
-               close(client->fd);
-               client->fd = -1;
+               disconnect(client);
             }
          }
       }
    }
+   for (i = 0; (client = clientGet(i)) != NULL; i++) disconnect(client);
+   tcpClose(listener, PORT);
 }
