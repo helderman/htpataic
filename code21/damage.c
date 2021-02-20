@@ -1,7 +1,6 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stdio.h>
-#include "print.h"
 #include "object.h"
 #include "misc.h"
 
@@ -63,8 +62,8 @@ void dealDamage(OBJECT *attacker, OBJECT *weapon, OBJECT *victim)
       }
       else if (attacker == player)
       {
-         printPrivate("That will have little effect; %s is already dead.\n",
-                      victim->description);
+         printf("That will have little effect; %s is already dead.\n",
+                victim->description);
       }
    }
    else if (attacker == player)

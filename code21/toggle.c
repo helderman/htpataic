@@ -1,6 +1,5 @@
 #include <stdbool.h>
 #include <stdio.h>
-#include "print.h"
 #include "object.h"
 #include "misc.h"
 #include "location.h"
@@ -13,21 +12,21 @@ static void swapLocations(const char *verb1, OBJECT *obj1,
    const char *verb = tmp != NULL ? verb1 : verb2;
    obj1->location = obj2->location;
    obj2->location = tmp;
-   if (verb != NULL) printSee("You %s %s.\n", verb, obj->description);
+   if (verb != NULL) printf("You %s %s.\n", verb, obj->description);
 }
 
-void cannotBeOpened(void)    { printPrivate("That cannot be opened.\n");    }
-void cannotBeClosed(void)    { printPrivate("That cannot be closed.\n");    }
-void cannotBeLocked(void)    { printPrivate("That cannot be locked.\n");    }
-void cannotBeUnlocked(void)  { printPrivate("That cannot be unlocked.\n");  }
+void cannotBeOpened(void)    { printf("That cannot be opened.\n");    }
+void cannotBeClosed(void)    { printf("That cannot be closed.\n");    }
+void cannotBeLocked(void)    { printf("That cannot be locked.\n");    }
+void cannotBeUnlocked(void)  { printf("That cannot be unlocked.\n");  }
 
-void isAlreadyOpen(void)     { printPrivate("That is already open.\n");     }
-void isAlreadyClosed(void)   { printPrivate("That is already closed.\n");   }
-void isAlreadyLocked(void)   { printPrivate("That is already locked.\n");   }
-void isAlreadyUnlocked(void) { printPrivate("That is already unlocked.\n"); }
+void isAlreadyOpen(void)     { printf("That is already open.\n");     }
+void isAlreadyClosed(void)   { printf("That is already closed.\n");   }
+void isAlreadyLocked(void)   { printf("That is already locked.\n");   }
+void isAlreadyUnlocked(void) { printf("That is already unlocked.\n"); }
 
-void isStillOpen(void)       { printPrivate("That is still open.\n");       }
-void isStillLocked(void)     { printPrivate("That is locked.\n");           }
+void isStillOpen(void)       { printf("That is still open.\n");       }
+void isStillLocked(void)     { printf("That is locked.\n");           }
 
 void toggleDoorToBackroom(void)
 {
@@ -54,7 +53,7 @@ void toggleBoxLock(void)
    }
    else
    {
-      printPrivate("You don't have a key.\n");
+      printf("You don't have a key.\n");
    }
 }
 
@@ -64,6 +63,7 @@ void toggleLamp(void)
    swapLocations("turn off", lampOn, "turn on", lampOff);
    if (oldLit != isLit(player->location))
    {
+      printf("\n");
       executeLookAround();
    }
 }

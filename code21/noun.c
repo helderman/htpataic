@@ -1,7 +1,6 @@
 #include <stdbool.h>
 #include <stdio.h>
 #include <string.h>
-#include "print.h"
 #include "object.h"
 #include "misc.h"
 
@@ -40,20 +39,20 @@ OBJECT *getVisible(const char *intention, const char *noun)
    {
       if (getObject(noun, player, distNotHere) == NULL)
       {
-         printPrivate("I don't understand %s.\n", intention);
+         printf("I don't understand %s.\n", intention);
       }
       else if (isLit(player->location))
       {
-         printPrivate("You don't see any %s here.\n", noun);
+         printf("You don't see any %s here.\n", noun);
       }
       else
       {
-         printPrivate("It's too dark.\n");
+         printf("It's too dark.\n");
       }
    }
    else if (obj == &ambiguousNoun)
    {
-      printPrivate("Please be specific about which %s you mean.\n", noun);
+      printf("Please be specific about which %s you mean.\n", noun);
       obj = NULL;
    }
    return obj;
@@ -64,33 +63,33 @@ OBJECT *getPossession(OBJECT *from, const char *verb, const char *noun)
    OBJECT *obj = NULL;
    if (from == NULL)
    {
-      printPrivate("I don't understand who you want to %s.\n", verb);
+      printf("I don't understand who you want to %s.\n", verb);
    }
    else if ((obj = getObject(noun, from, distHeldContained)) == NULL)
    {
       if (getObject(noun, player, distNotHere) == NULL)
       {
-         printPrivate("I don't understand what you want to %s.\n", verb);
+         printf("I don't understand what you want to %s.\n", verb);
       }
       else if (from == player)
       {
-         printPrivate("You are not holding any %s.\n", noun);
+         printf("You are not holding any %s.\n", noun);
       }
       else
       {
-         printPrivate("There appears to be no %s you can get from %s.\n",
-                      noun, from->description);
+         printf("There appears to be no %s you can get from %s.\n",
+                noun, from->description);
       }
    }
    else if (obj == &ambiguousNoun)
    {
-      printPrivate("Please be specific about which %s you want to %s.\n",
-                   noun, verb);
+      printf("Please be specific about which %s you want to %s.\n",
+             noun, verb);
       obj = NULL;
    }
    else if (obj == from)
    {
-      printPrivate("You should not be doing that to %s.\n", obj->description);
+      printf("You should not be doing that to %s.\n", obj->description);
       obj = NULL;
    }
    return obj;

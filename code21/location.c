@@ -1,6 +1,5 @@
 #include <stdbool.h>
 #include <stdio.h>
-#include "print.h"
 #include "object.h"
 #include "misc.h"
 #include "match.h"
@@ -10,11 +9,11 @@ int executeLookAround(void)
 {
    if (isLit(player->location))
    {
-      printPrivate("You are in %s.\n", player->location->description);
+      printf("You are in %s.\n", player->location->description);
    }
    else
    {
-      printPrivate("It is very dark in here.\n");
+      printf("It is very dark in here.\n");
    }
    listObjectsAtLocation(player->location);
    return 1;
@@ -26,19 +25,19 @@ int executeLook(void)
    switch (getDistance(player, obj))
    {
    case distHereContained:
-      printPrivate("Hard to see, try to get it first.\n");
+      printf("Hard to see, try to get it first.\n");
       return 0;
    case distOverthere:
-      printPrivate("Too far away, move closer please.\n");
+      printf("Too far away, move closer please.\n");
       return 0;
    case distNotHere:
-      printPrivate("You don't see any %s here.\n", params[0]);
+      printf("You don't see any %s here.\n", params[0]);
       return 0;
    case distUnknownObject:
       // already handled by getVisible
       return 0;
    default:
-      printPrivate("%s\n", obj->details);
+      printf("%s\n", obj->details);
       listObjectsAtLocation(obj);
       return 1;
    }
@@ -46,10 +45,11 @@ int executeLook(void)
 
 static void movePlayer(OBJECT *passage)
 {
-   printSee("%s\n", passage->textGo);
+   printf("%s\n", passage->textGo);
    if (passage->destination != NULL)
    {
       player->location = passage->destination;
+      printf("\n");
       executeLookAround();
    }
 }
@@ -63,7 +63,7 @@ int executeGo(void)
       movePlayer(getPassage(player->location, obj));
       return 1;
    case distNotHere:
-      printPrivate("You don't see any %s here.\n", params[0]);
+      printf("You don't see any %s here.\n", params[0]);
       return 0;
    case distUnknownObject:
       // already handled by getVisible

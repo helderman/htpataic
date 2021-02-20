@@ -1,6 +1,5 @@
 #include <stdbool.h>
 #include <stdio.h>
-#include "print.h"
 #include "object.h"
 #include "misc.h"
 #include "match.h"
@@ -13,7 +12,7 @@ static OBJECT *victimHere()
    OBJECT *victim = actorHere();
    if (victim == NULL)
    {
-      printPrivate("There is nobody here to attack.\n");
+      printf("There is nobody here to attack.\n");
    }
    return victim;
 }

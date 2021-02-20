@@ -1,7 +1,6 @@
 #include <ctype.h>
 #include <stdbool.h>
 #include <stdio.h>
-#include "print.h"
 #include "object.h"
 #include "misc.h"
 #include "match.h"
@@ -30,13 +29,13 @@ static int executeNoMatch(void)
    const char *src = *params;
    int len;
    for (len = 0; src[len] != '\0' && !isspace(src[len]); len++);
-   if (len > 0) printPrivate("I don't know how to '%.*s'.\n", len, src);
+   if (len > 0) printf("I don't know how to '%.*s'.\n", len, src);
    return 0;
 }
 
 static int executeWait(void)
 {
-   printPrivate("Some time passes...\n");
+   printf("Some time passes...\n");
    return 1;
 }
 

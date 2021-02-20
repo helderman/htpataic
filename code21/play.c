@@ -1,24 +1,29 @@
 #include <stdbool.h>
 #include <stdio.h>
 #include "object.h"
-#include "print.h"
 #include "match.h"
 #include "noun.h"
 #include "location.h"
 
 int executePlay(void)
 {
-   OBJECT *who = getTopic(params[0]);
-   if (who != NULL)
+   OBJECT *obj = getTopic(params[0]);
+   if (obj == NULL)
    {
-      player = who;
-      printPrivate("You are %s.\n", player->description);
-      printPrivate("%s\n", player->details);
-      executeLookAround();
+      printf("I don't understand what character you want to play.\n");
+   }
+   else if (obj == player)
+   {
+      printf("You already are %s.\n", player->description);
+   }
+   else if (obj == jack || obj == jill)
+   {
+      player = obj;
+      printf("You are %s. %s\n", player->description, player->details);
    }
    else
    {
-      printPrivate("I don't know that character.\n");
+      printf("That is not a character you can play.\n");
    }
    return 0;
 }

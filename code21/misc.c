@@ -1,6 +1,5 @@
 #include <stdbool.h>
 #include <stdio.h>
-#include "print.h"
 #include "object.h"
 #include "misc.h"
 
@@ -90,9 +89,9 @@ int listObjectsAtLocation(OBJECT *location)
       {
          if (count++ == 0)
          {
-            printPrivate("%s:\n", location->contents);
+            printf("%s:\n", location->contents);
          }
-         printPrivate("%s\n", obj->description);
+         printf("%s\n", obj->description);
       }
    }
    return count;

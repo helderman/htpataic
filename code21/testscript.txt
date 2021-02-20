@@ -1,10 +1,11 @@
-play thor
-get lamp
-get coin
-give coin
-e
-turn lamp on
-get key
-open door
-s
-
+play jack
+look around
+get club
+play jill
+look around
+get dagger
+attack guard
+play jill
+play jack
+attack guard
+quit
