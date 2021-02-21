@@ -7,7 +7,8 @@ static const char prompt[] = "--> ";
 
 void telnetInit(INBUF *inbuf)
 {
-   inbuf->subnegotiation = false;
+   inbuf->iac = false;
+   inbuf->negotiate = 0;
    inbuf->index = 0;
 }
 
@@ -55,23 +56,14 @@ void telnetParse(INBUF *inbuf, int fd, bool (*action)(char *, int),
    for (i = 0; i < length; i++)
    {
       int c = data[i];
-      if (c == '\xFF')
+      if (c == '\xFF' || inbuf->iac)
       {
-         switch (data[++i])
-         {
-            case '\xF0':
-               inbuf->subnegotiation = false;
-               break;
-            case '\xFA':
-               inbuf->subnegotiation = true;
-               break;
-            case '\xFB': case '\xFC': case '\xFD': case '\xFE':
-               i++;
-               break;
-         }
+         if (c == '\xF0' || inbuf->negotiate != '\xFA') inbuf->negotiate = c;
+         inbuf->iac = !inbuf->iac;
       }
-      else if (inbuf->subnegotiation)
+      else if (inbuf->negotiate >= '\xFA' && inbuf->negotiate <= '\xFE')
       {
+         if (inbuf->negotiate != '\xFA') inbuf->negotiate = 0;
       }
       else if (c == '\r')
       {
@@ -86,11 +78,11 @@ void telnetParse(INBUF *inbuf, int fd, bool (*action)(char *, int),
       else if (c == '\b' || c == '\x7F')
       {
          if (inbuf->index > 0)
-	 {
+         {
             outbufByte('\b');
             outbufAsSpace(inbuf->data[--inbuf->index]);
             outbufByte('\b');
-	 }
+         }
       }
       else if (c >= ' ' && c < '\x7F')
       {

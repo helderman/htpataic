@@ -281,7 +281,12 @@ The following module handles the peculiarities of the
 <a href="https://en.wikipedia.org/wiki/Telnet">Telnet</a>
 protocol.
 It also takes care of buffering client input
-(i.e. everything typed in by the users).
+(i.e. everything typed in by the users),
+and it prevents server output
+(which <i>could</i> be pushed at any time by activity from other users)
+getting mixed up with
+<a href="https://en.wikipedia.org/wiki/Echo_(computing)">echo</a>
+on the same line in the Telnet client.
 </p>
 <table class="code"><tr>
 <th>telnet.h</th>
@@ -301,6 +306,21 @@ It also takes care of buffering client input
 Explanation:
 </p>
 <ul>
+<li>Line 18:
+<i>DO LINEMODE</i>.
+Server is telling client that linemode must <i>not</i> be used.
+That way, the Telnet client knows it must send every character to the server
+the moment the character is typed in,
+rather than save up everything until the user presses
+<a href="https://en.wikipedia.org/wiki/Enter_key">enter</a>.
+</li>
+<li>Line 19:
+<i>WILL ECHO</i>.
+Server is telling client that server will
+<a href="https://en.wikipedia.org/wiki/Echo_(computing)">echo</a>
+every character sent by client (i.e. typed in by user).
+That way, the Telnet client knows it must <i>not</i> do a local echo.
+</li>
 <li>Line ?:
 ?
 </li>

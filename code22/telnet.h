@@ -1,6 +1,7 @@
 typedef struct
 {
-   bool subnegotiation;
+   bool iac;
+   int negotiate;
    unsigned index;
    char data[100];
 }

@@ -503,7 +503,12 @@ The following module handles the peculiarities of the
 <a href="https://en.wikipedia.org/wiki/Telnet">Telnet</a>
 protocol.
 It also takes care of buffering client input
-(i.e. everything typed in by the users).
+(i.e. everything typed in by the users),
+and it prevents server output
+(which <i>could</i> be pushed at any time by activity from other users)
+getting mixed up with
+<a href="https://en.wikipedia.org/wiki/Echo_(computing)">echo</a>
+on the same line in the Telnet client.
 </p>
 <table class="code"><tr>
 <th>telnet.h</th>
@@ -512,7 +517,8 @@ It also takes care of buffering client input
 <ol>
 <li class="new">typedef struct</li>
 <li class="new">{</li>
-<li class="new">   bool subnegotiation;</li>
+<li class="new">   bool iac;</li>
+<li class="new">   int negotiate;</li>
 <li class="new">   unsigned index;</li>
 <li class="new">   char data[100];</li>
 <li class="new">}</li>
@@ -543,7 +549,8 @@ It also takes care of buffering client input
 <li class="new"></li>
 <li class="new">void telnetInit(INBUF *inbuf)</li>
 <li class="new">{</li>
-<li class="new">   inbuf-&gt;subnegotiation = false;</li>
+<li class="new">   inbuf-&gt;iac = false;</li>
+<li class="new">   inbuf-&gt;negotiate = 0;</li>
 <li class="new">   inbuf-&gt;index = 0;</li>
 <li class="new">}</li>
 <li class="new"></li>
@@ -591,23 +598,14 @@ It also takes care of buffering client input
 <li class="new">   for (i = 0; i &lt; length; i++)</li>
 <li class="new">   {</li>
 <li class="new">      int c = data[i];</li>
-<li class="new">      if (c == '\xFF')</li>
+<li class="new">      if (c == '\xFF' || inbuf-&gt;iac)</li>
 <li class="new">      {</li>
-<li class="new">         switch (data[++i])</li>
-<li class="new">         {</li>
-<li class="new">            case '\xF0':</li>
-<li class="new">               inbuf-&gt;subnegotiation = false;</li>
-<li class="new">               break;</li>
-<li class="new">            case '\xFA':</li>
-<li class="new">               inbuf-&gt;subnegotiation = true;</li>
-<li class="new">               break;</li>
-<li class="new">            case '\xFB': case '\xFC': case '\xFD': case '\xFE':</li>
-<li class="new">               i++;</li>
-<li class="new">               break;</li>
-<li class="new">         }</li>
+<li class="new">         if (c == '\xF0' || inbuf-&gt;negotiate != '\xFA') inbuf-&gt;negotiate = c;</li>
+<li class="new">         inbuf-&gt;iac = !inbuf-&gt;iac;</li>
 <li class="new">      }</li>
-<li class="new">      else if (inbuf-&gt;subnegotiation)</li>
+<li class="new">      else if (inbuf-&gt;negotiate &gt;= '\xFA' &amp;&amp; inbuf-&gt;negotiate &lt;= '\xFE')</li>
 <li class="new">      {</li>
+<li class="new">         if (inbuf-&gt;negotiate != '\xFA') inbuf-&gt;negotiate = 0;</li>
 <li class="new">      }</li>
 <li class="new">      else if (c == '\r')</li>
 <li class="new">      {</li>
@@ -622,11 +620,11 @@ It also takes care of buffering client input
 <li class="new">      else if (c == '\b' || c == '\x7F')</li>
 <li class="new">      {</li>
 <li class="new">         if (inbuf-&gt;index &gt; 0)</li>
-<li class="new">	 {</li>
+<li class="new">         {</li>
 <li class="new">            outbufByte('\b');</li>
 <li class="new">            outbufAsSpace(inbuf-&gt;data[--inbuf-&gt;index]);</li>
 <li class="new">            outbufByte('\b');</li>
-<li class="new">	 }</li>
+<li class="new">         }</li>
 <li class="new">      }</li>
 <li class="new">      else if (c &gt;= ' ' &amp;&amp; c &lt; '\x7F')</li>
 <li class="new">      {</li>
@@ -647,6 +645,21 @@ It also takes care of buffering client input
 Explanation:
 </p>
 <ul>
+<li>Line 18:
+<i>DO LINEMODE</i>.
+Server is telling client that linemode must <i>not</i> be used.
+That way, the Telnet client knows it must send every character to the server
+the moment the character is typed in,
+rather than save up everything until the user presses
+<a href="https://en.wikipedia.org/wiki/Enter_key">enter</a>.
+</li>
+<li>Line 19:
+<i>WILL ECHO</i>.
+Server is telling client that server will
+<a href="https://en.wikipedia.org/wiki/Echo_(computing)">echo</a>
+every character sent by client (i.e. typed in by user).
+That way, the Telnet client knows it must <i>not</i> do a local echo.
+</li>
 <li>Line ?:
 ?
 </li>
