@@ -1,7 +1,7 @@
 #include <stdbool.h>
 #include <stdio.h>
-#include "print.h"
 #include "object.h"
+#include "print.h"
 #include "misc.h"
 #include "match.h"
 #include "noun.h"
@@ -46,11 +46,15 @@ int executeLook(void)
 
 static void movePlayer(OBJECT *passage)
 {
-   printSee("%s\n", passage->textGo);
    if (passage->destination != NULL)
    {
+      printSee("%s\n", passage->textGo);
       player->location = passage->destination;
       executeLookAround();
+   }
+   else
+   {
+      printPrivate("%s\n", passage->textGo);
    }
 }
 

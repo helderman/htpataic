@@ -1,7 +1,7 @@
 #include <stdbool.h>
 #include <stdio.h>
-#include "print.h"
 #include "object.h"
+#include "print.h"
 #include "match.h"
 #include "reach.h"
 #include "toggle.h"

@@ -3,8 +3,8 @@
 #include <unistd.h>
 #include <netinet/in.h>
 #include "break.h"
-#include "print.h"
 #include "object.h"
+#include "print.h"
 #include "outbuf.h"
 #include "telnet.h"
 #include "client.h"
@@ -17,7 +17,7 @@ static void disconnect(CLIENT *client)
    if (client->fd != -1)
    {
       close(client->fd);
-      printf("Socket %d disconnected.\n", client->fd);
+      printConsole("Socket %d disconnected.\n", client->fd);
       client->fd = -1;
    }
 }
@@ -47,7 +47,7 @@ void server(bool (*action)(char *, int))
       {
          fd = tcpAccept(&address, listener);
          if (fd == -1) break;
-         printf("Socket %d connected.\n", fd);
+         printConsole("Socket %d connected.\n", fd);
          outbufClear();
          telnetConfigure();
          outbufFormat("Welcome to Little Cave Adventure.\n");

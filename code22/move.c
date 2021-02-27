@@ -1,7 +1,7 @@
 #include <stdbool.h>
 #include <stdio.h>
-#include "print.h"
 #include "object.h"
+#include "print.h"
 #include "misc.h"
 
 static int weightOfContents(OBJECT *container)
@@ -23,8 +23,11 @@ static void describeMove(OBJECT *obj, OBJECT *to)
    }
    else if (to != player)
    {
-      printSee(to->health > 0 ? "You give %s to %s.\n" : "You put %s in %s.\n",
+      printAny(player, to, " see ", to->health > 0 ? "You give %s to %s.\n"
+                                                   : "You put %s in %s.\n",
                obj->description, to->description);
+      printAny(to, NULL, NULL, "You receive %s from %s.\n",
+               obj->description, player->description);
    }
    else if (obj->location == player->location)
    {

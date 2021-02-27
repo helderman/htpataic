@@ -1,8 +1,8 @@
 #include <stdbool.h>
 #include <stdio.h>
 #include <string.h>
-#include "print.h"
 #include "object.h"
+#include "print.h"
 #include "match.h"
 #include "noun.h"
 #include "expand.h"
@@ -39,13 +39,13 @@ static bool getInput(const char *filename)
          fclose(out);
       }
    }
-   printf("\n--> ");
+   printConsole("\n--> ");
    ok = getFromFP(fp);
    if (fp != stdin)
    {
       if (ok)
       {
-         printf("%s\n", input);
+         printConsole("%s\n", input);
       }
       else
       {
@@ -78,12 +78,12 @@ static bool adminProcessCommand(void)
 int main(int argc, char *argv[])
 {
    (void)argc;
-   printf("Welcome to Little Cave Adventure.\n");
-   printf("You are in single-user mode; enter 'quit' for multi-user mode.\n");
+   printConsole("Welcome to Little Cave Adventure.\n");
+   printConsole("You are in single-user mode; enter 'quit' for multi-user.\n");
    player = nobody;
    while (adminProcessCommand() && getInput(argv[1]));
-   printf("\nGoing into multi-user mode; press ^C to stop.\n");
+   printConsole("\nGoing into multi-user mode; press ^C to stop.\n");
    server(processCommand);
-   printf("\nBye!\n");
+   printConsole("\nBye!\n");
    return 0;
 }

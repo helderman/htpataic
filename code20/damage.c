@@ -14,30 +14,25 @@ static void describeAttack(OBJECT *attacker, OBJECT *victim, OBJECT *weapon)
    }
    else if (victim == player)
    {
-      printf("You are hit by %s, with %s.\n",
+      printf("You are hit by %s with %s.\n",
              attacker->description, weaponDescription);
    }
    else
    {
-      printf("You see %s being hit by %s, with %s.\n",
-             victim->description, attacker->description, weaponDescription);
+      printf("You see %s hit %s with %s.\n",
+             attacker->description, victim->description, weaponDescription);
    }
 }
 
-static void describeDeath(OBJECT *attacker, OBJECT *victim)
+static void describeDeath(OBJECT *victim)
 {
-   if (attacker == player)
+   if (victim == player)
    {
-      printf("You have slain %s.\n", victim->description);
-   }
-   else if (victim == player)
-   {
-      printf("You have been slain by %s.\n", attacker->description);
+      printf("You die.\n");
    }
    else
    {
-      printf("You see %s being slain by %s.\n",
-             victim->description, attacker->description);
+      printf("You see %s die.\n", victim->description);
    }
 }
 
@@ -53,7 +48,7 @@ void dealDamage(OBJECT *attacker, OBJECT *weapon, OBJECT *victim)
          if (victim->health <= 0)
          {
             victim->health = 0;
-            describeDeath(attacker, victim);
+            describeDeath(victim);
          }
          if (attacker == player)
          {

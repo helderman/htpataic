@@ -42,7 +42,7 @@ static void depleteLight(OBJECT *obj, int time)
    if ((obj->light -= time) <= 0 &&
        (isHolding(player, obj) || isHolding(player->location, obj)))
    {
-      printf("The light of %s dies out.\n", obj->description);
+      printf("You see %s go out.\n", obj->description);
    }
 }
 
@@ -62,7 +62,7 @@ bool turn(int time)
       }
       if (player->health <= 0)
       {
-         printf("You have died. You rise up to a more peaceful place...\n");
+         printf("You rise up to a more peaceful place...\n");
          player->location = heaven;
          player->health = 100;
          for (obj = objs; obj < endOfObjs; obj++)

@@ -242,7 +242,7 @@ You pick up a lamp.<br />
 <br />
 --&gt; attack<br />
 You hit a burly guard with a dagger.<br />
-You are hit by a burly guard, with bare hands.<br />
+You are hit by a burly guard with bare hands.<br />
 <br />
 --&gt; attack with club<br />
 You hit a burly guard with a wooden club.<br />
@@ -253,7 +253,7 @@ You see a burly guard pick up a dagger.<br />
 <br />
 --&gt; attack guard<br />
 You hit a burly guard with a wooden club.<br />
-You are hit by a burly guard, with a dagger.<br />
+You are hit by a burly guard with a dagger.<br />
 <br />
 --&gt; attack with dagger<br />
 You are not holding any dagger.<br />
@@ -263,7 +263,7 @@ You try to hit a burly guard with a lamp, but you miss.<br />
 <br />
 --&gt; wait<br />
 Some time passes...<br />
-You are hit by a burly guard, with a dagger.<br />
+You are hit by a burly guard with a dagger.<br />
 <br />
 --&gt; quit<br />
 <br />
@@ -421,7 +421,7 @@ Other examples are forces of nature: a storm, a flood, a volcanic eruption.
 <li class="new">   if ((obj-&gt;light -= time) &lt;= 0 &amp;&amp;</li>
 <li class="new">       (isHolding(player, obj) || isHolding(player-&gt;location, obj)))</li>
 <li class="new">   {</li>
-<li class="new">      printf("The light of %s dies out.\n", obj-&gt;description);</li>
+<li class="new">      printf("You see %s go out.\n", obj-&gt;description);</li>
 <li class="new">   }</li>
 <li class="new">}</li>
 <li class="new"></li>
@@ -441,7 +441,7 @@ Other examples are forces of nature: a storm, a flood, a volcanic eruption.
 <li class="new">      }</li>
 <li class="new">      if (player-&gt;health &lt;= 0)</li>
 <li class="new">      {</li>
-<li class="new">         printf("You have died. You rise up to a more peaceful place...\n");</li>
+<li class="new">         printf("You rise up to a more peaceful place...\n");</li>
 <li class="new">         player-&gt;location = heaven;</li>
 <li class="new">         player-&gt;health = 100;</li>
 <li class="new">         for (obj = objs; obj &lt; endOfObjs; obj++)</li>
@@ -596,30 +596,25 @@ by the end of this chapter.
 <li class="new">   }</li>
 <li class="new">   else if (victim == player)</li>
 <li class="new">   {</li>
-<li class="new">      printf("You are hit by %s, with %s.\n",</li>
+<li class="new">      printf("You are hit by %s with %s.\n",</li>
 <li class="new">             attacker-&gt;description, weaponDescription);</li>
 <li class="new">   }</li>
 <li class="new">   else</li>
 <li class="new">   {</li>
-<li class="new">      printf("You see %s being hit by %s, with %s.\n",</li>
-<li class="new">             victim-&gt;description, attacker-&gt;description, weaponDescription);</li>
+<li class="new">      printf("You see %s hit %s with %s.\n",</li>
+<li class="new">             attacker-&gt;description, victim-&gt;description, weaponDescription);</li>
 <li class="new">   }</li>
 <li class="new">}</li>
 <li class="new"></li>
-<li class="new">static void describeDeath(OBJECT *attacker, OBJECT *victim)</li>
+<li class="new">static void describeDeath(OBJECT *victim)</li>
 <li class="new">{</li>
-<li class="new">   if (attacker == player)</li>
+<li class="new">   if (victim == player)</li>
 <li class="new">   {</li>
-<li class="new">      printf("You have slain %s.\n", victim-&gt;description);</li>
-<li class="new">   }</li>
-<li class="new">   else if (victim == player)</li>
-<li class="new">   {</li>
-<li class="new">      printf("You have been slain by %s.\n", attacker-&gt;description);</li>
+<li class="new">      printf("You die.\n");</li>
 <li class="new">   }</li>
 <li class="new">   else</li>
 <li class="new">   {</li>
-<li class="new">      printf("You see %s being slain by %s.\n",</li>
-<li class="new">             victim-&gt;description, attacker-&gt;description);</li>
+<li class="new">      printf("You see %s die.\n", victim-&gt;description);</li>
 <li class="new">   }</li>
 <li class="new">}</li>
 <li class="new"></li>
@@ -635,7 +630,7 @@ by the end of this chapter.
 <li class="new">         if (victim-&gt;health &lt;= 0)</li>
 <li class="new">         {</li>
 <li class="new">            victim-&gt;health = 0;</li>
-<li class="new">            describeDeath(attacker, victim);</li>
+<li class="new">            describeDeath(victim);</li>
 <li class="new">         }</li>
 <li class="new">         if (attacker == player)</li>
 <li class="new">         {</li>
@@ -676,7 +671,7 @@ by the end of this chapter.
 Explanation:
 </p>
 <ul>
-<li>Line 7-24:
+<li>Line 7-25:
 a helper function that generates descriptive text
 about attacks taking place during combat.
 This covers player attacking NPC (line 12),
@@ -685,44 +680,39 @@ and even NPC attacking NPC (lines 21-22).
 The latter could be useful in a game
 where the player can team up with friendly NPCs.
 </li>
-<li>Line 26-41:
+<li>Line 27-37:
 another helper function, this time to give descriptive text
 about a character dying in combat.
 As in the previous function,
 attacker and victim can be NPC as well as player.
 </li>
-<li>Line 43-54:
-one more helper function,
-which could be useful in a fight involving three or more characters,
-where a single character might suffer multiple blows within a single turn.
-</li>
-<li>Line 60:
+<li>Line 41:
 this is the &lsquo;damage formula&rsquo;.
 By convention, I will let &lsquo;damage&rsquo; be a negative number,
 reserving positive numbers for actions
 that have a positive effect on a character&rsquo;s health
 (e.g. drinking a healing potion).
 </li>
-<li>Line 61:
+<li>Line 42:
 damage has a 1 to 6 chance of being zero;
 even more so if attacker and weapon are too weak.
-If damage is zero, then execution will continue on line 82,
+If damage is zero, then execution will continue on line 64,
 where we will explain the attack had no effect.
 </li>
-<li>Line 78:
+<li>Line 55:
 attacking an NPC has a (negative) effect not only on health,
 but also on the NPC&rsquo;s trust towards the player.
 This will have its effect on the NPC&rsquo;s behavior towards the player.
 We already saw an example of this in <i>turn.c</i>.
 </li>
-<li>Line 82:
+<li>Line 64:
 we should respond to every command from the player,
 but it is not necessary to apologize
 for every missed opportunity by a NPC to deal damage.
 </li>
-<li>Line 94:
+<li>Line 77:
 you may already have noticed the weapon&rsquo;s &lsquo;impact&rsquo;
-(another new attribute) as part of the damage formula (line 60).
+(another new attribute) as part of the damage formula (line 41).
 As explained, we will be using negative numbers.
 This explains why there is a &lsquo;less than&rsquo; operator here:
 the best weapon is the one with the smallest (most negative) impact.
@@ -1249,7 +1239,7 @@ It basically means the actor <i>is</i> the weapon.
 Here we specify the effect of each actor fighting with bare hands.
 </li>
 <li>Line 260-274:
-a number of weapons.
+a collection of weapons.
 </li>
 </ul>
 </div>

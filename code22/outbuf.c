@@ -89,7 +89,7 @@ void outbufInsertSpaces(int pos, const char *data, int len)
    if (outbufMove(pos, pos + len))
    {
       int i;
-      for (i = pos; i < pos + len; i++) outbufData[i] = asSpace(data[i]);
+      for (i = 0; i < len; i++) outbufData[pos + i] = asSpace(data[i]);
    }
 }
 

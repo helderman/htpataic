@@ -368,7 +368,7 @@ by the end of this chapter.
 Explanation:
 </p>
 <ul>
-<li>Line 7-24:
+<li>Line 7-25:
 a helper function that generates descriptive text
 about attacks taking place during combat.
 This covers player attacking NPC (line 12),
@@ -377,44 +377,39 @@ and even NPC attacking NPC (lines 21-22).
 The latter could be useful in a game
 where the player can team up with friendly NPCs.
 </li>
-<li>Line 26-41:
+<li>Line 27-37:
 another helper function, this time to give descriptive text
 about a character dying in combat.
 As in the previous function,
 attacker and victim can be NPC as well as player.
 </li>
-<li>Line 43-54:
-one more helper function,
-which could be useful in a fight involving three or more characters,
-where a single character might suffer multiple blows within a single turn.
-</li>
-<li>Line 60:
+<li>Line 41:
 this is the &lsquo;damage formula&rsquo;.
 By convention, I will let &lsquo;damage&rsquo; be a negative number,
 reserving positive numbers for actions
 that have a positive effect on a character&rsquo;s health
 (e.g. drinking a healing potion).
 </li>
-<li>Line 61:
+<li>Line 42:
 damage has a 1 to 6 chance of being zero;
 even more so if attacker and weapon are too weak.
-If damage is zero, then execution will continue on line 82,
+If damage is zero, then execution will continue on line 64,
 where we will explain the attack had no effect.
 </li>
-<li>Line 78:
+<li>Line 55:
 attacking an NPC has a (negative) effect not only on health,
 but also on the NPC&rsquo;s trust towards the player.
 This will have its effect on the NPC&rsquo;s behavior towards the player.
 We already saw an example of this in <i>turn.c</i>.
 </li>
-<li>Line 82:
+<li>Line 64:
 we should respond to every command from the player,
 but it is not necessary to apologize
 for every missed opportunity by a NPC to deal damage.
 </li>
-<li>Line 94:
+<li>Line 77:
 you may already have noticed the weapon&rsquo;s &lsquo;impact&rsquo;
-(another new attribute) as part of the damage formula (line 60).
+(another new attribute) as part of the damage formula (line 41).
 As explained, we will be using negative numbers.
 This explains why there is a &lsquo;less than&rsquo; operator here:
 the best weapon is the one with the smallest (most negative) impact.
@@ -541,7 +536,7 @@ It basically means the actor <i>is</i> the weapon.
 Here we specify the effect of each actor fighting with bare hands.
 </li>
 <li>Line 260-274:
-a number of weapons.
+a collection of weapons.
 </li>
 </ul>
 </div>

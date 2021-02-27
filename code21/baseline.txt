@@ -40,7 +40,7 @@ You pick up a dagger.
 
 --> attack guard
 You hit a burly guard with a dagger.
-You are hit by a burly guard, with bare hands.
+You are hit by a burly guard with bare hands.
 
 --> play jill
 You already are Jill.

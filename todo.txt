@@ -1,11 +1,9 @@
-- ch22: 'turn' still outputs to stdout
 - ch22: log time and player
 - ch20: make isHolding static; it's used in ch20 in turn.c and damage.c, but they are similar; move to misc.c
   - hmm, misc.c is already 98 lines
   - turn.c includes damage.h; put the common code in damage.c!
 
-- a chapter about multiplayer
-  - don't forget to put the new executable in .gitignore
++ a chapter about multiplayer
   - actorHere is not aware of duplicates yet; maybe let noun.c accept null tag? Or a special tag "person" or "character" or "anyone"?
 
 - ch19: noun.c is 109 lines

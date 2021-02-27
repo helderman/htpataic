@@ -1,8 +1,8 @@
 #include <stdbool.h>
 #include <stdio.h>
 #include <string.h>
-#include "print.h"
 #include "object.h"
+#include "print.h"
 #include "misc.h"
 
 static bool objectHasTag(OBJECT *obj, const char *noun)

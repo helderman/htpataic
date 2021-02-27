@@ -20,7 +20,7 @@ You pick up a lamp.
 
 --> attack
 You hit a burly guard with a dagger.
-You are hit by a burly guard, with bare hands.
+You are hit by a burly guard with bare hands.
 
 --> attack with club
 You hit a burly guard with a wooden club.
@@ -31,7 +31,7 @@ You see a burly guard pick up a dagger.
 
 --> attack guard
 You hit a burly guard with a wooden club.
-You are hit by a burly guard, with a dagger.
+You are hit by a burly guard with a dagger.
 
 --> attack with dagger
 You are not holding any dagger.
@@ -41,7 +41,7 @@ You try to hit a burly guard with a lamp, but you miss.
 
 --> wait
 Some time passes...
-You are hit by a burly guard, with a dagger.
+You are hit by a burly guard with a dagger.
 
 --> quit
 

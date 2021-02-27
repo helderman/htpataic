@@ -1,45 +1,23 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stdio.h>
-#include "print.h"
 #include "object.h"
+#include "print.h"
 #include "misc.h"
 
 static void describeAttack(OBJECT *attacker, OBJECT *victim, OBJECT *weapon)
 {
    const char *weaponDescription = weapon == attacker ? "bare hands"
                                                       : weapon->description;
-   if (attacker == player)
-   {
-      printf("You hit %s with %s.\n", victim->description, weaponDescription);
-   }
-   else if (victim == player)
-   {
-      printf("You are hit by %s, with %s.\n",
-             attacker->description, weaponDescription);
-   }
-   else
-   {
-      printf("You see %s being hit by %s, with %s.\n",
-             victim->description, attacker->description, weaponDescription);
-   }
+   printAny(attacker, victim, " see ", "You hit %s with %s.\n",
+            victim->description, weaponDescription);
+   printAny(victim, NULL, NULL, "You are hit by %s with %s.\n",
+            attacker->description, weaponDescription);
 }
 
-static void describeDeath(OBJECT *attacker, OBJECT *victim)
+static void describeDeath(OBJECT *victim)
 {
-   if (attacker == player)
-   {
-      printf("You have slain %s.\n", victim->description);
-   }
-   else if (victim == player)
-   {
-      printf("You have been slain by %s.\n", attacker->description);
-   }
-   else
-   {
-      printf("You see %s being slain by %s.\n",
-             victim->description, attacker->description);
-   }
+   printAny(victim, NULL, " see ", "You die.\n");
 }
 
 void dealDamage(OBJECT *attacker, OBJECT *weapon, OBJECT *victim)
@@ -54,7 +32,7 @@ void dealDamage(OBJECT *attacker, OBJECT *weapon, OBJECT *victim)
          if (victim->health <= 0)
          {
             victim->health = 0;
-            describeDeath(attacker, victim);
+            describeDeath(victim);
          }
          if (attacker == player)
          {

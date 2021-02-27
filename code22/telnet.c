@@ -21,20 +21,16 @@ void telnetConfigure(void)
    outbufBytes(config, sizeof config);
 }
 
-void telnetInsertHome(void)
-{
-   outbufInsertString(0, "\r\r");
-}
-
 void telnetInsertSpaces(INBUF *inbuf)
 {
+   outbufInsertString(0, "\r\r");
    outbufInsertSpaces(1, inbuf->data, inbuf->index);
    outbufInsertSpaces(1, prompt, sizeof prompt - 1);
 }
 
 void telnetDeleteSpaces(INBUF *inbuf)
 {
-   outbufMove(inbuf->index + sizeof prompt, 1);
+   outbufMove(inbuf->index + sizeof prompt + 1, 0);
 }
 
 void telnetAppendPrompt(INBUF *inbuf)

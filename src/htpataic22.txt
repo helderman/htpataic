@@ -176,8 +176,8 @@ Here, we use this to switch to the correct
 <li>Line 78:
 this is the heart of the server.
 It processes the client&rsquo;s input (<i>buffer</i>)
-by letting our game engine (parameter <i>action</i>) execute every command
-and sending every response back to the client&rsquo;s socket.
+by letting our game engine (parameter <i>action</i>) execute each command,
+sending responses back to client sockets.
 </li>
 <li>Line 79:
 when a client first connects, they will be nobody (see line 58).
@@ -214,23 +214,23 @@ For readability, I implemented a number of functions in a separate module.
 Explanation:
 </p>
 <ul>
-<li>Line 20:
+<li>Line 23:
 calling system call <i>socket</i>.
 </li>
-<li>Line 26:
+<li>Line 29:
 calling system call <i>bind</i>.
 </li>
-<li>Line 27:
+<li>Line 30:
 calling system call <i>listen</i>.
 </li>
-<li>Line 40:
+<li>Line 43:
 calling system call
 <a href="https://en.wikipedia.org/wiki/Select_(Unix)">select</a>.
 </li>
-<li>Line 46:
+<li>Line 49:
 calling system call <i>accept</i>.
 </li>
-<li>Line 49-56:
+<li>Line 52-59:
 function <i>tcpSend</i> will be used later in this chapter
 to send output to client sockets.
 </li>
@@ -453,8 +453,8 @@ This could be fixed by demanding a password to be included
 in command <i>play</i>.
 </li>
 <li>Vulnerable to
-<a href="https://en.wikipedia.org/wiki/Network_eavesdropping">eavesdropping</a>,
-as passwords are sent unencrypted.
+<a href="https://en.wikipedia.org/wiki/Network_eavesdropping">eavesdropping</a>:
+everything is transmitted unencrypted, including passwords!
 This could be fixed with
 <a href="https://en.wikipedia.org/wiki/Tcpcrypt">tcpcrypt</a>
 or with a secure tunnel (through

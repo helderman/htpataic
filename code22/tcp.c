@@ -1,8 +1,11 @@
+#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
 #include <errno.h>
 #include <netinet/in.h>
+#include "object.h"
+#include "print.h"
 
 static int assert(const char *name, int retval)
 {
@@ -25,14 +28,14 @@ int tcpListen(struct sockaddr_in *addr, uint16_t port)
    addr->sin_port = htons(port);
    assert("bind", bind(fd, (struct sockaddr *)addr, sizeof *addr));
    assert("listen", listen(fd, 3));
-   printf("Listening to port %u.\n", (unsigned int)port);
+   printConsole("Listening to port %u.\n", (unsigned int)port);
    return fd;
 }
 
 void tcpClose(int fd, uint16_t port)
 {
    close(fd);
-   printf("No longer listening to port %u.\n", (unsigned int)port);
+   printConsole("No longer listening to port %u.\n", (unsigned int)port);
 }
 
 int tcpSelect(int nfds, fd_set *readfds)

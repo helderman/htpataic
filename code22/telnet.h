@@ -9,7 +9,6 @@ INBUF;
 
 extern void telnetInit(INBUF *inbuf);
 extern void telnetConfigure(void);
-extern void telnetInsertHome(void);
 extern void telnetInsertSpaces(INBUF *inbuf);
 extern void telnetDeleteSpaces(INBUF *inbuf);
 extern void telnetAppendPrompt(INBUF *inbuf);
