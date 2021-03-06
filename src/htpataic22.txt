@@ -179,16 +179,16 @@ It processes the client&rsquo;s input (<i>buffer</i>)
 by letting our game engine (parameter <i>action</i>) execute each command,
 sending responses back to client sockets.
 </li>
-<li>Line 79:
+<li>Line 79-83:
 when a client first connects, they will be nobody (see line 58).
 Once the game engine has established who you are,
 it will be persisted here.
 </li>
-<li>Line 81-84:
+<li>Line 85-88:
 in this context, no data means the client is disconnecting,
 i.e. the user has closed the Telnet client.
 </li>
-<li>Line 88-89:
+<li>Line 92-93:
 when leaving the main loop, close all remaining sockets.
 </li>
 </ul>
@@ -463,7 +463,7 @@ or with a secure tunnel (through
 </li>
 <li>Vulnerable to
 <a href="https://en.wikipedia.org/wiki/Man-in-the-middle_attack">man-in-the-middle attacks</a>.
-Again, a user&lsquo;s password could be intercepted.
+Again, a user&rsquo;s password could be intercepted.
 To mitigate that, you&rsquo;d need certificates.
 </li>
 <li>Does not

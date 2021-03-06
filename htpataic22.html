@@ -219,7 +219,11 @@ Fortunately, code samples can be found anywhere on the internet.
 <li class="new">               player = client-&gt;obj;</li>
 <li class="new">               printSetCurrent(client-&gt;fd);</li>
 <li class="new">               telnetParse(&amp;client-&gt;inbuf, client-&gt;fd, action, buffer, len);</li>
-<li class="new">               if (client-&gt;obj == nobody) client-&gt;obj = player;</li>
+<li class="new">               if (player != client-&gt;obj)</li>
+<li class="new">               {</li>
+<li class="new">                  printConsole("Socket %d is %s.\n", fd, player-&gt;description);</li>
+<li class="new">                  client-&gt;obj = player;</li>
+<li class="new">               }</li>
 <li class="new">            }</li>
 <li class="new">            else if (len == 0)   </li>
 <li class="new">            {</li>
@@ -297,16 +301,16 @@ It processes the client&rsquo;s input (<i>buffer</i>)
 by letting our game engine (parameter <i>action</i>) execute each command,
 sending responses back to client sockets.
 </li>
-<li>Line 79:
+<li>Line 79-83:
 when a client first connects, they will be nobody (see line 58).
 Once the game engine has established who you are,
 it will be persisted here.
 </li>
-<li>Line 81-84:
+<li>Line 85-88:
 in this context, no data means the client is disconnecting,
 i.e. the user has closed the Telnet client.
 </li>
-<li>Line 88-89:
+<li>Line 92-93:
 when leaving the main loop, close all remaining sockets.
 </li>
 </ul>
@@ -677,7 +681,6 @@ Output may need to go to more than one client.
 <li class="new">extern void printSetCurrent(int fd);</li>
 <li class="new">extern void printConsole(const char *format, ...);</li>
 <li class="new">extern void printPrivate(const char *format, ...);</li>
-<li class="new">extern void printHear(const char *format, ...);</li>
 <li class="new">extern void printSee(const char *format, ...);</li>
 <li class="new">extern void printAny(OBJECT *obj1, OBJECT *obj2, const char *sense,</li>
 <li class="new">                     const char *format, ...);</li>
@@ -725,7 +728,7 @@ Output may need to go to more than one client.
 <li class="new">            {</li>
 <li class="new">               outbufFlush(client-&gt;fd);</li>
 <li class="new">            }</li>
-<li class="new">	    else</li>
+<li class="new">            else</li>
 <li class="new">            {</li>
 <li class="new">               telnetInsertSpaces(&amp;client-&gt;inbuf);</li>
 <li class="new">               telnetAppendPrompt(&amp;client-&gt;inbuf);</li>
@@ -743,7 +746,10 @@ Output may need to go to more than one client.
 <li class="new">{</li>
 <li class="new">   outbufClear();</li>
 <li class="new">   outbufFormatVar(format, ap);</li>
-<li class="new">   printDemux(obj1, NULL);</li>
+<li class="new">   if (obj1 != obj2)</li>
+<li class="new">   {</li>
+<li class="new">      printDemux(obj1, NULL);</li>
+<li class="new">   }</li>
 <li class="new">   if (sense != NULL)</li>
 <li class="new">   {</li>
 <li class="new">      outbufInsertString(3, obj1-&gt;description);</li>
@@ -772,11 +778,6 @@ Output may need to go to more than one client.
 <li class="new">void printPrivate(const char *format, ...)</li>
 <li class="new">{</li>
 <li class="new">   VA(printFd(currentSocket, format, ap));</li>
-<li class="new">}</li>
-<li class="new"></li>
-<li class="new">void printHear(const char *format, ...)</li>
-<li class="new">{</li>
-<li class="new">   VA(printObserve(player, NULL, " hear ", format, ap));</li>
 <li class="new">}</li>
 <li class="new"></li>
 <li class="new">void printSee(const char *format, ...)</li>
@@ -1019,8 +1020,6 @@ allowing the game administrator to set up things in the game.
 <li class="old">#include &lt;string.h&gt;</li>
 <li class="new"><span class="old">#include </span>"object.h"</li>
 <li class="new">#include "print.h"</li>
-<li class="new">#include "match.h"</li>
-<li class="new">#include "noun.h"</li>
 <li class="new">#include<span class="old"> "expand.h"</span></li>
 <li class="old">#include "parsexec.h"</li>
 <li class="old">#include "turn.h"</li>
@@ -1028,9 +1027,7 @@ allowing the game administrator to set up things in the game.
 <li class="old"></li>
 <li class="old">static char input[100] = "look around";</li>
 <li class="old"></li>
-<li class="new"><span class="old">static </span>int time;</li>
-<li class="new"></li>
-<li class="new">static<span class="old"> bool getFromFP(FILE *fp)</span></li>
+<li class="old">static bool getFromFP(FILE *fp)</li>
 <li class="old">{</li>
 <li class="old">   bool ok = fgets(input, sizeof input, fp) != NULL;</li>
 <li class="old">   if (ok) input[strcspn(input, "\n")] = '\0';</li>
@@ -1072,24 +1069,10 @@ allowing the game administrator to set up things in the game.
 <li class="old">   return ok;</li>
 <li class="old">}</li>
 <li class="old"></li>
-<li class="new">static bool processCommand(char *ptr, int size)</li>
-<li class="new">{</li>
-<li class="new">   return turn(parseAndExecute(expand(ptr, size)));</li>
-<li class="new">}</li>
-<li class="new"></li>
-<li class="new">static bool adminProcessCommand(void)</li>
-<li class="new">{</li>
-<li class="new">   if (matchCommand(input, "@A B"))</li>
-<li class="new">   {</li>
-<li class="new">      player = getTopic(params[0]);</li>
-<li class="new">      sscanf(params[1], "%d", &amp;time);</li>
-<li class="new">      return true;</li>
-<li class="new">   }</li>
-<li class="new">   else</li>
-<li class="new">   {</li>
-<li class="new">      return processCommand(input, sizeof input);</li>
-<li class="new">   }</li>
-<li class="new">}</li>
+<li class="old">static bool processInput(char *ptr, int size)</li>
+<li class="old">{</li>
+<li class="old">   return turn(parseAndExecute(expand(ptr, size)));</li>
+<li class="old">}</li>
 <li class="old"></li>
 <li class="old">int main(int argc, char *argv[])</li>
 <li class="old">{</li>
@@ -1097,9 +1080,9 @@ allowing the game administrator to set up things in the game.
 <li class="new"><span class="old">   </span>printConsole("Welcome<span class="old"> to Little Cave Adventure.\n");</span></li>
 <li class="new"><span class="old">   </span>printConsole("You are in single-user mode; enter 'quit' for multi-user.\n");</li>
 <li class="new">   player = nobody;</li>
-<li class="new"><span class="old">   while </span>(adminProcessCommand()<span class="old"> &amp;&amp; getInput(argv[1]));</span></li>
+<li class="old">   while (processInput(input, sizeof input) &amp;&amp; getInput(argv[1]));</li>
 <li class="new"><span class="old">   </span>printConsole("\nGoing into multi-user mode; press ^C to stop.\n");</li>
-<li class="new">   server(processCommand);</li>
+<li class="new">   server(processInput);</li>
 <li class="new">   printConsole("\nBye!\n");</li>
 <li class="old">   return 0;</li>
 <li class="old">}</li>
@@ -1141,7 +1124,7 @@ or with a secure tunnel (through
 </li>
 <li>Vulnerable to
 <a href="https://en.wikipedia.org/wiki/Man-in-the-middle_attack">man-in-the-middle attacks</a>.
-Again, a user&lsquo;s password could be intercepted.
+Again, a user&rsquo;s password could be intercepted.
 To mitigate that, you&rsquo;d need certificates.
 </li>
 <li>Does not

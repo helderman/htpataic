@@ -3,16 +3,12 @@
 #include <string.h>
 #include "object.h"
 #include "print.h"
-#include "match.h"
-#include "noun.h"
 #include "expand.h"
 #include "parsexec.h"
 #include "turn.h"
 #include "server.h"
 
 static char input[100] = "look around";
-
-static int time;
 
 static bool getFromFP(FILE *fp)
 {
@@ -56,23 +52,9 @@ static bool getInput(const char *filename)
    return ok;
 }
 
-static bool processCommand(char *ptr, int size)
+static bool processInput(char *ptr, int size)
 {
    return turn(parseAndExecute(expand(ptr, size)));
-}
-
-static bool adminProcessCommand(void)
-{
-   if (matchCommand(input, "@A B"))
-   {
-      player = getTopic(params[0]);
-      sscanf(params[1], "%d", &time);
-      return true;
-   }
-   else
-   {
-      return processCommand(input, sizeof input);
-   }
 }
 
 int main(int argc, char *argv[])
@@ -81,9 +63,9 @@ int main(int argc, char *argv[])
    printConsole("Welcome to Little Cave Adventure.\n");
    printConsole("You are in single-user mode; enter 'quit' for multi-user.\n");
    player = nobody;
-   while (adminProcessCommand() && getInput(argv[1]));
+   while (processInput(input, sizeof input) && getInput(argv[1]));
    printConsole("\nGoing into multi-user mode; press ^C to stop.\n");
-   server(processCommand);
+   server(processInput);
    printConsole("\nBye!\n");
    return 0;
 }

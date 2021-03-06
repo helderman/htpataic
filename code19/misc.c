@@ -29,9 +29,10 @@ bool isLit(OBJECT *target)
    return false;
 }
 
-static bool isIlluminated(OBJECT *obj)
+static bool isNoticeable(OBJECT *obj)
 {
-   return isLit(obj) || isLit(obj->prospect) || isLit(player->location);
+   return obj->location == player ||
+          isLit(obj) || isLit(obj->prospect) || isLit(player->location);
 }
 
 OBJECT *getPassage(OBJECT *from, OBJECT *to)
@@ -56,7 +57,7 @@ DISTANCE getDistance(OBJECT *from, OBJECT *to)
           !validObject(to)                         ? distNotHere :
           to == from                               ? distSelf :
           isHolding(from, to)                      ? distHeld :
-          !isIlluminated(to)                       ? distNotHere :
+          !isNoticeable(to)                        ? distNotHere :
           isHolding(to, from)                      ? distLocation :
           isHolding(from->location, to)            ? distHere :
           isHolding(from, to->location)            ? distHeldContained :
@@ -71,7 +72,7 @@ OBJECT *actorHere(void)
    for (obj = objs; obj < endOfObjs; obj++)
    {
       if (isHolding(player->location, obj) && obj != player &&
-          isIlluminated(obj) && obj->health > 0)
+          isNoticeable(obj) && obj->health > 0)
       {
          return obj;
       }
@@ -85,7 +86,7 @@ int listObjectsAtLocation(OBJECT *location)
    OBJECT *obj;
    for (obj = objs; obj < endOfObjs; obj++)
    {
-      if (obj != player && isHolding(location, obj) && isIlluminated(obj))
+      if (obj != player && isHolding(location, obj) && isNoticeable(obj))
       {
          if (count++ == 0)
          {

@@ -52,6 +52,13 @@ int moveObject(OBJECT *obj, OBJECT *to)
       printPrivate("There is nobody here to give that to.\n");
       return 0;
    }
+   else if (obj->location != NULL && obj->location != player &&
+            obj->location->health > 0 && obj->location->trust <= 0)
+   {
+      printPrivate("It seems %s feels reluctant to give you anything.\n",
+                   obj->location->description);
+      return 1;
+   }
    else if (to->capacity == 0)
    {
       printPrivate(obj == keyForBox && (to == closedBox || to == lockedBox) ?

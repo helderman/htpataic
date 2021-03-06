@@ -11,7 +11,7 @@ OBJECT *reachableObject(const char *intention, const char *noun)
    switch (getDistance(player, obj))
    {
    case distSelf:
-      printPrivate("You should not be doing that to %s.\n", obj->description);
+      printPrivate("You should not be doing that to yourself.\n");
       break;
    case distHeldContained:
    case distHereContained:

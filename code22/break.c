@@ -22,3 +22,8 @@ bool breakTest(void)
 {
    return done == 0;
 }
+
+int breakSignalNumber(void)
+{
+   return done;
+}

@@ -74,6 +74,7 @@ extern OBJECT *player, objs[];
      details     "You are nobody. Please enter: play xxx"
      contents    "You have"
      health      100
+     capacity    1
 
 - field
      description "an open field"

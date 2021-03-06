@@ -47,9 +47,9 @@ void dealDamage(OBJECT *attacker, OBJECT *weapon, OBJECT *victim)
    }
    else if (attacker == player)
    {
-      printf("You try to hit %s with %s, but you miss.\n",
-             victim->description,
-             weapon == attacker ? "bare hands" : weapon->description);
+      printPrivate("You try to hit %s with %s, but you miss.\n",
+                   victim->description,
+                   weapon == attacker ? "bare hands" : weapon->description);
    }
 }
 

@@ -13,7 +13,7 @@ int executeGet(void)
    switch (getDistance(player, obj))
    {
    case distSelf:
-      printPrivate("You should not be doing that to %s.\n", obj->description);
+      printPrivate("You should not be doing that to yourself.\n");
       return 1;
    case distHeld:
       printPrivate("You already have %s.\n", obj->description);

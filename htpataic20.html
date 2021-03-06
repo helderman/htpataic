@@ -326,12 +326,16 @@ Bye!<br />
 <li class="old">   return ok;</li>
 <li class="old">}</li>
 <li class="old"></li>
+<li class="new">static bool processInput(char *ptr, int size)</li>
+<li class="new">{</li>
+<li class="new">   return turn(parseAndExecute(expand(ptr, size)));</li>
+<li class="new">}</li>
+<li class="old"></li>
 <li class="old">int main(int argc, char *argv[])</li>
 <li class="old">{</li>
 <li class="old">   (void)argc;</li>
 <li class="old">   printf("Welcome to Little Cave Adventure.\n");</li>
-<li class="new"><span class="old">   while </span>(turn(parseAndExecute(expand(input,<span class="old"> sizeof </span>input)))<span class="old"> &amp;&amp;</span></li>
-<li class="old">          getInput(argv[1]));</li>
+<li class="new"><span class="old">   while </span>(processInput(input,<span class="old"> sizeof </span>input)<span class="old"> &amp;&amp; getInput(argv[1]));</span></li>
 <li class="old">   printf("\nBye!\n");</li>
 <li class="old">   return 0;</li>
 <li class="old">}</li>
@@ -346,7 +350,7 @@ Explanation:
 <li>Line 6:
 another new module, shown below.
 </li>
-<li>Line 56:
+<li>Line 54:
 directly after calling function parseAndExecute,
 we will call a new function named &lsquo;turn&rsquo;.
 The return value of parseAndExecute is passed into turn as a parameter.
@@ -940,6 +944,7 @@ This time, the player is the attacker rather than the victim.
 Finally, here are the new attributes,
 the weapons and the respawn location.
 </p>
+<img class="genmap" src="code20/map.png" />
 <table class="code"><tr>
 <th>object.txt</th>
 </tr><tr>
@@ -1246,7 +1251,6 @@ a collection of weapons.
 <p>
 The new attributes demand a change in <i>object.awk</i> as well.
 </p>
-<img class="genmap" src="code20/map.png" />
 <table class="code"><tr>
 <th>object.awk</th>
 </tr><tr>
@@ -1361,6 +1365,110 @@ Explanation:
 <ul>
 <li>Line 27-28:
 both attributes have a default value of zero.
+</li>
+</ul>
+</div>
+<p>
+Trust could also affect commands that are unrelated to combat.
+Most notably <i>ask</i>.
+</p>
+<table class="code"><tr>
+<th>move.c</th>
+</tr><tr>
+<td>
+<ol>
+<li class="old">#include &lt;stdbool.h&gt;</li>
+<li class="old">#include &lt;stdio.h&gt;</li>
+<li class="old">#include "object.h"</li>
+<li class="old">#include "misc.h"</li>
+<li class="old"></li>
+<li class="old">static int weightOfContents(OBJECT *container)</li>
+<li class="old">{</li>
+<li class="old">   int sum = 0;</li>
+<li class="old">   OBJECT *obj;</li>
+<li class="old">   for (obj = objs; obj &lt; endOfObjs; obj++)</li>
+<li class="old">   {</li>
+<li class="old">      if (isHolding(container, obj)) sum += obj-&gt;weight;</li>
+<li class="old">   }</li>
+<li class="old">   return sum;</li>
+<li class="old">}</li>
+<li class="old"></li>
+<li class="old">static void describeMove(OBJECT *obj, OBJECT *to)</li>
+<li class="old">{</li>
+<li class="old">   if (to == player-&gt;location)</li>
+<li class="old">   {</li>
+<li class="old">      printf("You drop %s.\n", obj-&gt;description);</li>
+<li class="old">   }</li>
+<li class="old">   else if (to != player)</li>
+<li class="old">   {</li>
+<li class="old">      printf(to-&gt;health &gt; 0 ? "You give %s to %s.\n" : "You put %s in %s.\n",</li>
+<li class="old">             obj-&gt;description, to-&gt;description);</li>
+<li class="old">   }</li>
+<li class="old">   else if (obj-&gt;location == player-&gt;location)</li>
+<li class="old">   {</li>
+<li class="old">      printf("You pick up %s.\n", obj-&gt;description);</li>
+<li class="old">   }</li>
+<li class="old">   else</li>
+<li class="old">   {</li>
+<li class="old">      printf("You get %s from %s.\n",</li>
+<li class="old">             obj-&gt;description, obj-&gt;location-&gt;description);</li>
+<li class="old">   }</li>
+<li class="old">}</li>
+<li class="old"></li>
+<li class="new">int<span class="old"> moveObject(OBJECT *obj, OBJECT *to)</span></li>
+<li class="old">{</li>
+<li class="old">   if (obj == NULL)</li>
+<li class="old">   {</li>
+<li class="old">      // already handled by getVisible or getPossession</li>
+<li class="new"><span class="old">      </span>return 0;</li>
+<li class="old">   }</li>
+<li class="old">   else if (to == NULL)</li>
+<li class="old">   {</li>
+<li class="old">      printf("There is nobody here to give that to.\n");</li>
+<li class="new"><span class="old">      </span>return 0;</li>
+<li class="new">   }</li>
+<li class="new">   else if (obj-&gt;location != NULL &amp;&amp; obj-&gt;location != player &amp;&amp;</li>
+<li class="new">            obj-&gt;location-&gt;health &gt; 0 &amp;&amp; obj-&gt;location-&gt;trust &lt;= 0)</li>
+<li class="new">   {</li>
+<li class="new">      printf("It seems %s feels reluctant to give you anything.\n",</li>
+<li class="new">             obj-&gt;location-&gt;description);</li>
+<li class="new">      return 1;</li>
+<li class="old">   }</li>
+<li class="old">   else if (to-&gt;capacity == 0)</li>
+<li class="old">   {</li>
+<li class="old">      printf(obj == keyForBox &amp;&amp; (to == closedBox || to == lockedBox) ?</li>
+<li class="old">                "The key seems to fit the lock.\n" :</li>
+<li class="old">                "It doesn't seem to fit in.\n");</li>
+<li class="new"><span class="old">      </span>return 1;</li>
+<li class="old">   }</li>
+<li class="old">   else if (obj-&gt;weight &gt; to-&gt;capacity)</li>
+<li class="old">   {</li>
+<li class="old">      printf("That is way too heavy.\n");</li>
+<li class="new"><span class="old">      </span>return 1;</li>
+<li class="old">   }</li>
+<li class="old">   else if (obj-&gt;weight + weightOfContents(to) &gt; to-&gt;capacity)</li>
+<li class="old">   {</li>
+<li class="old">      printf("That would become too heavy.\n");</li>
+<li class="new"><span class="old">      </span>return 1;</li>
+<li class="old">   }</li>
+<li class="old">   else</li>
+<li class="old">   {</li>
+<li class="old">      describeMove(obj, to);</li>
+<li class="old">      obj-&gt;location = to;</li>
+<li class="new"><span class="old">      </span>return 1;</li>
+<li class="old">   }</li>
+<li class="old">}</li>
+</ol>
+</td>
+</tr></table>
+<div class="explanation">
+<p>
+Explanation:
+</p>
+<ul>
+<li>Line 51-57:
+trying to move an object away from a living actor (health &gt; 0)
+will fail if the actor does not trust the player (trust &lt;= 0).
 </li>
 </ul>
 </div>

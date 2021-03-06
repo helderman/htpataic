@@ -50,6 +50,7 @@ static void movePlayer(OBJECT *passage)
    {
       printSee("%s\n", passage->textGo);
       player->location = passage->destination;
+      printAny(player, player, " see ", "You enter.\n");
       executeLookAround();
    }
    else

@@ -322,9 +322,10 @@ It is defined (and used some more) in <i>misc.c</i>.
 <li class="new">   return false;</li>
 <li class="new">}</li>
 <li class="new"></li>
-<li class="new">static bool isIlluminated(OBJECT *obj)</li>
+<li class="new">static bool isNoticeable(OBJECT *obj)</li>
 <li class="new">{</li>
-<li class="new">   return isLit(obj) || isLit(obj-&gt;prospect) || isLit(player-&gt;location);</li>
+<li class="new">   return obj-&gt;location == player ||</li>
+<li class="new">          isLit(obj) || isLit(obj-&gt;prospect) || isLit(player-&gt;location);</li>
 <li class="new">}</li>
 <li class="old"></li>
 <li class="old">OBJECT *getPassage(OBJECT *from, OBJECT *to)</li>
@@ -349,7 +350,7 @@ It is defined (and used some more) in <i>misc.c</i>.
 <li class="old">          !validObject(to)                         ? distNotHere :</li>
 <li class="old">          to == from                               ? distSelf :</li>
 <li class="old">          isHolding(from, to)                      ? distHeld :</li>
-<li class="new"><span class="old">          </span>!isIlluminated(to)                       ? distNotHere :</li>
+<li class="new"><span class="old">          </span>!isNoticeable(to)                        ? distNotHere :</li>
 <li class="old">          isHolding(to, from)                      ? distLocation :</li>
 <li class="old">          isHolding(from-&gt;location, to)            ? distHere :</li>
 <li class="old">          isHolding(from, to-&gt;location)            ? distHeldContained :</li>
@@ -364,7 +365,7 @@ It is defined (and used some more) in <i>misc.c</i>.
 <li class="old">   for (obj = objs; obj &lt; endOfObjs; obj++)</li>
 <li class="old">   {</li>
 <li class="old">      if (isHolding(player-&gt;location, obj) &amp;&amp; obj != player &amp;&amp;</li>
-<li class="new"><span class="old">          </span>isIlluminated(obj) &amp;&amp;<span class="old"> obj-&gt;health &gt; 0)</span></li>
+<li class="new"><span class="old">          </span>isNoticeable(obj) &amp;&amp;<span class="old"> obj-&gt;health &gt; 0)</span></li>
 <li class="old">      {</li>
 <li class="old">         return obj;</li>
 <li class="old">      }</li>
@@ -378,7 +379,7 @@ It is defined (and used some more) in <i>misc.c</i>.
 <li class="old">   OBJECT *obj;</li>
 <li class="old">   for (obj = objs; obj &lt; endOfObjs; obj++)</li>
 <li class="old">   {</li>
-<li class="new"><span class="old">      if (obj != player &amp;&amp; isHolding(location, </span>obj) &amp;&amp; isIlluminated(obj))</li>
+<li class="new"><span class="old">      if (obj != player &amp;&amp; isHolding(location, </span>obj) &amp;&amp; isNoticeable(obj))</li>
 <li class="old">      {</li>
 <li class="old">         if (count++ == 0)</li>
 <li class="old">         {</li>
@@ -402,11 +403,13 @@ Explanation:
 Note: it is not enough to simply check attribute <i>light</i> of the location;
 the location could be lit by a lamp.
 </li>
-<li>Line 32-35:
-<i>isIlluminated</i> takes it one step further;
+<li>Line 32-36:
+<i>isNoticeable</i> takes it one step further;
 it works for every object, not just locations and lamps.
+It also takes into account that objects in the player&rsquo;s inventory
+can always be used, even in the dark.
 </li>
-<li>Line 59:
+<li>Line 60:
 nearby objects that remain hidden in the dark,
 are being treated as &lsquo;not here&rsquo;.
 This naturally prevents the game from leaking information

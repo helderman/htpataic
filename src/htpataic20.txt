@@ -213,7 +213,7 @@ Explanation:
 <li>Line 6:
 another new module, shown below.
 </li>
-<li>Line 56:
+<li>Line 54:
 directly after calling function parseAndExecute,
 we will call a new function named &lsquo;turn&rsquo;.
 The return value of parseAndExecute is passed into turn as a parameter.
@@ -512,6 +512,7 @@ This time, the player is the attacker rather than the victim.
 Finally, here are the new attributes,
 the weapons and the respawn location.
 </p>
+#map
 <table class="code"><tr>
 <th>object.txt</th>
 </tr><tr>
@@ -543,7 +544,6 @@ a collection of weapons.
 <p>
 The new attributes demand a change in <i>object.awk</i> as well.
 </p>
-#map
 <table class="code"><tr>
 <th>object.awk</th>
 </tr><tr>
@@ -558,6 +558,28 @@ Explanation:
 <ul>
 <li>Line 27-28:
 both attributes have a default value of zero.
+</li>
+</ul>
+</div>
+<p>
+Trust could also affect commands that are unrelated to combat.
+Most notably <i>ask</i>.
+</p>
+<table class="code"><tr>
+<th>move.c</th>
+</tr><tr>
+<td>
+#diff move.c
+</td>
+</tr></table>
+<div class="explanation">
+<p>
+Explanation:
+</p>
+<ul>
+<li>Line 51-57:
+trying to move an object away from a living actor (health &gt; 0)
+will fail if the actor does not trust the player (trust &lt;= 0).
 </li>
 </ul>
 </div>

@@ -86,11 +86,13 @@ Explanation:
 Note: it is not enough to simply check attribute <i>light</i> of the location;
 the location could be lit by a lamp.
 </li>
-<li>Line 32-35:
-<i>isIlluminated</i> takes it one step further;
+<li>Line 32-36:
+<i>isNoticeable</i> takes it one step further;
 it works for every object, not just locations and lamps.
+It also takes into account that objects in the player&rsquo;s inventory
+can always be used, even in the dark.
 </li>
-<li>Line 59:
+<li>Line 60:
 nearby objects that remain hidden in the dark,
 are being treated as &lsquo;not here&rsquo;.
 This naturally prevents the game from leaking information

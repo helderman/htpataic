@@ -12,7 +12,7 @@ bool executeGet(void)
    switch (getDistance(player, obj))
    {
    case distSelf:
-      printf("You should not be doing that to %s.\n", obj->description);
+      printf("You should not be doing that to yourself.\n");
       break;
    case distHeld:
       printf("You already have %s.\n", obj->description);

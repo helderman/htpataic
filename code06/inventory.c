@@ -13,7 +13,7 @@ void executeGet(const char *noun)
    }
    else if (obj == player)
    {
-      printf("You should not be doing that to %s.\n", obj->description);
+      printf("You should not be doing that to yourself.\n");
    }
    else if (obj->location == player)
    {

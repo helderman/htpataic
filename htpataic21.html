@@ -61,8 +61,7 @@ but even among gamers, few are aware you can use that for
 <a href="https://en.wikipedia.org/wiki/Role-playing">role-playing</a>.
 </p>
 <p>
-Multi-player is a rather broad term.
-&rsquo;Multi&lsquo; could stand for:
+Multi-player is a rather broad term. It could stand for:
 </p>
 <ol type="1">
 <li>Having multiple
@@ -115,7 +114,30 @@ Puzzles might also demand the user to carefully think about
 each character&rsquo;s strengths and weaknesses.
 </p>
 <p>
-Let&rsquo;s start by adding &ldquo;play&rdquo; to our vocabulary:
+It won&rsquo;t be until the next chapter
+that we will benefit from the <i>social</i> aspect of multi-player:
+being able to really interact (remotely) with other human beings.
+But since we are expanding our vocabulary anyway (the verb <i>play</i>),
+we might as well take the opportunity
+to introduce some &lsquo;social&rsquo; commands.
+</p>
+<ul>
+<li><b>say</b> -
+to send a message to everybody present in the same location.
+</li>
+<li><b>whisper</b> -
+to send a message to a specific player character,
+without exposing it to others present in the same location.
+</li>
+<li><a href="https://en.wikipedia.org/wiki/Emote">emote</a> -
+similar to <i>say</i>, but for
+<a href="https://en.wikipedia.org/wiki/Nonverbal_communication">non-verbal communication</a>.
+MUD-like games typically use this to facilitate
+<a href="https://en.wikipedia.org/wiki/Role-playing">role-playing</a>.
+</li>
+</ul>
+<p>
+Let&rsquo;s start by adding the new verbs to our vocabulary.
 </p>
 <table class="demo">
 <tr><th>Sample output</th></tr>
@@ -157,8 +179,17 @@ dense forest all around<br />
 a lamp<br />
 a dagger<br />
 <br />
+--&gt; say Where am I?<br />
+You say: Where am I?<br />
+<br />
+--&gt; whisper to jack I need a weapon.<br />
+You whisper to Jack: I need a weapon.<br />
+<br />
 --&gt; get dagger<br />
 You pick up a dagger.<br />
+<br />
+--&gt; emote assume a fighting stance.<br />
+You assume a fighting stance.<br />
 <br />
 --&gt; attack guard<br />
 You hit a burly guard with a dagger.<br />
@@ -196,7 +227,7 @@ Bye!<br />
 <li class="old">#include "onoff.h"</li>
 <li class="old">#include "talk.h"</li>
 <li class="old">#include "attack.h"</li>
-<li class="new">#include "play.h"</li>
+<li class="new">#include "social.h"</li>
 <li class="old"></li>
 <li class="old">typedef struct</li>
 <li class="old">{</li>
@@ -263,6 +294,9 @@ Bye!<br />
 <li class="old">      { "attack A"            , executeAttack     },</li>
 <li class="old">      { "wait"                , executeWait       },</li>
 <li class="new">      { "play A"              , executePlay       },</li>
+<li class="new">      { "emote A"             , executeEmote      },</li>
+<li class="new">      { "say A"               , executeSay        },</li>
+<li class="new">      { "whisper to B A"      , executeWhisper    },</li>
 <li class="old">      { "A"                   , executeNoMatch    }</li>
 <li class="old">   };</li>
 <li class="old">   const COMMAND *cmd;</li>
@@ -273,18 +307,24 @@ Bye!<br />
 </td>
 </tr></table>
 <p>
-The implementation of <i>play</i> is simple:
+The implementation of the new commands is extremely straightforward.
+Of course, the &lsquo;social&rsquo; commands are not very useful yet.
+Being the only user, you are basically talking to yourself.
+But it does give us the foundation to actually socialize in the next chapter.
 </p>
 <table class="code"><tr>
-<th>play.h</th>
+<th>social.h</th>
 </tr><tr>
 <td>
 <ol>
 <li class="new">extern int executePlay(void);</li>
+<li class="new">extern int executeEmote(void);</li>
+<li class="new">extern int executeSay(void);</li>
+<li class="new">extern int executeWhisper(void);</li>
 </ol>
 </td>
 </tr><tr>
-<th>play.c</th>
+<th>social.c</th>
 </tr><tr>
 <td>
 <ol>
@@ -293,6 +333,7 @@ The implementation of <i>play</i> is simple:
 <li class="new">#include "object.h"</li>
 <li class="new">#include "match.h"</li>
 <li class="new">#include "noun.h"</li>
+<li class="new">#include "reach.h"</li>
 <li class="new">#include "location.h"</li>
 <li class="new"></li>
 <li class="new">int executePlay(void)</li>
@@ -317,6 +358,52 @@ The implementation of <i>play</i> is simple:
 <li class="new">   }</li>
 <li class="new">   return 0;</li>
 <li class="new">}</li>
+<li class="new"></li>
+<li class="new">int executeEmote(void)</li>
+<li class="new">{</li>
+<li class="new">   const char *phrase = params[0];</li>
+<li class="new">   if (*phrase == '\0')</li>
+<li class="new">   {</li>
+<li class="new">      printf("I don't understand what you want to emote.\n");</li>
+<li class="new">   }</li>
+<li class="new">   else</li>
+<li class="new">   {</li>
+<li class="new">      printf("You %s\n", phrase);</li>
+<li class="new">   }</li>
+<li class="new">   return 0;</li>
+<li class="new">}</li>
+<li class="new"></li>
+<li class="new">int executeSay(void)</li>
+<li class="new">{</li>
+<li class="new">   const char *phrase = params[0];</li>
+<li class="new">   if (*phrase == '\0')</li>
+<li class="new">   {</li>
+<li class="new">      printf("I don't understand what you want to say.\n");</li>
+<li class="new">   }</li>
+<li class="new">   else</li>
+<li class="new">   {</li>
+<li class="new">      printf("You say: %s\n", phrase);</li>
+<li class="new">   }</li>
+<li class="new">   return 0;</li>
+<li class="new">}</li>
+<li class="new"></li>
+<li class="new">int executeWhisper(void)</li>
+<li class="new">{</li>
+<li class="new">   OBJECT *to = reachableObject("who to whisper to", params[1]);</li>
+<li class="new">   if (to != NULL)</li>
+<li class="new">   {</li>
+<li class="new">      const char *phrase = params[0];</li>
+<li class="new">      if (*phrase == '\0')</li>
+<li class="new">      {</li>
+<li class="new">         printf("I don't understand what you want to whisper.\n");</li>
+<li class="new">      }</li>
+<li class="new">      else</li>
+<li class="new">      {</li>
+<li class="new">         printf("You whisper to %s: %s\n", to-&gt;description, phrase);</li>
+<li class="new">      }</li>
+<li class="new">   }</li>
+<li class="new">   return 0;</li>
+<li class="new">}</li>
 </ol>
 </td>
 </tr></table>
@@ -325,7 +412,7 @@ The implementation of <i>play</i> is simple:
 Explanation:
 </p>
 <ul>
-<li>Line 19:
+<li>Line 20:
 here is a whitelist of viable player characters.
 Do not forget to extend the list when introducing more player characters.
 Alternatively, we could add a new attribute to <i>OBJECT</i>
@@ -335,7 +422,7 @@ to flag objects that can be impersonated by a user.
 </div>
 <p>
 However, we cannot just assign a new value to <i>player</i>
-(see line 21 above) without turning it into a variable.
+(see line 22 above) without turning it into a variable.
 </p>
 <table class="code"><tr>
 <th>object.awk</th>
@@ -450,8 +537,8 @@ Explanation:
 </p>
 <ul>
 <li>Line 55:
-<i>player</i> is now a pointer variable; it can be made to point at any object.
-Initially, it will be pointing at object <i>nobody</i>, defined below.
+<i>player</i> is now a pointer variable; it can be made to point to any object.
+Initially, it will be pointing to object <i>nobody</i>, defined below.
 </li>
 </ul>
 </div>
@@ -542,6 +629,7 @@ and instead introduce &lsquo;named&rsquo; character objects
 <li class="new">     details     "You are nobody. Please enter: play xxx"</li>
 <li class="new">     contents    "You have"</li>
 <li class="new">     health      100</li>
+<li class="new">     capacity    1</li>
 <li class="new"></li>
 <li class="new">-<span class="old"> field</span></li>
 <li class="old">     description "an open field"</li>
@@ -799,6 +887,137 @@ but of course it is also possible to let each one start in different locations.
 </li>
 </ul>
 </div>
+<p>
+Traditionally, descriptive text about the player is always in second
+<a href="https://en.wikipedia.org/wiki/Grammatical_person">person</a>,
+e.g. &ldquo;<i>You are</i> in an open field.&rdquo;
+But with multiple player characters, that is no longer the case.
+Second person is still appropriate for
+the player character that is currently under the user&rsquo;s control,
+but any other player characters you meet, should be referenced in third person.
+</p>
+<p>
+This is already giving trouble in command <i>inventory</i>.
+The game&rsquo;s response has always started with &ldquo;You have&rdquo;,
+as specified by attribute <i>contents</i> of the <i>player</i> object.
+But for <i>Jack</i> and <i>Jill</i>, things are not so straightforward;
+<i>contents</i> is used not only to inspect yourself (<i>inventory</i>),
+but also to inspect someone else (e.g. Jill enters: <i>examine Jack</i>).
+</p>
+<p>
+We will just keep it simple for now:
+if the object being inspected is currently under the user&rsquo;s control,
+then we will output a hardcoded &ldquo;You have&rdquo;
+rather than attribute <i>contents</i>.
+</p>
+<table class="code"><tr>
+<th>misc.c</th>
+</tr><tr>
+<td>
+<ol>
+<li class="old">#include &lt;stdbool.h&gt;</li>
+<li class="old">#include &lt;stdio.h&gt;</li>
+<li class="old">#include "object.h"</li>
+<li class="old">#include "misc.h"</li>
+<li class="old"></li>
+<li class="old">bool isHolding(OBJECT *container, OBJECT *obj)</li>
+<li class="old">{</li>
+<li class="old">   return validObject(obj) &amp;&amp; obj-&gt;location == container;</li>
+<li class="old">}</li>
+<li class="old"></li>
+<li class="old">bool isLit(OBJECT *target)</li>
+<li class="old">{</li>
+<li class="old">   OBJECT *obj;</li>
+<li class="old">   if (validObject(target))</li>
+<li class="old">   {</li>
+<li class="old">      if (target-&gt;light &gt; 0)</li>
+<li class="old">      {</li>
+<li class="old">         return true;</li>
+<li class="old">      }</li>
+<li class="old">      for (obj = objs; obj &lt; endOfObjs; obj++)</li>
+<li class="old">      {</li>
+<li class="old">         if (validObject(obj) &amp;&amp; obj-&gt;light &gt; 0 &amp;&amp;</li>
+<li class="old">             (isHolding(target, obj) || isHolding(target, obj-&gt;location)))</li>
+<li class="old">         {</li>
+<li class="old">            return true;</li>
+<li class="old">         }</li>
+<li class="old">      }</li>
+<li class="old">   }</li>
+<li class="old">   return false;</li>
+<li class="old">}</li>
+<li class="old"></li>
+<li class="old">static bool isNoticeable(OBJECT *obj)</li>
+<li class="old">{</li>
+<li class="old">   return obj-&gt;location == player ||</li>
+<li class="old">          isLit(obj) || isLit(obj-&gt;prospect) || isLit(player-&gt;location);</li>
+<li class="old">}</li>
+<li class="old"></li>
+<li class="old">OBJECT *getPassage(OBJECT *from, OBJECT *to)</li>
+<li class="old">{</li>
+<li class="old">   if (from != NULL &amp;&amp; to != NULL)</li>
+<li class="old">   {</li>
+<li class="old">      OBJECT *obj;</li>
+<li class="old">      for (obj = objs; obj &lt; endOfObjs; obj++)</li>
+<li class="old">      {</li>
+<li class="old">         if (isHolding(from, obj) &amp;&amp; obj-&gt;prospect == to)</li>
+<li class="old">         {</li>
+<li class="old">            return obj;</li>
+<li class="old">         }</li>
+<li class="old">      }</li>
+<li class="old">   }</li>
+<li class="old">   return NULL;</li>
+<li class="old">}</li>
+<li class="old"></li>
+<li class="old">DISTANCE getDistance(OBJECT *from, OBJECT *to)</li>
+<li class="old">{</li>
+<li class="old">   return to == NULL                               ? distUnknownObject :</li>
+<li class="old">          !validObject(to)                         ? distNotHere :</li>
+<li class="old">          to == from                               ? distSelf :</li>
+<li class="old">          isHolding(from, to)                      ? distHeld :</li>
+<li class="old">          !isNoticeable(to)                        ? distNotHere :</li>
+<li class="old">          isHolding(to, from)                      ? distLocation :</li>
+<li class="old">          isHolding(from-&gt;location, to)            ? distHere :</li>
+<li class="old">          isHolding(from, to-&gt;location)            ? distHeldContained :</li>
+<li class="old">          isHolding(from-&gt;location, to-&gt;location)  ? distHereContained :</li>
+<li class="old">          getPassage(from-&gt;location, to) != NULL   ? distOverthere :</li>
+<li class="old">                                                     distNotHere;</li>
+<li class="old">}</li>
+<li class="old"></li>
+<li class="old">OBJECT *actorHere(void)</li>
+<li class="old">{</li>
+<li class="old">   OBJECT *obj;</li>
+<li class="old">   for (obj = objs; obj &lt; endOfObjs; obj++)</li>
+<li class="old">   {</li>
+<li class="old">      if (isHolding(player-&gt;location, obj) &amp;&amp; obj != player &amp;&amp;</li>
+<li class="old">          isNoticeable(obj) &amp;&amp; obj-&gt;health &gt; 0)</li>
+<li class="old">      {</li>
+<li class="old">         return obj;</li>
+<li class="old">      }</li>
+<li class="old">   }</li>
+<li class="old">   return NULL;</li>
+<li class="old">}</li>
+<li class="old"></li>
+<li class="old">int listObjectsAtLocation(OBJECT *location)</li>
+<li class="old">{</li>
+<li class="old">   int count = 0;</li>
+<li class="old">   OBJECT *obj;</li>
+<li class="old">   for (obj = objs; obj &lt; endOfObjs; obj++)</li>
+<li class="old">   {</li>
+<li class="old">      if (obj != player &amp;&amp; isHolding(location, obj) &amp;&amp; isNoticeable(obj))</li>
+<li class="old">      {</li>
+<li class="old">         if (count++ == 0)</li>
+<li class="old">         {</li>
+<li class="new"><span class="old">            printf("%s:\n", </span>location == player ? "You have"</li>
+<li class="new">                                               :<span class="old"> location-&gt;contents);</span></li>
+<li class="old">         }</li>
+<li class="old">         printf("%s\n", obj-&gt;description);</li>
+<li class="old">      }</li>
+<li class="old">   }</li>
+<li class="old">   return count;</li>
+<li class="old">}</li>
+</ol>
+</td>
+</tr></table>
 <p>
 This was all fairly simple; it did not require a whole lot of source changes.
 In the next chapter, we will be writing a lot more code,

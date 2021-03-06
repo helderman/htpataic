@@ -162,7 +162,7 @@ OBJECT objs[] = {
 		"You can't get much closer than this.",
 		"I know nothing about that.",
 		99,
-		0,
+		 1,
 		 100,
 		0,
 		0,

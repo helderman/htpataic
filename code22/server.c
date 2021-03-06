@@ -76,7 +76,11 @@ void server(bool (*action)(char *, int))
                player = client->obj;
                printSetCurrent(client->fd);
                telnetParse(&client->inbuf, client->fd, action, buffer, len);
-               if (client->obj == nobody) client->obj = player;
+               if (player != client->obj)
+               {
+                  printConsole("Socket %d is %s.\n", fd, player->description);
+                  client->obj = player;
+               }
             }
             else if (len == 0)   
             {
@@ -85,6 +89,7 @@ void server(bool (*action)(char *, int))
          }
       }
    }
+   printConsole("Interrupted by signal %d.\n", breakSignalNumber());
    for (i = 0; (client = clientGet(i)) != NULL; i++) disconnect(client);
    tcpClose(listener, PORT);
 }

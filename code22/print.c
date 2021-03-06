@@ -18,9 +18,9 @@ static bool filter(OBJECT *obj, OBJECT *obj1, OBJECT *obj2)
 
 static void printDemux(OBJECT *obj1, OBJECT *obj2)
 {
-   if (currentSocket == STDOUT_FILENO)
+   if (currentSocket == STDOUT_FILENO || player == nobody)
    {
-      if (filter(player, obj1, obj2)) outbufFlush(STDOUT_FILENO);
+      if (filter(player, obj1, obj2)) outbufFlush(currentSocket);
    }
    else
    {
@@ -35,7 +35,7 @@ static void printDemux(OBJECT *obj1, OBJECT *obj2)
             {
                outbufFlush(client->fd);
             }
-	    else
+            else
             {
                telnetInsertSpaces(&client->inbuf);
                telnetAppendPrompt(&client->inbuf);
@@ -53,7 +53,10 @@ static void printObserve(OBJECT *obj1, OBJECT *obj2, const char *sense,
 {
    outbufClear();
    outbufFormatVar(format, ap);
-   printDemux(obj1, NULL);
+   if (obj1 != obj2)
+   {
+      printDemux(obj1, NULL);
+   }
    if (sense != NULL)
    {
       outbufInsertString(3, obj1->description);
@@ -82,11 +85,6 @@ void printConsole(const char *format, ...)
 void printPrivate(const char *format, ...)
 {
    VA(printFd(currentSocket, format, ap));
-}
-
-void printHear(const char *format, ...)
-{
-   VA(printObserve(player, NULL, " hear ", format, ap));
 }
 
 void printSee(const char *format, ...)

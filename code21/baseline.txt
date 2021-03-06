@@ -35,8 +35,17 @@ dense forest all around
 a lamp
 a dagger
 
+--> say Where am I?
+You say: Where am I?
+
+--> whisper to jack I need a weapon.
+You whisper to Jack: I need a weapon.
+
 --> get dagger
 You pick up a dagger.
+
+--> emote assume a fighting stance.
+You assume a fighting stance.
 
 --> attack guard
 You hit a burly guard with a dagger.

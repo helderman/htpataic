@@ -36,8 +36,7 @@ but even among gamers, few are aware you can use that for
 <a href="https://en.wikipedia.org/wiki/Role-playing">role-playing</a>.
 </p>
 <p>
-Multi-player is a rather broad term.
-&rsquo;Multi&lsquo; could stand for:
+Multi-player is a rather broad term. It could stand for:
 </p>
 <ol type="1">
 <li>Having multiple
@@ -90,7 +89,30 @@ Puzzles might also demand the user to carefully think about
 each character&rsquo;s strengths and weaknesses.
 </p>
 <p>
-Let&rsquo;s start by adding &ldquo;play&rdquo; to our vocabulary:
+It won&rsquo;t be until the next chapter
+that we will benefit from the <i>social</i> aspect of multi-player:
+being able to really interact (remotely) with other human beings.
+But since we are expanding our vocabulary anyway (the verb <i>play</i>),
+we might as well take the opportunity
+to introduce some &lsquo;social&rsquo; commands.
+</p>
+<ul>
+<li><b>say</b> -
+to send a message to everybody present in the same location.
+</li>
+<li><b>whisper</b> -
+to send a message to a specific player character,
+without exposing it to others present in the same location.
+</li>
+<li><a href="https://en.wikipedia.org/wiki/Emote">emote</a> -
+similar to <i>say</i>, but for
+<a href="https://en.wikipedia.org/wiki/Nonverbal_communication">non-verbal communication</a>.
+MUD-like games typically use this to facilitate
+<a href="https://en.wikipedia.org/wiki/Role-playing">role-playing</a>.
+</li>
+</ul>
+<p>
+Let&rsquo;s start by adding the new verbs to our vocabulary.
 </p>
 <table class="demo">
 <tr><th>Sample output</th></tr>
@@ -106,19 +128,22 @@ Let&rsquo;s start by adding &ldquo;play&rdquo; to our vocabulary:
 </td>
 </tr></table>
 <p>
-The implementation of <i>play</i> is simple:
+The implementation of the new commands is extremely straightforward.
+Of course, the &lsquo;social&rsquo; commands are not very useful yet.
+Being the only user, you are basically talking to yourself.
+But it does give us the foundation to actually socialize in the next chapter.
 </p>
 <table class="code"><tr>
-<th>play.h</th>
+<th>social.h</th>
 </tr><tr>
 <td>
-#diff play.h
+#diff social.h
 </td>
 </tr><tr>
-<th>play.c</th>
+<th>social.c</th>
 </tr><tr>
 <td>
-#diff play.c
+#diff social.c
 </td>
 </tr></table>
 <div class="explanation">
@@ -126,7 +151,7 @@ The implementation of <i>play</i> is simple:
 Explanation:
 </p>
 <ul>
-<li>Line 19:
+<li>Line 20:
 here is a whitelist of viable player characters.
 Do not forget to extend the list when introducing more player characters.
 Alternatively, we could add a new attribute to <i>OBJECT</i>
@@ -136,7 +161,7 @@ to flag objects that can be impersonated by a user.
 </div>
 <p>
 However, we cannot just assign a new value to <i>player</i>
-(see line 21 above) without turning it into a variable.
+(see line 22 above) without turning it into a variable.
 </p>
 <table class="code"><tr>
 <th>object.awk</th>
@@ -151,8 +176,8 @@ Explanation:
 </p>
 <ul>
 <li>Line 55:
-<i>player</i> is now a pointer variable; it can be made to point at any object.
-Initially, it will be pointing at object <i>nobody</i>, defined below.
+<i>player</i> is now a pointer variable; it can be made to point to any object.
+Initially, it will be pointing to object <i>nobody</i>, defined below.
 </li>
 </ul>
 </div>
@@ -191,6 +216,36 @@ but of course it is also possible to let each one start in different locations.
 </li>
 </ul>
 </div>
+<p>
+Traditionally, descriptive text about the player is always in second
+<a href="https://en.wikipedia.org/wiki/Grammatical_person">person</a>,
+e.g. &ldquo;<i>You are</i> in an open field.&rdquo;
+But with multiple player characters, that is no longer the case.
+Second person is still appropriate for
+the player character that is currently under the user&rsquo;s control,
+but any other player characters you meet, should be referenced in third person.
+</p>
+<p>
+This is already giving trouble in command <i>inventory</i>.
+The game&rsquo;s response has always started with &ldquo;You have&rdquo;,
+as specified by attribute <i>contents</i> of the <i>player</i> object.
+But for <i>Jack</i> and <i>Jill</i>, things are not so straightforward;
+<i>contents</i> is used not only to inspect yourself (<i>inventory</i>),
+but also to inspect someone else (e.g. Jill enters: <i>examine Jack</i>).
+</p>
+<p>
+We will just keep it simple for now:
+if the object being inspected is currently under the user&rsquo;s control,
+then we will output a hardcoded &ldquo;You have&rdquo;
+rather than attribute <i>contents</i>.
+</p>
+<table class="code"><tr>
+<th>misc.c</th>
+</tr><tr>
+<td>
+#diff misc.c
+</td>
+</tr></table>
 <p>
 This was all fairly simple; it did not require a whole lot of source changes.
 In the next chapter, we will be writing a lot more code,
