@@ -82,9 +82,9 @@ may go in a totally different direction when resuming a game saved earlier.
 This is discussed in chapter 20.
 </li>
 <li>
-This technique is not suitable for online multi-player games.
+This technique is less suitable for online multi-player games.
 For those, it is better to use a database.
-This will be discussed in chapter 21.
+This will be discussed in chapter 23.
 </li>
 </ul>
 <table class="code"><tr>

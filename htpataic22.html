@@ -133,7 +133,7 @@ Fortunately, code samples can be found anywhere on the internet.
 </tr><tr>
 <td>
 <ol>
-<li class="new">extern void server(bool (*action)(char *, int));</li>
+<li class="new">extern void server(void (*action)(char *, int));</li>
 </ol>
 </td>
 </tr><tr>
@@ -165,15 +165,15 @@ Fortunately, code samples can be found anywhere on the internet.
 <li class="new">   }</li>
 <li class="new">}</li>
 <li class="new"></li>
-<li class="new">void server(bool (*action)(char *, int))</li>
+<li class="new">void server(void (*action)(char *, int))</li>
 <li class="new">{</li>
+<li class="new">   CLIENT *client;</li>
+<li class="new">   int i;</li>
 <li class="new">   struct sockaddr_in address;</li>
 <li class="new">   int listener = tcpListen(&amp;address, PORT);</li>
-<li class="new">   int i;</li>
-<li class="new">   CLIENT *client;</li>
-<li class="new">   clientInit();</li>
+<li class="new">   if (listener == -1) return;</li>
 <li class="new"></li>
-<li class="new">   for (breakInit(); breakTest(); )</li>
+<li class="new">   for (clientInit(), breakInit(); breakTest(); )</li>
 <li class="new">   {</li>
 <li class="new">      fd_set fds;</li>
 <li class="new">      int fd = listener;</li>
@@ -232,6 +232,7 @@ Fortunately, code samples can be found anywhere on the internet.
 <li class="new">         }</li>
 <li class="new">      }</li>
 <li class="new">   }</li>
+<li class="new">   printConsole("Interrupted by signal %d.\n", breakSignalNumber());</li>
 <li class="new">   for (i = 0; (client = clientGet(i)) != NULL; i++) disconnect(client);</li>
 <li class="new">   tcpClose(listener, PORT);</li>
 <li class="new">}</li>
@@ -254,11 +255,11 @@ function <i>server</i> has a function pointer <i>action</i> as its parameter.
 Through this parameter,
 we will inject the game engine we have created in the previous chapters.
 </li>
-<li>Line 27-28:
+<li>Line 29-31:
 we start by setting up a listening
 <a href="https://en.wikipedia.org/wiki/Network_socket">socket</a>.
 </li>
-<li>Line 33-87:
+<li>Line 33-91:
 this is the main loop of the game server.
 We could stay here forever,
 but sooner or later we will be forced to leave by a signal, or by an error.
@@ -310,7 +311,7 @@ it will be persisted here.
 in this context, no data means the client is disconnecting,
 i.e. the user has closed the Telnet client.
 </li>
-<li>Line 92-93:
+<li>Line 93-94:
 when leaving the main loop, close all remaining sockets.
 </li>
 </ul>
@@ -337,7 +338,6 @@ For readability, I implemented a number of functions in a separate module.
 <ol>
 <li class="new">#include &lt;stdbool.h&gt;</li>
 <li class="new">#include &lt;stdio.h&gt;</li>
-<li class="new">#include &lt;stdlib.h&gt;</li>
 <li class="new">#include &lt;unistd.h&gt;</li>
 <li class="new">#include &lt;errno.h&gt;</li>
 <li class="new">#include &lt;netinet/in.h&gt;</li>
@@ -346,26 +346,37 @@ For readability, I implemented a number of functions in a separate module.
 <li class="new"></li>
 <li class="new">static int assert(const char *name, int retval)</li>
 <li class="new">{</li>
-<li class="new">   if (retval == -1)</li>
-<li class="new">   {</li>
-<li class="new">      perror(name);</li>
-<li class="new">      exit(EXIT_FAILURE);</li>
-<li class="new">   }</li>
+<li class="new">   if (retval == -1) perror(name);</li>
 <li class="new">   return retval;</li>
+<li class="new">}</li>
+<li class="new"></li>
+<li class="new">static struct sockaddr *setPort(struct sockaddr_in *addr, uint16_t port)</li>
+<li class="new">{</li>
+<li class="new">   addr-&gt;sin_family = AF_INET;</li>
+<li class="new">   addr-&gt;sin_addr.s_addr = INADDR_ANY;</li>
+<li class="new">   addr-&gt;sin_port = htons(port);</li>
+<li class="new">   return (struct sockaddr *)addr;</li>
 <li class="new">}</li>
 <li class="new"></li>
 <li class="new">int tcpListen(struct sockaddr_in *addr, uint16_t port)</li>
 <li class="new">{</li>
-<li class="new">   int opt = 1;   </li>
 <li class="new">   int fd = assert("socket", socket(AF_INET, SOCK_STREAM, 0));</li>
-<li class="new">   assert("setsockopt", setsockopt(fd, SOL_SOCKET, SO_REUSEADDR,</li>
-<li class="new">                                   (char *)&amp;opt, sizeof opt));</li>
-<li class="new">   addr-&gt;sin_family = AF_INET;</li>
-<li class="new">   addr-&gt;sin_addr.s_addr = INADDR_ANY;</li>
-<li class="new">   addr-&gt;sin_port = htons(port);</li>
-<li class="new">   assert("bind", bind(fd, (struct sockaddr *)addr, sizeof *addr));</li>
-<li class="new">   assert("listen", listen(fd, 3));</li>
-<li class="new">   printConsole("Listening to port %u.\n", (unsigned int)port);</li>
+<li class="new">   if (fd != -1)</li>
+<li class="new">   {</li>
+<li class="new">      int opt = 1;</li>
+<li class="new">      if (-1 != assert("setsockopt", setsockopt(fd, SOL_SOCKET, SO_REUSEADDR,</li>
+<li class="new">                                                (char *)&amp;opt, sizeof opt)) &amp;&amp;</li>
+<li class="new">          -1 != assert("bind", bind(fd, setPort(addr, port), sizeof *addr)) &amp;&amp;</li>
+<li class="new">          -1 != assert("listen", listen(fd, 3)))</li>
+<li class="new">      {</li>
+<li class="new">         printConsole("Listening to port %u.\n", (unsigned int)port);</li>
+<li class="new">      }</li>
+<li class="new">      else</li>
+<li class="new">      {</li>
+<li class="new">         close(fd);</li>
+<li class="new">         fd = -1;</li>
+<li class="new">      }</li>
+<li class="new">   }</li>
 <li class="new">   return fd;</li>
 <li class="new">}</li>
 <li class="new"></li>
@@ -377,7 +388,7 @@ For readability, I implemented a number of functions in a separate module.
 <li class="new"></li>
 <li class="new">int tcpSelect(int nfds, fd_set *readfds)</li>
 <li class="new">{</li>
-<li class="new">   return select(nfds, readfds, NULL, NULL, NULL);</li>
+<li class="new">   return assert("select", select(nfds, readfds, NULL, NULL, NULL));</li>
 <li class="new">}</li>
 <li class="new"></li>
 <li class="new">int tcpAccept(struct sockaddr_in *addr, int listener)</li>
@@ -402,23 +413,34 @@ For readability, I implemented a number of functions in a separate module.
 Explanation:
 </p>
 <ul>
-<li>Line 23:
+<li>Line 9-13:
+a little helper function to print an error message to
+<a href="https://en.wikipedia.org/wiki/Standard_streams#Standard_error_(stderr)">stderr</a>
+in case a
+<a href="https://en.wikipedia.org/wiki/System_call">system call</a>
+fails.
+</li>
+<li>Line 25:
 calling system call <i>socket</i>.
 </li>
-<li>Line 29:
+<li>Line 31:
 calling system call <i>bind</i>.
 </li>
-<li>Line 30:
+<li>Line 32:
 calling system call <i>listen</i>.
 </li>
-<li>Line 43:
+<li>Line 53:
 calling system call
 <a href="https://en.wikipedia.org/wiki/Select_(Unix)">select</a>.
 </li>
-<li>Line 49:
+<li>Line 59:
 calling system call <i>accept</i>.
 </li>
-<li>Line 52-59:
+<li>Lines 42, 53, 59:
+<i>tcpListen</i>, <i>tcpSelect</i> and <i>tcpAccept</i>
+follow the convention of returning -1 in case of an error.
+</li>
+<li>Line 62-69:
 function <i>tcpSend</i> will be used later in this chapter
 to send output to client sockets.
 </li>
@@ -537,7 +559,7 @@ on the same line in the Telnet client.
 <li class="new">extern void telnetDeleteSpaces(INBUF *inbuf);</li>
 <li class="new">extern void telnetAppendPrompt(INBUF *inbuf);</li>
 <li class="new">extern void telnetDeletePrompt(INBUF *inbuf);</li>
-<li class="new">extern void telnetParse(INBUF *inbuf, int fd, bool (*action)(char *, int),</li>
+<li class="new">extern void telnetParse(INBUF *inbuf, int fd, void (*action)(char *, int),</li>
 <li class="new">                        const char *data, int length);</li>
 </ol>
 </td>
@@ -592,7 +614,7 @@ on the same line in the Telnet client.
 <li class="new">   outbufRewind(inbuf-&gt;index + sizeof prompt - 1);</li>
 <li class="new">}</li>
 <li class="new"></li>
-<li class="new">void telnetParse(INBUF *inbuf, int fd, bool (*action)(char *, int),</li>
+<li class="new">void telnetParse(INBUF *inbuf, int fd, void (*action)(char *, int),</li>
 <li class="new">                 const char *data, int length)</li>
 <li class="new">{</li>
 <li class="new">   int i;</li>
@@ -711,9 +733,9 @@ Output may need to go to more than one client.
 <li class="new"></li>
 <li class="new">static void printDemux(OBJECT *obj1, OBJECT *obj2)</li>
 <li class="new">{</li>
-<li class="new">   if (currentSocket == STDOUT_FILENO)</li>
+<li class="new">   if (currentSocket == STDOUT_FILENO || player == nobody)</li>
 <li class="new">   {</li>
-<li class="new">      if (filter(player, obj1, obj2)) outbufFlush(STDOUT_FILENO);</li>
+<li class="new">      if (filter(player, obj1, obj2)) outbufFlush(currentSocket);</li>
 <li class="new">   }</li>
 <li class="new">   else</li>
 <li class="new">   {</li>
@@ -798,6 +820,14 @@ Output may need to go to more than one client.
 Explanation:
 </p>
 <ul>
+<li>Line 10:
+a little helper
+<a href="https://en.wikipedia.org/wiki/Macro_(computer_science)">macro</a>
+for injecting
+<a href="https://en.wikipedia.org/wiki/Boilerplate_code">boilerplate code</a>
+in
+<a href="https://en.wikipedia.org/wiki/Variadic_function">variadic functions</a>.
+</li>
 <li>Line ?:
 ?
 </li>
@@ -959,6 +989,7 @@ in case the process is forced to stop by an outside signal.
 <ol>
 <li class="new">extern void breakInit(void);</li>
 <li class="new">extern bool breakTest(void);</li>
+<li class="new">extern int breakSignalNumber(void);</li>
 </ol>
 </td>
 </tr><tr>
@@ -989,6 +1020,11 @@ in case the process is forced to stop by an outside signal.
 <li class="new">bool breakTest(void)</li>
 <li class="new">{</li>
 <li class="new">   return done == 0;</li>
+<li class="new">}</li>
+<li class="new"></li>
+<li class="new">int breakSignalNumber(void)</li>
+<li class="new">{</li>
+<li class="new">   return done;</li>
 <li class="new">}</li>
 </ol>
 </td>
@@ -1074,6 +1110,30 @@ allowing the game administrator to set up things in the game.
 <li class="old">   return turn(parseAndExecute(expand(ptr, size)));</li>
 <li class="old">}</li>
 <li class="old"></li>
+<li class="new">static void processInputAndLog(char *ptr, int size)</li>
+<li class="new">{</li>
+<li class="new">   static FILE *fp = NULL;</li>
+<li class="new">   if (size &gt; 0)</li>
+<li class="new">   {</li>
+<li class="new">      if (fp != NULL &amp;&amp; player != nobody)</li>
+<li class="new">      {</li>
+<li class="new">         static OBJECT *lastPlayer = NULL;</li>
+<li class="new">         if (player != lastPlayer)</li>
+<li class="new">         {</li>
+<li class="new">            fprintf(fp, "play %s\n", (lastPlayer = player)-&gt;description);</li>
+<li class="new">         }</li>
+<li class="new">         fprintf(fp, "%s\n", ptr);</li>
+<li class="new">         fflush(fp);</li>
+<li class="new">      }</li>
+<li class="new">      processInput(ptr, size);</li>
+<li class="new">   }</li>
+<li class="new">   else</li>
+<li class="new">   {</li>
+<li class="new">      if (fp != NULL) fclose(fp);</li>
+<li class="new">      fp = ptr == NULL ? NULL : fopen(ptr, "at");</li>
+<li class="new">   }</li>
+<li class="new">}</li>
+<li class="old"></li>
 <li class="old">int main(int argc, char *argv[])</li>
 <li class="old">{</li>
 <li class="old">   (void)argc;</li>
@@ -1082,7 +1142,9 @@ allowing the game administrator to set up things in the game.
 <li class="new">   player = nobody;</li>
 <li class="old">   while (processInput(input, sizeof input) &amp;&amp; getInput(argv[1]));</li>
 <li class="new"><span class="old">   </span>printConsole("\nGoing into multi-user mode; press ^C to stop.\n");</li>
-<li class="new">   server(processInput);</li>
+<li class="new">   processInputAndLog(argv[1], 0);</li>
+<li class="new">   server(processInputAndLog);</li>
+<li class="new">   processInputAndLog(NULL, 0);</li>
 <li class="new">   printConsole("\nBye!\n");</li>
 <li class="old">   return 0;</li>
 <li class="old">}</li>
@@ -1125,7 +1187,8 @@ or with a secure tunnel (through
 <li>Vulnerable to
 <a href="https://en.wikipedia.org/wiki/Man-in-the-middle_attack">man-in-the-middle attacks</a>.
 Again, a user&rsquo;s password could be intercepted.
-To mitigate that, you&rsquo;d need certificates.
+To mitigate that, you&rsquo;d need a
+<a href="https://en.wikipedia.org/wiki/Public_key_certificate">digital certificate</a>.
 </li>
 <li>Does not
 <a href="https://en.wikipedia.org/wiki/Scalability">scale</a>

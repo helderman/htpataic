@@ -57,6 +57,30 @@ static bool processInput(char *ptr, int size)
    return turn(parseAndExecute(expand(ptr, size)));
 }
 
+static void processInputAndLog(char *ptr, int size)
+{
+   static FILE *fp = NULL;
+   if (size > 0)
+   {
+      if (fp != NULL && player != nobody)
+      {
+         static OBJECT *lastPlayer = NULL;
+         if (player != lastPlayer)
+         {
+            fprintf(fp, "play %s\n", (lastPlayer = player)->description);
+         }
+         fprintf(fp, "%s\n", ptr);
+         fflush(fp);
+      }
+      processInput(ptr, size);
+   }
+   else
+   {
+      if (fp != NULL) fclose(fp);
+      fp = ptr == NULL ? NULL : fopen(ptr, "at");
+   }
+}
+
 int main(int argc, char *argv[])
 {
    (void)argc;
@@ -65,7 +89,9 @@ int main(int argc, char *argv[])
    player = nobody;
    while (processInput(input, sizeof input) && getInput(argv[1]));
    printConsole("\nGoing into multi-user mode; press ^C to stop.\n");
-   server(processInput);
+   processInputAndLog(argv[1], 0);
+   server(processInputAndLog);
+   processInputAndLog(NULL, 0);
    printConsole("\nBye!\n");
    return 0;
 }

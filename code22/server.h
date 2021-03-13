@@ -1,1 +1,1 @@
-extern void server(bool (*action)(char *, int));
+extern void server(void (*action)(char *, int));

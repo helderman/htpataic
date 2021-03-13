@@ -22,15 +22,15 @@ static void disconnect(CLIENT *client)
    }
 }
 
-void server(bool (*action)(char *, int))
+void server(void (*action)(char *, int))
 {
+   CLIENT *client;
+   int i;
    struct sockaddr_in address;
    int listener = tcpListen(&address, PORT);
-   int i;
-   CLIENT *client;
-   clientInit();
+   if (listener == -1) return;
 
-   for (breakInit(); breakTest(); )
+   for (clientInit(), breakInit(); breakTest(); )
    {
       fd_set fds;
       int fd = listener;

@@ -22,6 +22,7 @@ typedef struct
 
 static int executeQuit(void)
 {
+   printPrivate("To leave the game, press Ctrl and ], then enter quit.\n");
    return -1;
 }
 

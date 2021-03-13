@@ -44,7 +44,7 @@ void telnetDeletePrompt(INBUF *inbuf)
    outbufRewind(inbuf->index + sizeof prompt - 1);
 }
 
-void telnetParse(INBUF *inbuf, int fd, bool (*action)(char *, int),
+void telnetParse(INBUF *inbuf, int fd, void (*action)(char *, int),
                  const char *data, int length)
 {
    int i;

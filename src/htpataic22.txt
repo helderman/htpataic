@@ -132,11 +132,11 @@ function <i>server</i> has a function pointer <i>action</i> as its parameter.
 Through this parameter,
 we will inject the game engine we have created in the previous chapters.
 </li>
-<li>Line 27-28:
+<li>Line 29-31:
 we start by setting up a listening
 <a href="https://en.wikipedia.org/wiki/Network_socket">socket</a>.
 </li>
-<li>Line 33-87:
+<li>Line 33-91:
 this is the main loop of the game server.
 We could stay here forever,
 but sooner or later we will be forced to leave by a signal, or by an error.
@@ -188,7 +188,7 @@ it will be persisted here.
 in this context, no data means the client is disconnecting,
 i.e. the user has closed the Telnet client.
 </li>
-<li>Line 92-93:
+<li>Line 93-94:
 when leaving the main loop, close all remaining sockets.
 </li>
 </ul>
@@ -214,23 +214,34 @@ For readability, I implemented a number of functions in a separate module.
 Explanation:
 </p>
 <ul>
-<li>Line 23:
+<li>Line 9-13:
+a little helper function to print an error message to
+<a href="https://en.wikipedia.org/wiki/Standard_streams#Standard_error_(stderr)">stderr</a>
+in case a
+<a href="https://en.wikipedia.org/wiki/System_call">system call</a>
+fails.
+</li>
+<li>Line 25:
 calling system call <i>socket</i>.
 </li>
-<li>Line 29:
+<li>Line 31:
 calling system call <i>bind</i>.
 </li>
-<li>Line 30:
+<li>Line 32:
 calling system call <i>listen</i>.
 </li>
-<li>Line 43:
+<li>Line 53:
 calling system call
 <a href="https://en.wikipedia.org/wiki/Select_(Unix)">select</a>.
 </li>
-<li>Line 49:
+<li>Line 59:
 calling system call <i>accept</i>.
 </li>
-<li>Line 52-59:
+<li>Lines 42, 53, 59:
+<i>tcpListen</i>, <i>tcpSelect</i> and <i>tcpAccept</i>
+follow the convention of returning -1 in case of an error.
+</li>
+<li>Line 62-69:
 function <i>tcpSend</i> will be used later in this chapter
 to send output to client sockets.
 </li>
@@ -350,6 +361,14 @@ Output may need to go to more than one client.
 Explanation:
 </p>
 <ul>
+<li>Line 10:
+a little helper
+<a href="https://en.wikipedia.org/wiki/Macro_(computer_science)">macro</a>
+for injecting
+<a href="https://en.wikipedia.org/wiki/Boilerplate_code">boilerplate code</a>
+in
+<a href="https://en.wikipedia.org/wiki/Variadic_function">variadic functions</a>.
+</li>
 <li>Line ?:
 ?
 </li>
@@ -464,7 +483,8 @@ or with a secure tunnel (through
 <li>Vulnerable to
 <a href="https://en.wikipedia.org/wiki/Man-in-the-middle_attack">man-in-the-middle attacks</a>.
 Again, a user&rsquo;s password could be intercepted.
-To mitigate that, you&rsquo;d need certificates.
+To mitigate that, you&rsquo;d need a
+<a href="https://en.wikipedia.org/wiki/Public_key_certificate">digital certificate</a>.
 </li>
 <li>Does not
 <a href="https://en.wikipedia.org/wiki/Scalability">scale</a>

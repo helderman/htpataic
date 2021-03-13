@@ -1,4 +1,8 @@
-- ch22: log, with 'play' commands; and only if player != nobody
+- HTML file is not rebuilt if dependency file is missing
+- mention GitHub URL as the most up-to-date one; update hccnet.nl
+- -Wpedantic should be -pedantic
+- get rid of C++ comments (//)
+- test.sh chmod?
 - real-time: separate chapter?
 - ch20: make isHolding static; it's used in ch20 in turn.c and damage.c, but they are similar; move to misc.c
   - hmm, misc.c is already 98 lines

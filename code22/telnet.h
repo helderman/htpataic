@@ -13,5 +13,5 @@ extern void telnetInsertSpaces(INBUF *inbuf);
 extern void telnetDeleteSpaces(INBUF *inbuf);
 extern void telnetAppendPrompt(INBUF *inbuf);
 extern void telnetDeletePrompt(INBUF *inbuf);
-extern void telnetParse(INBUF *inbuf, int fd, bool (*action)(char *, int),
+extern void telnetParse(INBUF *inbuf, int fd, void (*action)(char *, int),
                         const char *data, int length);
