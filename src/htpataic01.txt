@@ -52,6 +52,7 @@ if you intend to write your own adventure:
 use one of the many dedicated
 <a href="http://en.wikipedia.org/wiki/Text_adventure#Development_systems">development systems</a>.
 </p>
+<h3>Why C</h3>
 <p>
 But then, why this tutorial?
 Why write an adventure game using a
@@ -63,26 +64,50 @@ may not be the most obvious choice for writing a text adventure;
 it&rsquo;s nothing like LISP-based languages like
 <a href="http://en.wikipedia.org/wiki/MDL_programming_language">MDL</a> and
 <a href="http://en.wikipedia.org/wiki/Zork_Implementation_Language">ZIL</a>.
-But while writing my own humble text adventure,
-I learned that C fits the bill quite well.
+Some people will claim C is not even a general-purpose language.
+I disagree; maybe it <i>should</i> not have become a general-purpose language,
+but it most certainly did.
 </p>
 <p>
-The ideas you find here apply not only to C
-but to other programming languages as well.
+Yes, there are general-purpose programming languages
+that are better than C in terms of maintainability and reliability.
+The ideas proposed here apply equally well to those languages.
 If you prefer
-<a href="http://en.wikipedia.org/wiki/Java_(programming_language)">Java</a>
+<a href="http://en.wikipedia.org/wiki/Java_(programming_language)">Java</a>,
+<a href="https://en.wikipedia.org/wiki/C_Sharp_(programming_language)">C#</a>
 or
 <a href="http://en.wikipedia.org/wiki/Python_(programming_language)">Python</a>
 over C, it should not be too difficult to translate my code samples.
 </p>
 <p>
-I tried to keep this tutorial readable for a broad audience,
+My choice for C is a personal one.
+I know the language well, and I like it a lot.
+But more importantly, C is close to the metal.
+I have always admired pioneers like
+<a href="https://en.wikipedia.org/wiki/Scott_Adams_(game_designer)">Scott Adams</a>
+who managed to bring the adventure game genre to the early
+<a href="https://en.wikipedia.org/wiki/Home_computer">home computers</a>,
+despite extreme memory constraints.
+The best of these attempts were written in
+<a href="https://en.wikipedia.org/wiki/Assembly_language">assembly language</a>,
+so I was curious how far I could get in a language that was originally
+designed as a portable alternative for assembly.
+This may feel like cheating: most
+<a href="https://en.wikipedia.org/wiki/8-bit_computing">8-bit</a>
+computers did not have an (optimizing) C
+<a href="http://en.wikipedia.org/wiki/Compiler">compiler</a>.
+But assuming we will not be relying on advanced
+<a href="https://en.wikipedia.org/wiki/Library_(computing)">libraries</a>,
+C maps pretty well to assembly, even if you have to do so by hand.
+</p>
+<h3>Incremental development</h3>
+<p>
+I will try to keep this story readable for a broad audience,
 without too much off-topic elaboration.
 For terms that might warrant further explanation,
 please follow the hyperlinks to relevant
 <a href="http://en.wikipedia.org/wiki/Wikipedia">Wikipedia</a> articles.
 </p>
-<h3>Incremental development</h3>
 <p>
 Throughout this tutorial,
 we will be developing a fully functional text adventure game.

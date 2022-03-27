@@ -13,7 +13,6 @@
 
 - ch19: noun.c is 109 lines
 
-- stdbool not included everywhere; is it even necessary?
 - ch17: do a serious performance test!
   - ch10 already mentions ch17 to cover performance
   - and mention loops --> getDistance --> overthere loop
