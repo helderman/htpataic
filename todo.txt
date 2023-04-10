@@ -11,6 +11,7 @@
 + a chapter about multiplayer
   - actorHere is not aware of duplicates yet; maybe let noun.c accept null tag? Or a special tag "person" or "character" or "anyone"?
 
+- ch22: tab does not overwrite/erase characters like space does
 - ch19: noun.c is 109 lines
 
 - ch17: do a serious performance test!

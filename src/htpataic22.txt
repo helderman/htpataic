@@ -297,7 +297,7 @@ and it prevents server output
 (which <i>could</i> be pushed at any time by activity from other users)
 getting mixed up with
 <a href="https://en.wikipedia.org/wiki/Echo_(computing)">echo</a>
-on the same line in the Telnet client.
+on the same text line in the client&rsquo;s Telnet window.
 </p>
 <table class="code"><tr>
 <th>telnet.h</th>
@@ -317,6 +317,10 @@ on the same line in the Telnet client.
 Explanation:
 </p>
 <ul>
+<li>Line 15-22:
+Telnet commands that will be sent from server to client
+as soon as a connection has been made.
+</li>
 <li>Line 18:
 <i>DO LINEMODE</i>.
 Server is telling client that linemode must <i>not</i> be used.
@@ -332,16 +336,85 @@ Server is telling client that server will
 every character sent by client (i.e. typed in by user).
 That way, the Telnet client knows it must <i>not</i> do a local echo.
 </li>
-<li>Line ?:
-?
+<li>Line 24-29:
+function <i>telnetInsertSpaces</i> outputs a sequence of
+<a href="https://en.wikipedia.org/wiki/Whitespace_character">whitespace</a>
+characters to erase the current line of text from the Telnet window.
+The first character is always a
+<a href="https://en.wikipedia.org/wiki/Carriage_return">carriage return</a>,
+causing the subsequent spaces to overwrite the current prompt
+as well as any characters typed in by the user.
+The final character being output is also a carriage return,
+so that any subsequent text output by the server will be displayed
+on the same line of the Telnet window, starting from the left border.
+This is used by <i>print.c</i> (see below)
+to re-arrange lines of text on the Telnet window.
+Note: I could output Telnet&rsquo;s &lsquo;Erase Line&rsquo; command
+instead, but I am not sure this is implemented by every Telnet client.
 </li>
-<li>Line ?:
-?
+<li>Line 31-34:
+function <i>telnetDeleteSpaces</i> reverts the effect of
+<i>telnetInsertSpaces</i>.
+</li>
+<li>Line 36-40:
+function <i>telnetAppendPrompt</i>
+outputs not only the prompt,
+but also any characters typed in by the user following the prompt.
+This is useful as both may have been wiped from the Telnet window
+by function <i>telnetInsertSpaces</i>.
+</li>
+<li>Line 42-45:
+function <i>telnetDeletePrompt</i> reverts the effect of
+<i>telnetAppendPrompt</i>.
+</li>
+<li>Line 47-93:
+function <i>telnetParse</i>
+processes the user input read from the socket.
+</li>
+<li>Line 55-63:
+Telnet commands in user input are ignored,
+but as these commands span multiple characters,
+we need some logic to skip them.
+The <i>INBUF</i> structure has two fields to keep track of this:
+<i>iac</i> is set after reading 0xFF
+to indicate the next character must be &lsquo;interpreted as command&rsquo;,
+and <i>negotiate</i> is used to detect and skip subnegotiations.
+</li>
+<li>Line 64-73:
+when the user presses enter, we let the game engine (parameter <i>action</i>)
+execute a single command (the client&rsquo;s input buffer)
+and send responses back to the relevant client sockets.
+After that, the input buffer is cleared and a new prompt is sent to the client.
+</li>
+<li>Line 74-82:
+pressing
+<a href="https://en.wikipedia.org/wiki/Backspace">backspace</a>
+or
+<a href="https://en.wikipedia.org/wiki/Delete_character">delete</a>
+will cause the last character to be removed from the input buffer
+and erased from the screen (by overwriting it with a
+<a href="https://en.wikipedia.org/wiki/Whitespace_character">whitespace</a>
+character).
+Note: I could output Telnet&rsquo;s &lsquo;Erase Character&rsquo; command
+instead, but I am not sure this is implemented by every Telnet client.
+</li>
+<li>Line 83-90:
+printable ASCII characters are stored in the client&rsquo;s input buffer.
+Characters will be discarded if necessary to prevent buffer overflow.
+Non-ASCII characters (other than the Telnet commands) are discarded as well;
+I have not implemented
+<a href="https://en.wikipedia.org/wiki/Unicode">Unicode</a>
+support yet.
 </li>
 </ul>
 </div>
 <p>
-Output may need to go to more than one client.
+Output produced by the game, should be written to sockets rather than
+<a href="https://en.wikipedia.org/wiki/Standard_streams#Standard_output_(stdout)">standard output</a>.
+This is less straightforward than it seems.
+When two or more players are in the same room,
+then the actions of one player should be reported to all.
+So output may need to go to more than one client.
 </p>
 <table class="code"><tr>
 <th>print.h</th>
@@ -369,16 +442,46 @@ for injecting
 in
 <a href="https://en.wikipedia.org/wiki/Variadic_function">variadic functions</a>.
 </li>
-<li>Line ?:
-?
+<li>Line 12:
+the game starts in single-user mode, with all output going to
+<a href="https://en.wikipedia.org/wiki/Standard_streams#Standard_output_(stdout)">stdout</a>.
+Once our TCP server is running, this variable will be continuously overwritten
+with the file descriptor of the socket owned by the client being serviced.
+Our code is single-threaded, so we can get away with using a static variable.
 </li>
-<li>Line ?:
-?
+<li>Line 19-49:
+function <i>printDemux</i> acts like a
+<a href="https://en.wikipedia.org/wiki/Multiplexer">demultiplexer</a>.
+Output that has been produced by the game
+and buffered by <i>outbuf.c</i> (see below),
+is being sent to one or more clients
+by repeatedly calling <i>outbufFlush</i>, each time with a different socket.
+</li>
+<li>Line 40-44:
+functions from <i>telnet.c</i> are used
+to keep input and output apart on the same Telnet window.
+This is not necessary for the client who initiated the output;
+that user has just finished entering a command,
+and a new input prompt has not been displayed yet,
+so it is safe to directly send the output (line 36).
+</li>
+<li>Line 62-63:
+this changes simple sentences from second person to third person perspective.
+For example, &ldquo;You go north&rdquo;
+will be changed to &ldquo;You see Jack go north.&rdquo;
+The former sentence will be sent to the player who entered the command
+(&ldquo;go north&rdquo;),
+the latter to other players present in the same location.
 </li>
 </ul>
 </div>
 <p>
-Making output ready to be sent to a socket.
+The game engine is never sending output
+directly to any sockets or other file handles.
+Instead, everything is sent to an output buffer.
+This makes it possible to manipulate the text
+before sending it off to the various sockets,
+as seen in <i>telnet.c</i> and <i>print.c</i> (above).
 </p>
 <table class="code"><tr>
 <th>outbuf.h</th>
@@ -398,16 +501,26 @@ Making output ready to be sent to a socket.
 Explanation:
 </p>
 <ul>
-<li>Line ?:
-?
+<li>Line 14-17:
+function <i>asSpace</i> translates a character to a
+<a href="https://en.wikipedia.org/wiki/Whitespace_character">whitespace</a>
+character that can be used to overwrite (erase) the character.
+Most ASCII characters can be overwritten with
+<a href="https://en.wikipedia.org/wiki/Space_(punctuation)">space</a>,
+but a
+<a href="https://en.wikipedia.org/wiki/Tab_key#Tab_characters">tab</a>
+should be overwritten with another tab, to match its size on screen.
 </li>
-<li>Line ?:
-?
+<li>Line 98:
+this is where the contents of the output buffer
+are actually sent off to a socket or to
+<a href="https://en.wikipedia.org/wiki/Standard_streams#Standard_output_(stdout)">stdout</a>.
 </li>
 </ul>
 </div>
 <p>
-Allow for a graceful exit
+The following module allows for
+a graceful exit from the server&rsquo;s main loop
 in case the process is forced to stop by an outside signal.
 </p>
 <table class="code"><tr>
@@ -428,17 +541,33 @@ in case the process is forced to stop by an outside signal.
 Explanation:
 </p>
 <ul>
-<li>Line ?:
-?
+<li>Line 7-10:
+function <i>handler</i> is automatically called when the program receives
+one of the signals specified in function <i>breakInit</i>.
 </li>
-<li>Line ?:
-?
+<li>Line 17-18:
+<a href="https://en.wikipedia.org/wiki/Signal_(IPC)#SIGINT">SIGINT</a> and
+<a href="https://en.wikipedia.org/wiki/Signal_(IPC)#SIGTERM">SIGTERM</a>
+are caught to allow the server to stop by the normal flow of the program.
+</li>
+<li>Line 21-24:
+the program must regularly call function <i>breakTest</i>.
+As long as the function returns <i>true</i>, it is safe to continue.
+As soon as the function returns <i>false</i>,
+the program should finish its current activity and exit as soon as possible.
 </li>
 </ul>
 </div>
 <p>
-Start running the server after an initial single-user session
-allowing the game administrator to set up things in the game.
+So we now have a new multi-user game loop (the TCP server),
+but that does not mean we will discard the original single-user game loop.
+We still need this loop to resume a saved game, as discussed in chapter 16.
+After the log file of an earlier game session has been processed,
+it is even possible to enter additional commands manually,
+but in most cases, you will want to exit this loop right away
+by entering &lsquo;quit&rsquo; or pressing
+<a href="https://en.wikipedia.org/wiki/End-of-file">EOF</a>.
+The program will then continue to start up its TCP server.
 </p>
 <table class="code"><tr>
 <th>main.c</th>
@@ -452,11 +581,24 @@ allowing the game administrator to set up things in the game.
 Explanation:
 </p>
 <ul>
-<li>Line ?:
-?
+<li>Line 60-82:
+function <i>processInputAndLog</i>
+is a wrapper around <i>processInput</i>
+that logs every command of every player while in multi-user mode.
+In single-user mode,
+it is more convenient to do the logging in function <i>getInput</i>,
+as we need to make the switch there
+between reading from and writing to the log (line 48-49).
 </li>
-<li>Line ?:
-?
+<li>Line 90:
+the initial single-user game loop.
+</li>
+<li>Line 93:
+this is the multi-user game loop.
+It will continue running until the program receives a signal
+from the administrator or from the
+<a href="https://en.wikipedia.org/wiki/Operating_system">OS</a>
+(see <i>break.c</i> above).
 </li>
 </ul>
 </div>
@@ -493,8 +635,9 @@ well. First of all,
 suffers from the
 <a href="https://en.wikipedia.org/wiki/C10k_problem">C10k problem</a>
 and should be replaced by
-<a href="https://en.wikipedia.org/wiki/Kqueue">kqueue</a> or
-<a href="https://en.wikipedia.org/wiki/Epoll">epoll</a>.
+<a href="https://en.wikipedia.org/wiki/Poll_(Unix)">poll</a>,
+<a href="https://en.wikipedia.org/wiki/Epoll">epoll</a> or
+<a href="https://en.wikipedia.org/wiki/Kqueue">kqueue</a>.
 Secondly, it is not straightforward to scale out to multiple
 <a href="https://en.wikipedia.org/wiki/Node_(networking)">nodes</a>.
 A solution might be to partition the game into multiple &lsquo;worlds.&rsquo;

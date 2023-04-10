@@ -58,7 +58,7 @@ in case some legacy compiler does not support <i>stdbool.h</i>
 <a href="https://en.wikipedia.org/wiki/C99">C99</a>),
 please be informed that you can easily do without;
 just replace all instances of <i>bool</i>, <i>true</i> and <i>false</i>
-by <i>int</i>, 1 and 0, respectively.
+with <i>int</i>, 1 and 0, respectively.
 </li>
 <li>Line 5:
 string buffer to collect keyboard input.
