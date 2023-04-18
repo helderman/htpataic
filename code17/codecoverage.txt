@@ -54,4 +54,3 @@ File 'toggle.c'
 Lines executed:85.37% of 41
 Creating 'toggle.c.gcov'
 
-Lines executed:91.38% of 383

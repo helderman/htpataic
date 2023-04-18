@@ -101,7 +101,8 @@ around
 the <i>de facto</i> standard for a
 <a href="https://en.wikipedia.org/wiki/Client%E2%80%93server_model">client-server</a>
 application.
-Fortunately, code samples can be found anywhere on the internet.
+Fortunately, code samples can be found anywhere on the internet; even in
+<a href="https://en.wikipedia.org/wiki/Select_(Unix)">the Wikipedia article about select</a>.
 </p>
 <table class="code"><tr>
 <th>server.h</th>
@@ -127,68 +128,68 @@ that was not already in use by any popular online game.
 Users need this number, as well as your server&rsquo;s
 (external) IP address, to connect to your game.
 </li>
-<li>Line 25:
+<li>Line 15:
 function <i>server</i> has a function pointer <i>action</i> as its parameter.
 Through this parameter,
 we will inject the game engine we have created in the previous chapters.
 </li>
-<li>Line 29-31:
+<li>Line 19-21:
 we start by setting up a listening
 <a href="https://en.wikipedia.org/wiki/Network_socket">socket</a>.
 </li>
-<li>Line 33-91:
+<li>Line 23-84:
 this is the main loop of the game server.
 We could stay here forever,
 but sooner or later we will be forced to leave by a signal, or by an error.
 </li>
-<li>Line 35-43:
+<li>Line 25-33:
 we build up a collection of clients that are currently connected.
 </li>
-<li>Line 44:
+<li>Line 34:
 here, the process waits until some activity is detected from any of the clients.
 If an error occurs, we will leave the loop. This will end the game.
 </li>
-<li>Line 46:
+<li>Line 36:
 activity on the listening socket means a new client is connecting to the server.
 </li>
-<li>Line 48-66:
+<li>Line 38-58:
 the new client is welcomed.
 </li>
-<li>Line 68:
+<li>Line 60:
 looping through all the clients that are currently connected.
 </li>
-<li>Line 70:
+<li>Line 62:
 any activity from this client?
 </li>
-<li>Line 73:
+<li>Line 65:
 calling
 <a href="https://en.wikipedia.org/wiki/Read_(system_call)">read</a>
 to receive data from the client&rsquo;s
 <a href="https://en.wikipedia.org/wiki/Network_socket">socket</a>.
 Here we pull in everything typed in by a user.
 </li>
-<li>Line 76:
+<li>Line 68:
 in the previous chapter,
 we changed <i>player</i> from a fixed object into a variable.
 Here, we use this to switch to the correct
 <a href="https://en.wikipedia.org/wiki/Player_character">player character</a>.
 </li>
-<li>Line 78:
+<li>Line 70:
 this is the heart of the server.
 It processes the client&rsquo;s input (<i>buffer</i>)
 by letting our game engine (parameter <i>action</i>) execute each command,
 sending responses back to client sockets.
 </li>
-<li>Line 79-83:
-when a client first connects, they will be nobody (see line 58).
+<li>Line 71-75:
+when a client first connects, they will be nobody (see line 48).
 Once the game engine has established who you are,
 it will be persisted here.
 </li>
-<li>Line 85-88:
+<li>Line 77-81:
 in this context, no data means the client is disconnecting,
 i.e. the user has closed the Telnet client.
 </li>
-<li>Line 93-94:
+<li>Line 86-90:
 when leaving the main loop, close all remaining sockets.
 </li>
 </ul>
@@ -241,7 +242,7 @@ calling system call <i>accept</i>.
 <i>tcpListen</i>, <i>tcpSelect</i> and <i>tcpAccept</i>
 follow the convention of returning -1 in case of an error.
 </li>
-<li>Line 62-69:
+<li>Line 71-78:
 function <i>tcpSend</i> will be used later in this chapter
 to send output to client sockets.
 </li>

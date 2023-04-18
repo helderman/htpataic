@@ -59,6 +59,15 @@ int tcpAccept(struct sockaddr_in *addr, int listener)
    return assert("accept", accept(listener, (struct sockaddr *)addr, &len));
 }
 
+void tcpDisconnect(int fd)
+{
+   if (fd != -1)
+   {
+      close(fd);
+      printConsole("Socket %d disconnected.\n", fd);
+   }
+}
+
 void tcpSend(int fd, const char *data, int len)
 {
    int written;

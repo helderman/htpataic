@@ -12,16 +12,6 @@
 
 #define PORT  18811
 
-static void disconnect(CLIENT *client)
-{
-   if (client->fd != -1)
-   {
-      close(client->fd);
-      printConsole("Socket %d disconnected.\n", client->fd);
-      client->fd = -1;
-   }
-}
-
 void server(void (*action)(char *, int))
 {
    CLIENT *client;
@@ -58,12 +48,14 @@ void server(void (*action)(char *, int))
             client->obj = nobody;
             telnetInit(&client->inbuf);
             telnetAppendPrompt(&client->inbuf);
+            outbufFlush(fd);
          }
          else
          {
             outbufFormat("All sockets occupied, please try again later.\n");
+            outbufFlush(fd);
+            tcpDisconnect(fd);
          }
-         outbufFlush(fd);
       }
       for (i = 0; breakTest() && (client = clientGet(i)) != NULL; i++)
       {
@@ -84,12 +76,16 @@ void server(void (*action)(char *, int))
             }
             else if (len == 0)   
             {
-               disconnect(client);
+               tcpDisconnect(client->fd);
+               client->fd = -1;
             }
          }
       }
    }
    printConsole("Interrupted by signal %d.\n", breakSignalNumber());
-   for (i = 0; (client = clientGet(i)) != NULL; i++) disconnect(client);
+   for (i = 0; (client = clientGet(i)) != NULL; i++)
+   {
+      tcpDisconnect(client->fd);
+   }
    tcpClose(listener, PORT);
 }

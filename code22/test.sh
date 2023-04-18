@@ -1,6 +1,6 @@
 #!/bin/bash
-./lilcave.testable <<<'' > /dev/null &
+./lilcave.testable <<<'' 1>&2 &
 MYPID=$!
-tr '\n' '\r' < "$1" | pv -qL 20 | nc -N localhost 18811
-kill $MYPID
 sleep 1
+nc -Cw0 localhost 18811 < "$1"
+kill $MYPID
