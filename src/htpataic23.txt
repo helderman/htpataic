@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>23. Database</title>
+<title>23. WebSockets</title>
 <link rel="stylesheet" href="htpataic.css" type="text/css" />
 </head>
 <body>
@@ -18,19 +18,245 @@ by Ruud Helderman
 Licensed under
 <a href="https://github.com/helderman/htpataic/blob/master/LICENSE">MIT License</a>
 </p>
-<h2>23. Database</h2>
+<h2>23. WebSockets</h2>
 <p class="intro">
-TODO
+<a href="https://en.wikipedia.org/wiki/Telnet">Telnet</a>
+uses
+<a href="https://en.wikipedia.org/wiki/Berkeley_sockets">Berkeley sockets</a>
+to implement two-way communication between client and server.
+Modern
+<a href="https://en.wikipedia.org/wiki/Web_browser">web browsers</a>
+have something similar:
+<a href="https://en.wikipedia.org/wiki/WebSocket">WebSockets</a>.
 </p>
 <p>
-TODO
+In the previous chapter, we turned our text adventure into an online multi-player experience.
+To play the game, you needed a Telnet client.
+A Telnet client can still be found on most computers,
+but most computer users have never used it, and are not even aware it is there.
+But that is probably best for the safety of all.
+Securing a Telnet connection takes effort and skill;
+users are likely to give up, or worse, mess up.
+</p>
+<p>
+Today, web browsers are the ubiquitous internet clients.
+Browsing the
+<a href="https://en.wikipedia.org/wiki/World_Wide_Web">world wide web</a>,
+we take for granted the security measures offered by modern web browsers.
+Wherever you go,
+<a href="https://en.wikipedia.org/wiki/Cryptographic_protocol">encrypted connections</a>
+and
+<a href="https://en.wikipedia.org/wiki/Public_key_certificate">digital certificates</a>
+help protect your digital identity.
+</p>
+<p>
+So let&rsquo;s see if we can use a web browser instead of a Telnet client.
+To make a web browser talk to our game server, they both need to use WebSockets.
+We need to do two things:
+</p>
+<ol type="1">
+<li>Build a <b>WebSocket client</b>.
+</li>
+<li>Turn our
+<a href="https://en.wikipedia.org/wiki/Transmission_Control_Protocol">TCP</a>
+server into a <b>WebSocket server</b>.
+</li>
+</ol>
+<p>
+The first part is easy.
+A WebSocket client is basically a web page; it is the player&rsquo;s user interface.
+<a href="https://en.wikipedia.org/wiki/JavaScript">JavaScript</a>
+is what makes the communication happen.
+<a href="https://en.wikipedia.org/wiki/MDN_Web_Docs">MDN</a>
+has some excellent articles about WebSockets.
+This one describes how to implement a WebSocket client in JavaScript:<br>
+<a href="https://developer.mozilla.org/en-US/docs/Web/API/WebSockets_API/Writing_WebSocket_client_applications">https://developer.mozilla.org/en-US/docs/Web/API/WebSockets_API/Writing_WebSocket_client_applications</a>
+</p>
+<p>
+Based on that knowledge, I made the following
+<a href="https://en.wikipedia.org/wiki/HTML">HTML</a>
+file.
+When opened in a web browser, it will show a very basic
+<a href="https://en.wikipedia.org/wiki/Web_page">web page</a>.
+There is an input field for the player to enter commands.
+The rest of the page is used to print the responses coming back from the game server.
+</p>
+<table class="code"><tr>
+<th>www/index.html</th>
+</tr><tr>
+<td>
+#diff www/index.html
+</td>
+</tr></table>
+<div class="explanation">
+<p>
+Explanation:
+</p>
+<ul>
+<li>Line 1-2:
+minimal boilerplate intro for an
+<a href="https://en.wikipedia.org/wiki/HTML5">HTML5</a>
+file.
+</li>
+<li>Line 5:
+<a href="https://en.wikipedia.org/wiki/CSS">CSS</a>
+rule to prevent blank lines in the game&rsquo;s output from collapsing.
+</li>
+<li>Line 6-7:
+CSS styling for the input boxes.
+</li>
+<li>Line 8:
+initial text that will automatically disappear
+once the first piece of output text has been received from the game server.
+</li>
+<li>Line 11:
+output section; this is where all the game&rsquo;s output text is displayed.
+</li>
+<li>Line 12:
+input section; this is where the user can enter commands.
+</li>
+<li>Line 13-44:
+all JavaScript code is in this block.
+</li>
+<li>Line 15:
+the web socket has the same
+<a href="https://en.wikipedia.org/wiki/URL">URL</a>
+as the web page, only the protocol is different;
+so all we have to do is replace http with ws (or https with wss).
+</li>
+<li>Line 16:
+connecting to the server.
+For simplicity, we connect only when the page is opened;
+if players lose the connection, then they will have to refresh the page.
+</li>
+<li>Line 20:
+every time the web socket receives text from the server,
+we automatically call function &lsquo;print&rsquo; (line 29).
+</li>
+<li>Line 22-27:
+this function is automatically called every time the player enters a command.
+</li>
+<li>Line 23:
+retrieve the command from the input field.
+</li>
+<li>Line 24:
+clear the input field, so that it is ready for the next command to be typed in.
+</li>
+<li>Line 25:
+suppress the default behavior of the web browser to reload the entire page.
+</li>
+<li>Line 26:
+send the command through the web socket to the server.
+</li>
+<li>Line 30:
+text is sanitized (Telnet commands are removed), then split up into lines.
+</li>
+<li>Line 31-33:
+with Telnet, we wanted the server to send a
+<a href="https://en.wikipedia.org/wiki/Command-line_interface#Command_prompt">prompt</a>
+to the client.
+The web page does not need this; it discards the prompt,
+but does consider it as a hint that the next line of text could be an
+<a href="https://en.wikipedia.org/wiki/Echo_(computing)">echo</a>
+of the command entered by the user.
+</li>
+<li>Line 36-39:
+during the game, notifications about the activities of other players may be pushed to this client.
+With Telnet, such a message is preceded by whitespace characters to erase the prompt.
+The web page does not need this; we remove the clutter.
+</li>
+<li>Line 45:
+let the web browser automatically scroll to the bottom of the (ever growing) page;
+that is where the latest output is.
+</li>
+</ul>
+</div>
+<p>
+The next step is the server.
+MDN has this article that describes in full detail
+how to implement the WebSocket protocol
+around the Berkeley sockets we already implemented in the previous chapter.<br>
+<a href="https://developer.mozilla.org/en-US/docs/Web/API/WebSockets_API/Writing_WebSocket_servers">https://developer.mozilla.org/en-US/docs/Web/API/WebSockets_API/Writing_WebSocket_servers</a>
+</p>
+<p>
+It is doable, but still, it feels like a lot of work, and what for?
+Surely, I cannot be first person on earth that wants to make a translation
+between WebSocket traffic and standard Berkeley socket traffic.
+I went looking for something off-the-shelf.
+</p>
+<p>
+One possibility is a C library.
+I tried
+<a href="https://en.wikipedia.org/wiki/Mongoose_(web_server)">Mongoose</a>
+and it worked very well.
+Still, I did not like the many changes I had to make to my existing TCP server.
+In this article series, each chapter should be a small step forward.
+So I went looking for something less intrusive.
+</p>
+<p>
+I settled for
+<a href="https://github.com/novnc/websockify">websockify</a>.
+It is a straightforward command line tool.
+On a Linux server, there is a good chance
+you can install (and update) it straight from a repository.
+For example, here is how to install it on Ubuntu:
+</p>
+<table><tr>
+<td class="snippet">sudo apt install websockify
+</td>
+</tr></table>
+<p>
+There are two possible ways to use websockify.
+The first one is to let websockify and lilcave run side by side.
+</p>
+<table><tr>
+<td class="snippet">./lilcave &lt;&lt;&lt;quit &amp;
+websockify --web www 18812 localhost:18811
+</td>
+</tr></table>
+<p>
+This has the advantage that the same game is playable
+both from Telnet clients (port 18811) and from web clients (port 18812).
+If you do not care about Telnet support,
+then it is also possible to let websockify act as a wrapper around lilcave:
+</p>
+<table><tr>
+<td class="snippet">websockify --web ./www 18811 -- ../lilcave &lt;&lt;&lt;quit
+</td>
+</tr></table>
+<p>
+Open your web browser and navigate to
+<a href="http://localhost:18811/">http://localhost:18811/</a>.
+Enter some commands to see if it works.
+</p>
+<p>
+The final step is to expose your game to the outside world.
+</p>
+<p>
+How about self-hosting the game?
+Traditionally, you would configure port forwarding on your internet router.
+This has the disadvantage that every player needs to know your IP address.
+It is the digital equivalent of inviting the whole world to your home address.
+In today&rsquo;s world, it probably better to hide behind a proxy server.
+A very nice option is a Cloudflare tunnel.
+</p>
+<p>
+Do be careful, this game is written in
+<a href="https://en.wikipedia.org/wiki/C_(programming_language)">C</a>,
+and C is notorious for its lack of
+<a href="https://en.wikipedia.org/wiki/Memory_safety">memory safety</a>.
+A small bug in the program may be enough to allow a smart player
+to hack your entire computer via a carefully crafted command.
+</p>
+<p>
+Authentication is still missing in this game.
 </p>
 <hr />
 <table class="download"><tr><td>
 #zip
 </td></tr></table>
 <p>
-Next chapter: <a href="htpataic24.html">24. Speech</a>
+Next chapter: <a href="htpataic24.html">24. Database</a>
 </p>
 </body>
 </html>

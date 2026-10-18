@@ -629,6 +629,11 @@ Again, a user&rsquo;s password could be intercepted.
 To mitigate that, you&rsquo;d need a
 <a href="https://en.wikipedia.org/wiki/Public_key_certificate">digital certificate</a>.
 </li>
+<li>Vulnerable to
+<a href="https://en.wikipedia.org/wiki/Denial-of-service_attack">DOS attacks</a>.
+A single client can open an unlimited number of socket connections,
+up to a point where no other players can join.
+</li>
 <li>Does not
 <a href="https://en.wikipedia.org/wiki/Scalability">scale</a>
 well. First of all,
@@ -645,17 +650,18 @@ A solution might be to partition the game into multiple &lsquo;worlds.&rsquo;
 </li>
 </ul>
 <p>
-It would make more sense to turn the whole game into a web application.
-For that, it&rsquo;s probably best to port the program to
-a different programming language, for example JavaScript.
-We will give that a shot in chapter 25.
+Telnet is part of the problem.
+Most Telnet implementations did not keep up with today&rsquo;s security demands.
+So despite the sentimental value of Telnet,
+it would make more sense to turn our game into a web application.
+We will make that happen in the next chapter.
 </p>
 <hr />
 <table class="download"><tr><td>
 #zip
 </td></tr></table>
 <p>
-Next chapter: <a href="htpataic23.html">23. Database</a>
+Next chapter: <a href="htpataic23.html">23. WebSockets</a>
 </p>
 </body>
 </html>

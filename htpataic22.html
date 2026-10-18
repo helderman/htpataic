@@ -29,9 +29,9 @@
 <div><a href="htpataic20.html">20. Combat</a></div>
 <div><a href="htpataic21.html">21. Multi-player</a></div>
 <div><b>22. Client-server</b></div>
-<div><a href="htpataic23.html">23. Database</a></div>
-<div><a href="htpataic24.html">24. Speech</a></div>
-<div><a href="htpataic25.html">25. JavaScript</a></div>
+<div><a href="htpataic23.html">23. WebSockets</a></div>
+<div><a href="htpataic24.html">24. Database</a></div>
+<div><a href="htpataic25.html">25. Speech</a></div>
 </td></tr></table>
 
 <h1>How to program a text adventure in C</h1>
@@ -1339,6 +1339,11 @@ Again, a user&rsquo;s password could be intercepted.
 To mitigate that, you&rsquo;d need a
 <a href="https://en.wikipedia.org/wiki/Public_key_certificate">digital certificate</a>.
 </li>
+<li>Vulnerable to
+<a href="https://en.wikipedia.org/wiki/Denial-of-service_attack">DOS attacks</a>.
+A single client can open an unlimited number of socket connections,
+up to a point where no other players can join.
+</li>
 <li>Does not
 <a href="https://en.wikipedia.org/wiki/Scalability">scale</a>
 well. First of all,
@@ -1355,10 +1360,11 @@ A solution might be to partition the game into multiple &lsquo;worlds.&rsquo;
 </li>
 </ul>
 <p>
-It would make more sense to turn the whole game into a web application.
-For that, it&rsquo;s probably best to port the program to
-a different programming language, for example JavaScript.
-We will give that a shot in chapter 25.
+Telnet is part of the problem.
+Most Telnet implementations did not keep up with today&rsquo;s security demands.
+So despite the sentimental value of Telnet,
+it would make more sense to turn our game into a web application.
+We will make that happen in the next chapter.
 </p>
 <hr />
 <table class="download"><tr><td>
@@ -1366,7 +1372,7 @@ We will give that a shot in chapter 25.
 <a class="button" href="https://repl.it/github/helderman/htpataic">&#x1F300; &nbsp; Run on Repl.it</a>
 </td></tr></table>
 <p>
-Next chapter: <a href="htpataic23.html">23. Database</a>
+Next chapter: <a href="htpataic23.html">23. WebSockets</a>
 </p>
 </body>
 </html>

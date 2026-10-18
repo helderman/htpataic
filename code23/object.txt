@@ -1,0 +1,309 @@
+#include <stdbool.h>
+#include <stdio.h>
+#include "object.h"
+#include "toggle.h"
+
+typedef struct object {
+   bool         (*condition)(void);
+   const char    *description;
+   const char   **tags;
+   struct object *location;
+   struct object *destination;
+   struct object *prospect;
+   const char    *details;
+   const char    *contents;
+   const char    *textGo;
+   const char    *gossip;
+   int            weight;
+   int            capacity;
+   int            health;
+   int            light;
+   int            impact;
+   int            trust;
+   void         (*open)(void);
+   void         (*close)(void);
+   void         (*lock)(void);
+   void         (*unlock)(void);
+} OBJECT;
+
+extern OBJECT *player, objs[];
+
+- heaven
+     description "little heaven"
+     tags        "heaven", "little heaven"
+     details     "Everything looks so peaceful here."
+     gossip      "It's where all the good adventurers go."
+     capacity    9999
+     light       100
+
+- respawn
+     description "a respawn portal"
+     tags        "portal", "respawn portal"
+     location    heaven
+     destination field
+     details     "Looks like a gateway into the unknown."
+     textGo      "A bright flash of light, and you are back in the field."
+     open        isAlreadyOpen
+
+- heavenEWNS
+     description "nothing but peace and quiet"
+     tags        "east", "west", "north", "south"
+     location    heaven
+     textGo      "In this dimension, there are no directions."
+     gossip      "It's just a compass direction."
+
+- waitingRoom
+     description "the waiting room"
+     tags        "room", "waiting room"
+     details     "This is where everybody starts. Please enter: play YourName."
+     gossip      "It's where all the bad adventurers have to stay."
+     capacity    9999
+     light       100
+
+- waitingRoomWall
+     description "walls all around you"
+     tags        "wall", "east", "west", "north", "south"
+     location    waitingRoom
+     details     "Written on the wall, it says: play Jack or play Jill."
+     textGo      "You cannot go anywhere."
+
+- nobody
+     description "nobody"
+     tags        "nobody"
+     location    waitingRoom
+     details     "You are nobody. Please enter: play xxx"
+     contents    "You have"
+     health      100
+     capacity    1
+
+- field
+     description "an open field"
+     tags        "field"
+     details     "The field is a nice and quiet place under a clear blue sky."
+     gossip      "A lot of tourists go there."
+     capacity    9999
+     light       100
+
+- cave
+     description "a little cave"
+     tags        "cave"
+     details     "The cave is just a cold, damp, rocky chamber."
+     gossip      "It's dark in there; bring a lamp!"
+     capacity    9999
+
+- silver
+     description "a silver coin"
+     tags        "silver", "coin", "silver coin"
+     location    field
+     details     "The coin has an eagle on the obverse."
+     gossip      "Money makes the world go round..."
+     weight      1
+
+- gold
+     description "a gold coin"
+     tags        "gold", "coin", "gold coin"
+     location    openBox
+     details     "The shiny coin seems to be a rare and priceless artefact."
+     gossip      "Money makes the world go round..."
+     weight      1
+
+- guard
+     description "a burly guard"
+     tags        "guard", "burly guard"
+     location    field
+     details     "The guard is a really big fellow."
+     gossip      "Easy to bribe..."
+     contents    "He has"
+     health      100
+     impact      -1
+     capacity    20
+
+- jack
+     description "Jack"
+     tags        "jack", "warrior", "man"
+     location    field
+     details     "Jack is a fearsome warrior."
+     gossip      "Jack is a fearsome warrior."
+     contents    "Jack has"
+     health      100
+     impact      -1
+     capacity    20
+
+- jill
+     description "Jill"
+     tags        "jill", "valkyrie", "woman"
+     location    field
+     details     "Jill is a vicious valkyrie."
+     gossip      "Jill is a vicious valkyrie."
+     contents    "Jill has"
+     health      100
+     impact      -1
+     capacity    20
+
+- intoCave
+     condition   { return guard->health == 0 || silver->location == guard; }
+     description "a cave entrance to the east"
+     tags        "east", "entrance"
+     location    field
+     destination cave
+     details     "The entrance is just a narrow opening in a small outcrop."
+     textGo      "You walk into the cave."
+     open        isAlreadyOpen
+
+- intoCaveBlocked
+     condition   { return guard->health > 0 && silver->location != guard; }
+     description "a cave entrance to the east"
+     tags        "east", "entrance"
+     location    field
+     prospect    cave
+     details     "The entrance is just a narrow opening in a small outcrop."
+     textGo      "The guard stops you from walking into the cave."
+     open        isAlreadyOpen
+
+- exitCave
+     description "an exit to the west"
+     tags        "west", "exit"
+     location    cave
+     destination field
+     details     "Sunlight pours in through an opening in the cave's wall."
+     textGo      "You walk out of the cave."
+     open        isAlreadyOpen
+
+- wallField
+     description "dense forest all around"
+     tags        "west", "north", "south", "forest"
+     location    field
+     details     "The field is surrounded by trees and undergrowth."
+     textGo      "Dense forest is blocking the way."
+     gossip      "You cannot go there, it is impenetrable."
+
+- wallCave
+     description "solid rock all around"
+     tags        "east", "north", "rock"
+     location    cave
+     details     "Carved in stone is a secret password 'abccb'."
+     textGo      "Solid rock is blocking the way."
+
+- backroom
+     description "a backroom"
+     tags        "backroom"
+     details     "The room is dusty and messy."
+     gossip      "There is something of value to be found there."
+     capacity    9999
+
+- wallBackroom
+     description "solid rock all around"
+     tags        "east", "west", "south", "rock"
+     location    backroom
+     details     "Trendy wallpaper covers the rock walls."
+     textGo      "Solid rock is blocking the way."
+
+- openDoorToBackroom
+     description "an open door to the south"
+     tags        "south", "door", "doorway"
+     destination backroom
+     details     "The door is open."
+     textGo      "You walk through the door into a backroom."
+     open        isAlreadyOpen
+     close       toggleDoorToBackroom
+
+- closedDoorToBackroom
+     description "a closed door to the south"
+     tags        "south", "door", "doorway"
+     location    cave
+     prospect    backroom
+     details     "The door is closed."
+     textGo      "The door is closed."
+     open        toggleDoorToBackroom
+     close       isAlreadyClosed
+
+- openDoorToCave
+     description "an open door to the north"
+     tags        "north", "door", "doorway"
+     destination cave
+     details     "The door is open."
+     textGo      "You walk through the door into the cave."
+     open        isAlreadyOpen
+     close       toggleDoorToCave
+
+- closedDoorToCave
+     description "a closed door to the north"
+     tags        "north", "door", "doorway"
+     location    backroom
+     prospect    cave
+     details     "The door is closed."
+     textGo      "The door is closed."
+     open        toggleDoorToCave
+     close       isAlreadyClosed
+
+- openBox
+     description "a wooden box"
+     tags        "box", "wooden box"
+     details     "The box is open."
+     gossip      "You need a key to open it."
+     weight      5
+     capacity    10
+     open        isAlreadyOpen
+     close       toggleBox
+     lock        isStillOpen
+     unlock      isAlreadyOpen
+
+- closedBox
+     description "a wooden box"
+     tags        "box", "wooden box"
+     details     "The box is closed."
+     weight      5
+     open        toggleBox
+     close       isAlreadyClosed
+     lock        toggleBoxLock
+     unlock      isAlreadyUnlocked
+
+- lockedBox
+     description "a wooden box"
+     tags        "box", "wooden box"
+     location    backroom
+     details     "The box is closed."
+     weight      5
+     open        isStillLocked
+     close       isAlreadyClosed
+     lock        isAlreadyLocked
+     unlock      toggleBoxLock
+
+- keyForBox
+     description "a tiny key"
+     tags        "key", "tiny key"
+     location    cave
+     details     "The key is really small and shiny."
+     gossip      "A small key opens a small lock."
+     weight      1
+
+- lampOff
+     description "a lamp"
+     tags        "lamp"
+     location    field
+     details     "The lamp is off."
+     gossip      "Essential in dark areas."
+     weight      5
+
+- lampOn
+     description "a lamp"
+     tags        "lamp"
+     details     "The lamp is on."
+     weight      5
+     light       100
+
+- club
+     description "a wooden club"
+     tags        "club", "wooden club"
+     location    field
+     details     "Two feet of solid wood."
+     weight      5
+     impact      -2
+
+- dagger
+     description "a dagger"
+     tags        "dagger"
+     location    field
+     details     "The dagger is very sharp."
+     weight      7
+     impact      -5

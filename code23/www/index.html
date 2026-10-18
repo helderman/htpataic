@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<title>Little Cave Adventure</title>
+<style>
+   div    { min-height: 1em; }
+   div.in { border: thin solid silver; padding: 3px; }
+   .in    { margin: 1em 0; width: 100%; box-sizing: border-box; }
+   #output:empty:before { content: 'Waiting for connection...'; }
+</style>
+<h2>Little Cave Adventure</h2>
+<div id="output"></div>
+<form name="lilcave" action="#"><input name="in" class="in" autofocus></form>
+<script>
+   let prompt = false;
+   const url = window.location.href.replace('http', 'ws');
+   const ws = new WebSocket(url);
+   ws.onopen    = function() { console.info('Socket opened', event); };
+   ws.onclose   = function() { console.info('Socket closed', event); };
+   ws.onerror   = function() { console.error('Socket error', event); };
+   ws.onmessage = function() { event.data.text().then(print); };
+
+   lilcave.onsubmit = function() {
+      const input = this.elements.in.value;
+      this.reset();
+      event.preventDefault();
+      ws.send(new TextEncoder().encode(input + '\r'));
+   }
+
+   function print(text) {
+      for (let line of text.replace(/.*\x01/, '').trimEnd().split('\n')) {
+         if (line == '-->') {
+            prompt = true;
+         }
+         else {
+            const div = document.createElement('div');
+            const re = /\r\s*\r/;
+            if (re.test(line)) {
+               line = line.replace(re, '');
+            }
+            else if (prompt) {
+               div.className = 'in';
+            }
+            div.appendChild(document.createTextNode(line));
+            document.getElementById('output').appendChild(div);
+            window.scrollTo({top: document.body.scrollHeight, behavior: 'smooth'});
+            prompt = false;
+         }
+      }
+   }
+</script>

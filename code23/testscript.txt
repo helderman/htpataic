@@ -1,0 +1,11 @@
+play jack
+look around
+get lamp
+get coin
+give coin
+e
+turn lamp on
+get key
+open door
+s
+
