@@ -1,3 +1,5 @@
+# Build script for GNU make
+
 all: lilcave success.txt src.zip map.png
 
 C = object.c misc.c match.c noun.c toggle.c location.c move.c reach.c inventory.c inventory2.c openclose.c onoff.c expand.c parsexec.c main.c
@@ -28,7 +30,7 @@ map.png: map.gv
 map.gv: map.awk object.txt
 	awk -f map.awk object.txt > $@
 
-src.zip: $(C) $(H) object.txt makefile testscript.txt baseline.txt
+src.zip: $(C) $(H) object.txt CMakeLists.txt makefile testscript.txt baseline.txt
 	zip -rq $@ $^
 
 clean:

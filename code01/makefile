@@ -1,3 +1,5 @@
+# Build script for GNU make
+
 all: success.txt src.zip
 
 success.txt: lilcave testscript.txt baseline.txt
@@ -7,7 +9,7 @@ success.txt: lilcave testscript.txt baseline.txt
 lilcave: main.c
 	gcc -Wall -Wextra -Wpedantic -Werror main.c -o $@
 
-src.zip: main.c makefile testscript.txt baseline.txt
+src.zip: main.c CMakeLists.txt makefile testscript.txt baseline.txt
 	zip -rq $@ $^
 
 clean:

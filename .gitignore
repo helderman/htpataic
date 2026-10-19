@@ -10,3 +10,9 @@ lilcave.testable
 codecoverage.txt
 transcript.txt
 success.txt
+
+# Exclude CMake output in the code folders
+build/
+
+# Exclude Visual Studio Code stuff in the code folders
+.vscode/
