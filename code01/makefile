@@ -7,7 +7,7 @@ success.txt: lilcave testscript.txt baseline.txt
 	mv -f transcript.txt $@
 
 lilcave: main.c
-	gcc -Wall -Wextra -Wpedantic -Werror main.c -o $@
+	gcc -Wall -Wextra -Wpedantic -Wold-style-definition -Werror main.c -o $@
 
 src.zip: main.c CMakeLists.txt makefile testscript.txt baseline.txt
 	zip -rq $@ $^

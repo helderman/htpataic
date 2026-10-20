@@ -476,7 +476,7 @@ for our adventure might look like this:
 <li class="old">	mv -f transcript.txt $@</li>
 <li class="old"></li>
 <li class="old">lilcave: $(C) $(H)</li>
-<li class="old">	gcc -Wall -Wextra -Wpedantic -Werror $(C) -o $@</li>
+<li class="old">	gcc -Wall -Wextra -Wpedantic -Wold-style-definition -Werror $(C) -o $@</li>
 <li class="old"></li>
 <li class="new">object.h: object.awk object.txt</li>
 <li class="new">	awk -v pass=h -f object.awk object.txt &gt; $@</li>

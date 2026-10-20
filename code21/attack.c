@@ -7,7 +7,7 @@
 #include "reach.h"
 #include "damage.h"
 
-static OBJECT *victimHere()
+static OBJECT *victimHere(void)
 {
    OBJECT *victim = actorHere();
    if (victim == NULL)

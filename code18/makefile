@@ -15,7 +15,7 @@ lilcave.testable: $(C) $(H)
 	gcc --coverage $(C) -o $@
 
 lilcave: $(C) $(H)
-	gcc -Wall -Wextra -Wpedantic -Werror $(C) -o $@
+	gcc -Wall -Wextra -Wpedantic -Wold-style-definition -Werror $(C) -o $@
 
 object.h: object.awk object.txt
 	awk -v pass=h -f object.awk object.txt > $@

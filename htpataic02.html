@@ -82,7 +82,7 @@ which takes care of calling the other two functions repeatedly.</li>
 <li class="new">   return fgets(input, sizeof input, stdin) != NULL;</li>
 <li class="new">}</li>
 <li class="old"></li>
-<li class="old">int main()</li>
+<li class="old">int main(void)</li>
 <li class="old">{</li>
 <li class="old">   printf("Welcome to Little Cave Adventure.\n");</li>
 <li class="new">   while (parseAndExecute(input) &amp;&amp; getInput());</li>
